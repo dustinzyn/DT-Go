@@ -3,7 +3,7 @@ package middleware
 import (
 	"strings"
 
-	"Hive"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 
 	uuid "github.com/iris-contrib/go.uuid"
 	"github.com/kataras/iris/v12/context"

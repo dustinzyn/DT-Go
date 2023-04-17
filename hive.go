@@ -1,7 +1,6 @@
 package hive
 
 import (
-	"Hive/internal"
 	"io/ioutil"
 	"os"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/kataras/iris/v12/core/host"
 	"github.com/kataras/iris/v12/hero"
 
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
 	"gopkg.in/yaml.v3"
 )
 

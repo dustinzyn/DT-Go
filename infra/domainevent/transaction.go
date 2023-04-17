@@ -1,9 +1,9 @@
 package domainevent
 
 import (
-	"Hive"
-	"Hive/infra/transaction"
 	"database/sql"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/transaction"
 )
 
 func init() {

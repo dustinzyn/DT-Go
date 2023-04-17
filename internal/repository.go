@@ -9,7 +9,7 @@ import (
 	redis "github.com/go-redis/redis/v8"
 	iris "github.com/kataras/iris/v12"
 
-	"Hive/infra/requests"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/requests"
 )
 
 type Repository struct {

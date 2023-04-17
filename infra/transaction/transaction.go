@@ -7,12 +7,12 @@ Created by Dustin.zhu on 2022/11/1.
 */
 
 import (
-	"Hive"
 	"database/sql"
 	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 )
 
 func init() {

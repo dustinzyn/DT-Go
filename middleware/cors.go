@@ -1,9 +1,8 @@
 package middleware
 
 import (
-	"Hive"
-
 	"github.com/kataras/iris/v12/context"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 )
 
 func NewCors() context.Handler {

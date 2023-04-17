@@ -1,11 +1,11 @@
 package infra
 
 import (
-	"Hive"
 	"encoding/json"
 	"io/ioutil"
 
 	"gopkg.in/go-playground/validator.v9"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 )
 
 var validate *validator.Validate

@@ -7,7 +7,7 @@ import (
 
 	"github.com/kataras/iris/v12/context"
 
-	"Hive"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 )
 
 // NewRecover .

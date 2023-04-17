@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"sync"
 
-	"Hive"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 
 	"github.com/kataras/golog"
 )

@@ -7,10 +7,10 @@ Created by Dustin.zhu on 2022/11/1.
 package domainevent
 
 import (
-	"Hive"
 	"errors"
 	"time"
 
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"gorm.io/gorm"
 )
 

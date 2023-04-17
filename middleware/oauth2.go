@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	"Hive"
-	"Hive/errors"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -13,6 +11,8 @@ import (
 	"strings"
 
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/GoCommon/api"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 )

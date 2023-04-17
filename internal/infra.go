@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"Hive/infra/requests"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/requests"
 
 	redis "github.com/go-redis/redis/v8"
 )

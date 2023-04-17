@@ -9,7 +9,6 @@ Created by Dustin.zhu on 2022/11/1.
 */
 
 import (
-	"Hive"
 	"context"
 	"encoding/json"
 	"errors"
@@ -19,6 +18,7 @@ import (
 
 	redis "github.com/go-redis/redis/v8"
 	"golang.org/x/sync/singleflight"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 )
 
 // EntityCache .

@@ -3,7 +3,7 @@ package middleware
 import (
 	"strings"
 
-	"Hive"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 )
 
 // NewBusFilter .

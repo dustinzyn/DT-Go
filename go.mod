@@ -1,4 +1,4 @@
-module Hive
+module devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive
 
 go 1.18
 

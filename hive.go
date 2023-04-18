@@ -9,6 +9,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/core/host"
 	"github.com/kataras/iris/v12/hero"
+	"github.com/kataras/iris/v12/mvc"
 
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
 	"gopkg.in/yaml.v3"
@@ -64,6 +65,12 @@ type (
 
 	// LogRow is the log per line callback.
 	LogRow = golog.Log
+
+	// BeforeActivation is Is the start-up pre-processing of the action.
+	BeforeActivation = mvc.BeforeActivation
+
+	// LogFields is the column type of the log.
+	LogFields = golog.Fields
 )
 
 // NewPublicApplication returns Application interface type

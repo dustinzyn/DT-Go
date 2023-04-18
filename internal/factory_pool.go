@@ -10,7 +10,7 @@ type FactoryPool struct {
 	creater map[reflect.Type]interface{}
 }
 
-func NewFactoryPool(private bool) *FactoryPool {
+func newFactoryPool(private bool) *FactoryPool {
 	result := new(FactoryPool)
 	result.private = private
 	result.creater = make(map[reflect.Type]interface{})

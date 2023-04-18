@@ -15,7 +15,7 @@ type InfraPool struct {
 	shutdownList []func()
 }
 
-func NewInfraPool(private bool) *InfraPool {
+func newInfraPool(private bool) *InfraPool {
 	result := new(InfraPool)
 	result.private = private
 	result.instancePool = make(map[reflect.Type]*sync.Pool)

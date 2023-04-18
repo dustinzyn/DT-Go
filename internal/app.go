@@ -82,9 +82,9 @@ func NewPublicApplication() *Application {
 		publicApp = new(Application)
 		publicApp.IrisApp = iris.New()
 		publicApp.pool = newServicePool(false)
-		publicApp.repoPool = NewRepositoryPool(false)
-		publicApp.factoryPool = NewFactoryPool(false)
-		publicApp.comPool = NewInfraPool(false)
+		publicApp.repoPool = newRepositoryPool(false)
+		publicApp.factoryPool = newFactoryPool(false)
+		publicApp.comPool = newInfraPool(false)
 		publicApp.msgsBus = NewEventBus(false)
 		publicApp.other = NewOther(false)
 		publicApp.marshal = json.Marshal
@@ -101,9 +101,9 @@ func NewPrivateApplication() *Application {
 		privateApp.IrisApp = iris.New()
 		privateApp.private = true
 		privateApp.pool = newServicePool(true)
-		privateApp.repoPool = NewRepositoryPool(true)
-		privateApp.factoryPool = NewFactoryPool(true)
-		privateApp.comPool = NewInfraPool(true)
+		privateApp.repoPool = newRepositoryPool(true)
+		privateApp.factoryPool = newFactoryPool(true)
+		privateApp.comPool = newInfraPool(true)
 		privateApp.msgsBus = NewEventBus(true)
 		privateApp.other = NewOther(true)
 		privateApp.marshal = json.Marshal

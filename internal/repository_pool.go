@@ -10,7 +10,7 @@ type RepositoryPool struct {
 	creater map[reflect.Type]interface{}
 }
 
-func NewRepositoryPool(private bool) *RepositoryPool {
+func newRepositoryPool(private bool) *RepositoryPool {
 	result := new(RepositoryPool)
 	result.private = private
 	result.creater = make(map[reflect.Type]interface{})

@@ -259,14 +259,20 @@ func (app *Application) Run(serve iris.Runner, irisConf iris.Configuration) {
 		logLevel = level.(string)
 	}
 	if app.private {
-		publicApp.IrisApp.Logger().SetLevel(logLevel)
-	} else {
 		privateApp.IrisApp.Logger().SetLevel(logLevel)
+	} else {
+		publicApp.IrisApp.Logger().SetLevel(logLevel)
 	}
 
 	repositoryAPIRun(irisConf)
-	for i := 0; i < len(starters); i++ {
-		starters[i](app)
+	if app.private {
+		for i := 0; i < len(privateStarters); i++ {
+			privateStarters[i](app)
+		}
+	} else {
+		for i := 0; i < len(publicStarters); i++ {
+			publicStarters[i](app)
+		}
 	}
 	app.msgsBus.building()
 	app.comPool.singleBooting(app)
@@ -438,7 +444,12 @@ func (app *Application) IsPrivate() bool {
 
 // Start .
 func (app *Application) Start(f func(starter Starter)) {
-	starters = append(starters, f)
+	// starters = append(starters, f)
+	if !app.private {
+		publicStarters = append(publicStarters, f)
+	} else {
+		privateStarters = append(privateStarters, f)
+	}
 }
 
 // GetSingleInfra .

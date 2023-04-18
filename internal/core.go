@@ -49,7 +49,8 @@ var (
 	prepares []func(Initiator)
 	privatePrepares []func(Initiator)
 	publicPrepares []func(Initiator)
-	starters []func(starter Starter)
+	privateStarters []func(starter Starter)
+	publicStarters []func(starter Starter)
 )
 
 // Prepare app.BindController or app.BindControllerByParty

@@ -42,6 +42,7 @@ type Request interface {
 	ToString() (string, *Response)
 	ToBytes() ([]byte, *Response)
 	ToXML(v interface{}) *Response
+	ToBool() (bool, *Response)
 	SetQueryParam(key string, value interface{}) Request
 	SetQueryParams(map[string]interface{}) Request
 	URL() string

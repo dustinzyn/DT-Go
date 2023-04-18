@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -133,6 +134,21 @@ func (req *HTTPRequest) ToXML(v interface{}) *Response {
 
 	req.Response.Error = xml.Unmarshal(body, v)
 	return &req.Response
+}
+
+// ToBool .
+func (req *HTTPRequest) ToBool() (bool, *Response) {
+	var body []byte
+	body = req.singleflightDo(true)
+	if req.Response.Error != nil {
+		return false, &req.Response
+	}
+
+	value, err := strconv.ParseBool(string(body))
+	if err != nil {
+		return false, &req.Response
+	}
+	return value, &req.Response
 }
 
 // SetQueryParam .

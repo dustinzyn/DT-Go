@@ -3,6 +3,7 @@ module devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive
 go 1.18
 
 require (
+	devops.aishu.cn/AISHUDevOps/ICT/_git/go-msq v1.4.0-patch-93c77abc
 	github.com/kataras/golog v0.1.7
 	github.com/kataras/iris/v12 v12.1.8
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
@@ -11,7 +12,6 @@ require (
 )
 
 require (
-	devops.aishu.cn/AISHUDevOps/ICT/_git/go-msq v1.4.0-patch-93c77abc // indirect
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/CloudyKit/jet/v3 v3.0.0 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect

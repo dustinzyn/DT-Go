@@ -6,6 +6,7 @@ require (
 	devops.aishu.cn/AISHUDevOps/ICT/_git/go-msq v1.4.0-patch-93c77abc
 	github.com/kataras/golog v0.1.7
 	github.com/kataras/iris/v12 v12.1.8
+	github.com/sony/sonyflake v1.1.0
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	gopkg.in/yaml.v3 v3.0.1

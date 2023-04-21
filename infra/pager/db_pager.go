@@ -4,8 +4,17 @@ import (
 	"fmt"
 	"strings"
 
+	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"gorm.io/gorm"
 )
+
+func init() {
+	hive.Prepare(func(initiator hive.Initiator) {
+		initiator.BindInfra(false, initiator.IsPrivate(), func() *Pager {
+			return &Pager{}
+		})
+	})
+}
 
 type Builder interface {
 	Execute(db *gorm.DB, object interface{}) error
@@ -20,7 +29,7 @@ type Pager struct {
 }
 
 // NewDescPager 多字段降序分页器
-func NewDescPager(column string, columns ...string) *Pager {
+func (p *Pager) DescPager(column string, columns ...string) *Pager {
 	fieldSort := map[string]string{column: "desc"}
 	for _, c := range columns {
 		fieldSort[c] = "desc"
@@ -29,7 +38,7 @@ func NewDescPager(column string, columns ...string) *Pager {
 }
 
 // NewAscPager 多字段升序分页器
-func NewAscPager(column string, columns ...string) *Pager {
+func (p *Pager) AscPager(column string, columns ...string) *Pager {
 	fieldSort := map[string]string{column: "asc"}
 	for _, c := range columns {
 		fieldSort[c] = "asc"
@@ -38,7 +47,7 @@ func NewAscPager(column string, columns ...string) *Pager {
 }
 
 // NewCustomPager 多字段自定义排序分页器
-func NewCustomPager(fieldSort map[string]string) *Pager {
+func (p *Pager) CustomPager(fieldSort map[string]string) *Pager {
 	return newDefaultPager(fieldSort)
 }
 

@@ -1,5 +1,15 @@
-# Introduction
-Hive 是一个基于六边形架构，结合领域模型范式的框架。
+# 简介
+Hive 是一个基于六边形架构，结合领域模型范式（DDD）的框架。
+
+## Hive名字由来
+如上简介说明，Hive是一个框架，是基于六边形架构的框架。为什么取名Hive呢？
+
+Hive的意思为“蜂巢”。
+在大自然里，有各种各样的形状。蜂巢就是其中一个非常神奇的存在。衡量蜜蜂的经济活动是靠蜂蜜完成的。蜂蜜既是蜜蜂的食物也是筑造蜂巢的原料，所以对于蜜蜂来说蜂蜜更显得弥足珍贵了一丁点都不能浪费。所以蜜蜂在筑造蜂巢的时候必须考虑以下两个问题：1.空间尽可能大; 2.节约成本。
+
+根据科学家后来的计算，在蜂蜡一定的情况下将蜂巢筑造成**六边形**可以使横截面的面积达到最大，并且结构非常的稳定。所以六边形结构也被称为“蜂窝状结构”。
+
+而适配器的架构图正好也是六边形的，最开始想用HiveCore来做名字，寓意是以六边形架构（蜂巢）为核心的框架，后来考虑到名字的简洁性，最终取名为 *Hive*。
 
 # 功能特性
 * 集成 Iris
@@ -41,7 +51,7 @@ type Application interface {
     //安装其他, 如mongodb、es 等
     InstallCustom(f func() interface{})
     //启动回调: Prepare之后，Run之前.
-    BindBooting(f func(bootManager freedom.BootManager))
+    BindBooting(f func(bootManager hive.BootManager))
     //安装序列化，未安装默认使用官方json
     InstallSerializer(marshal func(v interface{}) ([]byte, error), unmarshal func(data []byte, v interface{}) error)
 }
@@ -51,7 +61,7 @@ type Application interface {
 */
 type Worker interface {
     //获取iris的上下文
-    IrisContext() freedom.Context
+    IrisContext() hive.Context
     //获取带上下文的日志实例。
     Logger() Logger
     //设置带上下文的日志实例。

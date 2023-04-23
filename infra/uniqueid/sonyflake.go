@@ -12,10 +12,7 @@ import (
 func init() {
 	hive.Prepare(func(initiator hive.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *SonyflakerImpl {
-			return &SonyflakerImpl{
-				podIP:    os.Getenv("POD_IP"),
-				settings: &sonyflake.Settings{},
-			}
+			return &SonyflakerImpl{}
 		})
 	})
 }
@@ -25,12 +22,24 @@ var (
 )
 
 type Sonyflaker interface {
+	SetPodIP(ip string)
 	NextID() (uint64, error)
 }
 
 type SonyflakerImpl struct {
+	hive.Infra
 	podIP    string
 	settings *sonyflake.Settings
+}
+
+func (sfi *SonyflakerImpl) BeginRequest(worker hive.Worker) {
+	podIP := os.Getenv("POD_IP")
+	if podIP == "" {
+		podIP = "127.0.0.1"
+	}
+	sfi.podIP = podIP
+	sfi.settings = &sonyflake.Settings{}
+	sfi.Infra.BeginRequest(worker)
 }
 
 func (sfi *SonyflakerImpl) SetPodIP(ip string) {

@@ -21,11 +21,16 @@ type Builder interface {
 }
 
 type Pager struct {
+	hive.Infra
 	pageSize  int
 	page      int
 	totalPage int
 	fields    []string
 	items     []string
+}
+
+func (p *Pager) BeginRequest(worker hive.Worker) {
+	p.Infra.BeginRequest(worker)
 }
 
 // NewDescPager 多字段降序分页器

@@ -33,7 +33,7 @@ type Single struct {
 }
 
 // Booting 单例组件入口, 启动时调用一次。
-func (c *Single) Booting(boot hive.BootManager) {
+func (c *Single) Booting(boot hive.SingleBoot) {
 	hive.Logger().Info("Single.Booting")
 	c.life = rand.Intn(100)
 }

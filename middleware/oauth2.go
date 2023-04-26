@@ -19,7 +19,7 @@ import (
 
 func NewAuthentication() context.Handler {
 	return func(ctx hive.Context) {
-		var err *api.Error
+		var err *errors.Error
 		oauth2 := api.NewOAuth2()
 		token, err := parseBearerToken(ctx.Request())
 		if err != nil {
@@ -28,7 +28,7 @@ func NewAuthentication() context.Handler {
 		}
 		result, introErr := oauth2.Introspection(token, nil)
 		if !result.Active {
-			err = errors.UnauthorizationError(&api.ErrorInfo{Cause: "access token expired"})
+			err = errors.UnauthorizationError(&errors.ErrorInfo{Cause: "access token expired"})
 			errorResponse(err, ctx)
 			return
 		}
@@ -56,7 +56,7 @@ func NewAuthentication() context.Handler {
 		ctx.Values().Set("udid", udid)
 		ctx.Values().Set("visitorType", visitorType)
 		if err != nil {
-			err = errors.InternalServerError(&api.ErrorInfo{Cause: "introspection failed", Detail: map[string]string{"reason": introErr.Error()}})
+			err = errors.InternalServerError(&errors.ErrorInfo{Cause: "introspection failed", Detail: map[string]string{"reason": introErr.Error()}})
 			errorResponse(err, ctx)
 			return
 		}
@@ -64,7 +64,7 @@ func NewAuthentication() context.Handler {
 		if result.ClientID != result.Subject {
 			userRoles, csfLevel, name, roleErr := getUserRoles(result.Subject)
 			if roleErr != nil {
-				err = errors.InternalServerError(&api.ErrorInfo{Cause: "introspection failed", Detail: map[string]string{"reason": roleErr.Error()}})
+				err = errors.InternalServerError(&errors.ErrorInfo{Cause: "introspection failed", Detail: map[string]string{"reason": roleErr.Error()}})
 				errorResponse(err, ctx)
 				return
 			}
@@ -79,24 +79,24 @@ func NewAuthentication() context.Handler {
 }
 
 // parseBearerToken 解析token
-func parseBearerToken(req *http.Request) (token string, err *api.Error) {
+func parseBearerToken(req *http.Request) (token string, err *errors.Error) {
 	hdr := req.Header.Get("Authorization")
 	if hdr == "" {
-		err = errors.UnauthorizationError(&api.ErrorInfo{Cause: "access_token empty", Detail: map[string]string{"original_data": hdr}})
+		err = errors.UnauthorizationError(&errors.ErrorInfo{Cause: "access_token empty", Detail: map[string]string{"original_data": hdr}})
 		return
 	}
 
 	// Example: Bearer xxxx
 	tokenList := strings.SplitN(hdr, " ", 2)
 	if len(tokenList) != 2 || strings.ToLower(tokenList[0]) != "bearer" {
-		err = errors.UnauthorizationError(&api.ErrorInfo{Cause: "access_token invalid", Detail: map[string]string{"original_data": hdr}})
+		err = errors.UnauthorizationError(&errors.ErrorInfo{Cause: "access_token invalid", Detail: map[string]string{"original_data": hdr}})
 		return
 	}
 	return tokenList[1], nil
 }
 
 // errorResponse .
-func errorResponse(err *api.Error, ctx hive.Context) {
+func errorResponse(err *errors.Error, ctx hive.Context) {
 	codeStr := strconv.Itoa(err.Code)
 	code, _ := strconv.Atoi(codeStr[:3])
 	ctx.Values().Set("code", code)

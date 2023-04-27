@@ -12,7 +12,6 @@ import (
 
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/requests"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
@@ -114,14 +113,22 @@ func getIntrospectEndpoint() string {
 }
 
 func introspection(token string, scopes []string) (result Introspection, err error) {
+	client := &http.Client{}
 	data := url.Values{"token": []string{token}}
 	if len(scopes) > 0 {
 		data["scope"] = []string{strings.Join(scopes, " ")}
 	}
 	introspectEndpoint := getIntrospectEndpoint()
-	req := requests.NewH2CRequest(introspectEndpoint)
-	req.AddHeader("Content-Type", "application/x-www-form-urlencoded")
-	resp := req.Post().ToJSON(&result)
+	req, err := http.NewRequest("POST", introspectEndpoint, strings.NewReader(data.Encode()))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
 
 	if resp.StatusCode != 200 {
 		err = fmt.Errorf("Introspection failed, status code is %d", resp.StatusCode)

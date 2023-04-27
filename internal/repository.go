@@ -77,6 +77,16 @@ func (repo *Repository) NewH2CRequest(url string, transferBus ...bool) requests.
 	return req
 }
 
+// NewOAuth2Request transferBus : Whether to pass the context, turned on by default. Typically used for tracking internal services.
+func (repo *Repository) NewOAuth2Request(url string, transferBus ...bool) requests.Request {
+	req := requests.NewOauth2Request(url)
+	if len(transferBus) > 0 && !transferBus[0] {
+		return req
+	}
+	req.SetHeader(repo.worker.Bus().Header)
+	return req
+}
+
 // // SingleFlight .
 // func (repo *Repository) SingleFlight(key string, value, takeObject interface{}, fn func() (interface{}, error)) error {
 // 	takeValue := reflect.ValueOf(takeObject)

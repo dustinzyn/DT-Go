@@ -1,3 +1,4 @@
+// 通用错误码 500 400 401 403 404
 package errors
 
 import (

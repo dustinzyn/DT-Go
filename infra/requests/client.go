@@ -10,12 +10,12 @@ import (
 	"os"
 	"time"
 
+	// "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
+
 	"golang.org/x/net/http2"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 	"golang.org/x/sync/singleflight"
-
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/GoCommon/api"
 )
 
 var (
@@ -73,12 +73,12 @@ func InitOauthHTTPClient() {
 	}
 	client := &http.Client{Transport: tr}
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, client)
-	clientID, clientSecret := api.NewOAuth2().GetSelfClientInfo()
+	clientID, clientSecret := selfClientInfo()
 	credConf := &clientcredentials.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Scopes:       []string{},
-		TokenURL:     getTokenEndpoint(),
+		TokenURL:     tokenEndpoint(),
 	}
 	Oauth2HTTPClient = credConf.Client(ctx)
 	return
@@ -125,7 +125,7 @@ func InstallH2CClient(client *http.Client) {
 	DefaultH2CClient = client
 }
 
-func getHydraPublicURL() url.URL {
+func hydraPublicURL() url.URL {
 	schema := os.Getenv("HYDRA_PUBLIC_PROTOCOL")
 	host := os.Getenv("HYDRA_PUBLIC_HOST")
 	port := os.Getenv("HYDRA_PUBLIC_PORT")
@@ -137,8 +137,29 @@ func getHydraPublicURL() url.URL {
 	return url
 }
 
-func getTokenEndpoint() string {
-	url := getHydraPublicURL()
+func tokenEndpoint() string {
+	url := hydraPublicURL()
 	url.Path = "/oauth2/token"
 	return url.String()
+}
+
+type AccountInfo struct {
+	ClientID     string `gorm:"column:f_client_id"`
+	ClientSecret string `gorm:"column:f_client_secret"`
+}
+
+func selfClientInfo() (string, string) {
+	// 获取内部账户信息
+	var result AccountInfo
+
+	// name := os.Getenv("SERVICE_NAME")
+	// dbConf := utils.DBConf{}
+	// db, _ := utils.ConnectDB(dbConf)
+	// err := db.Raw("SELECT f_client_id, f_client_secret FROM Account WHERE f_name = ? ", name).Scan(&result).Error
+	// if err != nil {
+	// 	panic(err)
+	// }
+	result.ClientID = "1111"
+	result.ClientSecret = "2222"
+	return result.ClientID, result.ClientSecret
 }

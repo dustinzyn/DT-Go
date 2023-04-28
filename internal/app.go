@@ -489,3 +489,13 @@ func (app *Application) InstallSerializer(marshal func(v interface{}) ([]byte, e
 func (app *Application) CallService(fun interface{}, worker ...Worker) {
 	callService(app.private, fun, worker...)
 }
+
+// Db return an instance of database client
+func (app *Application) Db() *gorm.DB {
+	return app.Database.db.(*gorm.DB)
+}
+
+// Redis return an instance of redis client
+func (app *Application) Redis() redis.Cmdable {
+	return app.Cache.client
+}

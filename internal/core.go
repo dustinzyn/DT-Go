@@ -1,8 +1,10 @@
 package internal
 
 import (
+	redis "github.com/go-redis/redis/v8"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
+	"gorm.io/gorm"
 )
 
 type Initiator interface {
@@ -31,6 +33,8 @@ type Starter interface {
 	// Sync cache warm-up
 	CachePreheat(f func(repo *Repository))
 	GetSingleInfra(com interface{}) bool
+	Db() *gorm.DB
+	Redis() redis.Cmdable
 }
 
 // SingleBoot singlton startup component.

@@ -13,7 +13,7 @@ Hive的意思为“蜂巢”。
 
 # 功能特性
 * 集成 Iris
-* HTTP/H2C Server & Client
+* HTTP/H2C/Oauth2C Server & Client
 * AOP Worker & 无侵入 Context
 * 可扩展组件 Infrastructure
 * 依赖注入 & 依赖倒置 & 开闭原则

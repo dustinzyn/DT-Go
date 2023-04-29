@@ -60,12 +60,12 @@ func (mq *ProtonMQClientImpl) BeginRequest(worker hive.Worker) {
 	mq.Infra.BeginRequest(worker)
 }
 
-func (mq *ProtonMQClientImpl) BeginConsume() {
+func (mq *ProtonMQClientImpl) Begin() {
 	mq.newClient()
 }
 
 func (mq *ProtonMQClientImpl) Pub(topic string, msg []byte) error {
-	return mq.Pub(topic, msg)
+	return mq.mqClient.Pub(topic, msg)
 }
 
 func (mq *ProtonMQClientImpl) Sub(topic string, channel string, handler func([]byte) error, pollIntervalMilliseconds int64, maxInFlight int) error {

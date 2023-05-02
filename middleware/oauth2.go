@@ -12,6 +12,7 @@ import (
 
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/requests"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
@@ -41,7 +42,7 @@ func NewAuthentication() context.Handler {
 			errorResponse(err, ctx)
 			return
 		}
-		result, introErr := introspection(token, nil)
+		result, introErr := introspection(token, []string{"all"})
 		if !result.Active {
 			err = errors.UnauthorizationError(&errors.ErrorInfo{Cause: "access token expired"})
 			errorResponse(err, ctx)
@@ -113,23 +114,13 @@ func getIntrospectEndpoint() string {
 }
 
 func introspection(token string, scopes []string) (result Introspection, err error) {
-	client := &http.Client{}
-	data := url.Values{"token": []string{token}}
+	data := fmt.Sprintf("token=%s", token)
 	if len(scopes) > 0 {
-		data["scope"] = []string{strings.Join(scopes, " ")}
+		data += fmt.Sprintf("&scope=%s", strings.Join(scopes, " "))
 	}
 	introspectEndpoint := getIntrospectEndpoint()
-	req, err := http.NewRequest("POST", introspectEndpoint, strings.NewReader(data.Encode()))
-	if err != nil {
-		return
-	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-
+	req := requests.NewHTTPRequest(introspectEndpoint)
+	resp := req.Post().SetBody([]byte(data)).ToJSON(&result)
 	if resp.StatusCode != 200 {
 		err = fmt.Errorf("Introspection failed, status code is %d", resp.StatusCode)
 		return

@@ -1,9 +1,9 @@
+// 请求 token 内省中间件
 package middleware
 
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -79,19 +79,19 @@ func NewAuthentication() context.Handler {
 			return
 		}
 
-		if result.ClientID != result.Subject {
-			userRoles, csfLevel, name, roleErr := getUserRoles(result.Subject)
-			if roleErr != nil {
-				err = errors.InternalServerError(&errors.ErrorInfo{Cause: "introspection failed", Detail: map[string]string{"reason": roleErr.Error()}})
-				errorResponse(err, ctx)
-				return
-			}
-			ctx.Values().Set("userRoles", userRoles)
-			ctx.Values().Set("csfLevel", csfLevel)
-			ctx.Values().Set("name", name)
-		} else {
-			return
-		}
+		// if result.ClientID != result.Subject {
+		// 	userRoles, csfLevel, name, roleErr := getUserRoles(result.Subject)
+		// 	if roleErr != nil {
+		// 		err = errors.InternalServerError(&errors.ErrorInfo{Cause: "introspection failed", Detail: map[string]string{"reason": roleErr.Error()}})
+		// 		errorResponse(err, ctx)
+		// 		return
+		// 	}
+		// 	ctx.Values().Set("userRoles", userRoles)
+		// 	ctx.Values().Set("csfLevel", csfLevel)
+		// 	ctx.Values().Set("name", name)
+		// } else {
+		// 	return
+		// }
 		ctx.Next()
 	}
 }
@@ -113,6 +113,7 @@ func getIntrospectEndpoint() string {
 	return url.String()
 }
 
+// introspection token内审
 func introspection(token string, scopes []string) (result Introspection, err error) {
 	data := fmt.Sprintf("token=%s", token)
 	if len(scopes) > 0 {
@@ -160,53 +161,4 @@ func errorResponse(err *errors.Error, ctx hive.Context) {
 		"detail":  err.Detail,
 	})
 	ctx.StopExecution()
-}
-
-func getUserMgntPrivateURL() url.URL {
-	schema := os.Getenv("USER_MANAGEMENT_PRIVATE_PROTOCOL")
-	host := os.Getenv("USER_MANAGEMENT_PRIVATE_HOST")
-	port := os.Getenv("USER_MANAGEMENT_PRIVATE_PORT")
-
-	url := url.URL{
-		Scheme: schema,
-		Host:   fmt.Sprintf("%v:%v", host, port),
-	}
-	return url
-}
-
-func getOwnersEndpoint(userId string) string {
-	url := getUserMgntPrivateURL()
-	url.Path = fmt.Sprintf("/api/user-management/v1/users/%v/roles,csf_level,name", userId)
-	return url.String()
-}
-
-// getUserRoles 获取用户角色、密级、显示名
-func getUserRoles(userId string) (userRoles []string, csfLevel float64, name string, err error) {
-	var resp *http.Response
-	var respBodyByte []byte
-	var respData map[string]interface{}
-	url := getOwnersEndpoint(userId)
-	resp, err = http.Get(url)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		err = fmt.Errorf("ERROR: GetUserRoles: Response = %v", resp.StatusCode)
-		return
-	}
-	respBodyByte, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-	err = json.Unmarshal(respBodyByte, &respData)
-	if err != nil {
-		return
-	}
-	for _, v := range respData["roles"].([]interface{}) {
-		userRoles = append(userRoles, v.(string))
-	}
-	csfLevel = respData["csf_level"].(float64)
-	name = respData["name"].(string)
-	return
 }

@@ -21,3 +21,17 @@ func RandString(length int) string {
 	return string(b)
 
 }
+
+// 判断a、b两个数组是否有交集
+func HasIntersection(a, b []string) bool {
+    m := make(map[string]bool)
+    for _, x := range a {
+        m[x] = true
+    }
+    for _, x := range b {
+        if m[x] {
+            return true
+        }
+    }
+    return false
+}

@@ -10,17 +10,28 @@ import (
 
 func init() {
 	hive.Prepare(func(initiator hive.Initiator) {
-		initiator.BindInfra(false, initiator.IsPrivate(), func() *Pager {
-			return &Pager{}
+		initiator.BindInfra(false, initiator.IsPrivate(), func() *PagerImpl {
+			return &PagerImpl{}
 		})
 	})
 }
 
-type Builder interface {
+type Pager interface {
+	// Execute 执行数据库操作
 	Execute(db *gorm.DB, object interface{}) error
+	// SetPage 设置分页参数 页数/每页数量
+	SetPage(page, pageSize int) Pager
+	// TotalPage 总页数
+	TotalPage() int
+	// DescPager 多字段降序分页器
+	DescPager(column string, columns ...string) Pager
+	// AscPager 多字段升序分页器
+	AscPager(column string, columns ...string) Pager
+	// CustomPager 多字段自定义排序分页器
+	CustomPager(fieldSort map[string]string) Pager
 }
 
-type Pager struct {
+type PagerImpl struct {
 	hive.Infra
 	pageSize  int
 	page      int
@@ -29,12 +40,12 @@ type Pager struct {
 	items     []string
 }
 
-func (p *Pager) BeginRequest(worker hive.Worker) {
+func (p *PagerImpl) BeginRequest(worker hive.Worker) {
 	p.Infra.BeginRequest(worker)
 }
 
-// NewDescPager 多字段降序分页器
-func (p *Pager) DescPager(column string, columns ...string) *Pager {
+// DescPager 多字段降序分页器
+func (p *PagerImpl) DescPager(column string, columns ...string) Pager {
 	fieldSort := map[string]string{column: "desc"}
 	for _, c := range columns {
 		fieldSort[c] = "desc"
@@ -42,8 +53,8 @@ func (p *Pager) DescPager(column string, columns ...string) *Pager {
 	return newDefaultPager(fieldSort)
 }
 
-// NewAscPager 多字段升序分页器
-func (p *Pager) AscPager(column string, columns ...string) *Pager {
+// AscPager 多字段升序分页器
+func (p *PagerImpl) AscPager(column string, columns ...string) Pager {
 	fieldSort := map[string]string{column: "asc"}
 	for _, c := range columns {
 		fieldSort[c] = "asc"
@@ -51,39 +62,39 @@ func (p *Pager) AscPager(column string, columns ...string) *Pager {
 	return newDefaultPager(fieldSort)
 }
 
-// NewCustomPager 多字段自定义排序分页器
-func (p *Pager) CustomPager(fieldSort map[string]string) *Pager {
+// CustomPager 多字段自定义排序分页器
+func (p *PagerImpl) CustomPager(fieldSort map[string]string) Pager {
 	return newDefaultPager(fieldSort)
 }
 
 // newDefaultPager 默认分页器
-func newDefaultPager(fieldSort map[string]string) *Pager {
+func newDefaultPager(fieldSort map[string]string) Pager {
 	fields := make([]string, 0)
 	items := make([]string, 0)
 	for field, sort := range fieldSort {
 		fields = append(fields, field)
 		items = append(items, sort)
 	}
-	return &Pager{
+	return &PagerImpl{
 		fields: fields,
 		items:  items,
 	}
 }
 
-// SetPage .
-func (p *Pager) SetPage(page, pageSize int) *Pager {
+// SetPage 设置分页参数 页数/每页数量
+func (p *PagerImpl) SetPage(page, pageSize int) Pager {
 	p.page = page
 	p.pageSize = pageSize
 	return p
 }
 
-// TotalPage .
-func (p *Pager) TotalPage() int {
+// TotalPage 总页数
+func (p *PagerImpl) TotalPage() int {
 	return p.totalPage
 }
 
-// Order 排序
-func (p *Pager) Order() interface{} {
+// order 排序
+func (p *PagerImpl) order() interface{} {
 	if len(p.fields) == 0 {
 		return nil
 	}
@@ -95,9 +106,9 @@ func (p *Pager) Order() interface{} {
 }
 
 // Execute .
-func (p *Pager) Execute(db *gorm.DB, object interface{}) (err error) {
+func (p *PagerImpl) Execute(db *gorm.DB, object interface{}) (err error) {
 	pageFind := false
-	orderValue := p.Order()
+	orderValue := p.order()
 	if orderValue != nil {
 		db = db.Order(orderValue)
 	} else {

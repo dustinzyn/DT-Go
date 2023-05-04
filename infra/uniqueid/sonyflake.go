@@ -29,7 +29,6 @@ type Sonyflaker interface {
 type SonyflakerImpl struct {
 	hive.Infra
 	podIP    string
-	settings *sonyflake.Settings
 }
 
 func (sfi *SonyflakerImpl) BeginRequest(worker hive.Worker) {
@@ -38,7 +37,6 @@ func (sfi *SonyflakerImpl) BeginRequest(worker hive.Worker) {
 		podIP = "127.0.0.1"
 	}
 	sfi.podIP = podIP
-	sfi.settings = &sonyflake.Settings{}
 	sfi.Infra.BeginRequest(worker)
 }
 
@@ -55,7 +53,8 @@ func (sfi *SonyflakerImpl) SetPodIP(ip string) {
 // NextID 获取唯一ID
 // https://github.com/tinrab/makaroni/tree/master/utilities/unique-id
 func (sfi *SonyflakerImpl) NextID() (uint64, error) {
-	sfi.settings.MachineID = func() (uint16, error) {
+	settings := &sonyflake.Settings{}
+	settings.MachineID = func() (uint16, error) {
 		ip := net.ParseIP(sfi.podIP)
 		ip = ip.To16()
 		if ip == nil || len(ip) < 4 {
@@ -63,7 +62,7 @@ func (sfi *SonyflakerImpl) NextID() (uint64, error) {
 		}
 		return uint16(ip[14])<<8 + uint16(ip[15]), nil
 	}
-	sf = sonyflake.NewSonyflake(*sfi.settings)
+	sf = sonyflake.NewSonyflake(*settings)
 	if sf == nil {
 		return 0, errors.New("sonyflake create error")
 	}

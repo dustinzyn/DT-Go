@@ -42,7 +42,7 @@ func NewAuthentication() context.Handler {
 			errorResponse(err, ctx)
 			return
 		}
-		result, introErr := introspection(token, []string{"all"})
+		result, introErr := introspection(token, nil)
 		if !result.Active {
 			err = errors.UnauthorizationError(&errors.ErrorInfo{Cause: "access token expired"})
 			errorResponse(err, ctx)

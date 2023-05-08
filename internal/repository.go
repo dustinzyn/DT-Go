@@ -63,6 +63,10 @@ func (repo *Repository) NewHTTPRequest(url string, transferBus ...bool) requests
 	if len(transferBus) > 0 && !transferBus[0] {
 		return req
 	}
+	if repo.worker == nil {
+		//The singleton object does not have a Worker component
+		return req
+	}
 	req.SetHeader(repo.worker.Bus().Header)
 	return req
 }
@@ -73,6 +77,10 @@ func (repo *Repository) NewH2CRequest(url string, transferBus ...bool) requests.
 	if len(transferBus) > 0 && !transferBus[0] {
 		return req
 	}
+	if repo.worker == nil {
+		//The singleton object does not have a Worker component
+		return req
+	}
 	req.SetHeader(repo.worker.Bus().Header)
 	return req
 }
@@ -81,6 +89,10 @@ func (repo *Repository) NewH2CRequest(url string, transferBus ...bool) requests.
 func (repo *Repository) NewOAuth2Request(url string, transferBus ...bool) requests.Request {
 	req := requests.NewOauth2Request(url)
 	if len(transferBus) > 0 && !transferBus[0] {
+		return req
+	}
+	if repo.worker == nil {
+		//The singleton object does not have a Worker component
 		return req
 	}
 	req.SetHeader(repo.worker.Bus().Header)

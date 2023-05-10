@@ -128,7 +128,7 @@ func SetConfigurer(confer Configurer) {
 	configurer = confer
 }
 
-var ProfileENV = "AUDIT_CONFIG"
+var ProfileENV = "CONFIG_PATH"
 
 // Configure
 func Configure(obj interface{}, file string, metadata ...interface{}) (err error) {

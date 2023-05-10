@@ -1,5 +1,15 @@
 package pager
 
+/**
+	关系型数据库分页器组件
+
+	1.单字段统一升降序分页器
+	2.多字段统一升降序分页器
+	3.自定义不同字段的升降序分页器
+
+Created by Dustin.zhu on 2023/05/03.
+*/
+
 import (
 	"fmt"
 	"strings"

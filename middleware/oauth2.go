@@ -78,20 +78,6 @@ func NewAuthentication() context.Handler {
 			errorResponse(err, ctx)
 			return
 		}
-
-		// if result.ClientID != result.Subject {
-		// 	userRoles, csfLevel, name, roleErr := getUserRoles(result.Subject)
-		// 	if roleErr != nil {
-		// 		err = errors.InternalServerError(&errors.ErrorInfo{Cause: "introspection failed", Detail: map[string]string{"reason": roleErr.Error()}})
-		// 		errorResponse(err, ctx)
-		// 		return
-		// 	}
-		// 	ctx.Values().Set("userRoles", userRoles)
-		// 	ctx.Values().Set("csfLevel", csfLevel)
-		// 	ctx.Values().Set("name", name)
-		// } else {
-		// 	return
-		// }
 		ctx.Next()
 	}
 }

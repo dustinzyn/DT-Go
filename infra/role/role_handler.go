@@ -1,5 +1,12 @@
 package role
 
+/**
+	角色管控组件
+	管控不同角色的访问权限
+
+	Created by Dustin.zhu on 2023/05/03.
+*/
+
 import (
 	"fmt"
 	"net/http"

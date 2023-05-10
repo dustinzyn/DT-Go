@@ -15,7 +15,7 @@ func init() {
 			com :如果是单例com是组件指针， 如果是多例 com是创建组件的函数
 			BindInfra(single bool, com interface{})
 		*/
-		initiator.BindInfra(true, &Single{})
+		initiator.BindInfra(true, initiator.IsPrivate(), &Single{})
 
 		/*
 			该组件注入到控制器, 默认仅注入到service和repository
@@ -69,7 +69,7 @@ func (goods *GoodsController) PutStock() hive.Result {
 func init() {
 	validate = validator.New()
 	hive.Prepare(func(initiator hive.Initiator) {
-		initiator.BindInfra(false, func() *JSONRequest {
+		initiator.BindInfra(false, initiator.IsPrivate(), func() *JSONRequest {
 			//绑定1个New多例组件的回调函数，多例目的是为每个请求独立服务。
 			return &JSONRequest{}
 		})

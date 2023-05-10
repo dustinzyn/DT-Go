@@ -1,3 +1,4 @@
+// 消息代理客户端组件
 package mqclient
 
 import (

@@ -92,24 +92,3 @@ func DefaultLoggerConfig() *RequestLoggerConfig {
 		Title:                "[ACCESS]",
 	}
 }
-
-// AddSkipper adds a skipper to the configuration.
-// func (c *LoggerConfig) AddSkipper(sk skipperFunc) {
-// 	c.Skippers = append(c.Skippers, sk)
-// 	c.buildSkipper()
-// }
-
-// func (c *LoggerConfig) buildSkipper() {
-// 	if len(c.Skippers) == 0 {
-// 		return
-// 	}
-// 	skippersLocked := c.Skippers[0:]
-// 	c.skip = func(ctx context.Context) bool {
-// 		for _, s := range skippersLocked {
-// 			if s(ctx) {
-// 				return true
-// 			}
-// 		}
-// 		return false
-// 	}
-// }

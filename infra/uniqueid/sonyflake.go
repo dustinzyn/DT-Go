@@ -1,5 +1,11 @@
 package uniqueid
 
+/**
+	分布式系统全局唯一ID生成器组件
+
+	Created by Dustin.zhu on 2023/04/20.
+*/
+
 import (
 	"errors"
 	"net"

@@ -1,7 +1,7 @@
 package store
 
 /*
-	缓存组件
+	分布式缓存组件
 	实现了一级缓存 二级缓存 集成redis
 	一级缓存的生命周期为单个请求，仅用于函数间调用
 	基于sync/singlefight实现缓存防击穿 Service->Cache->Singleflight->DB

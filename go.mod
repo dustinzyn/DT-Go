@@ -3,7 +3,7 @@ module devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive
 go 1.18
 
 require (
-	devops.aishu.cn/AISHUDevOps/ICT/_git/go-msq v1.4.0-patch-93c77abc
+	devops.aishu.cn/AISHUDevOps/ICT/_git/go-msq v1.5.1-rc.0
 	github.com/kataras/golog v0.1.7
 	github.com/kataras/iris/v12 v12.1.8
 	github.com/sony/sonyflake v1.1.0
@@ -39,15 +39,17 @@ require (
 	github.com/kataras/neffos v0.0.14 // indirect
 	github.com/klauspost/compress v1.15.11 // indirect
 	github.com/mediocregopher/radix/v3 v3.4.2 // indirect
+	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/nats-io/nats-server/v2 v2.9.3 // indirect
-	github.com/nats-io/nats.go v1.17.0 // indirect
+	github.com/nats-io/jwt/v2 v2.3.0 // indirect
+	github.com/nats-io/nats.go v1.19.0 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/nsqio/go-nsq v1.1.0 // indirect
 	github.com/schollz/closestmatch v2.1.0+incompatible // indirect
 	github.com/stretchr/testify v1.6.1 // indirect
+	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

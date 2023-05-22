@@ -1,4 +1,4 @@
-package requests
+package hivehttp
 
 /**
 HTTP Request reading and parsing.

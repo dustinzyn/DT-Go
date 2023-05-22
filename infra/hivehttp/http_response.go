@@ -1,4 +1,4 @@
-package requests
+package hivehttp
 
 import (
 	"net/http"

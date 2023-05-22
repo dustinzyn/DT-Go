@@ -14,7 +14,7 @@ import (
 	"os"
 
 	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/requests"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
 )
 
@@ -123,7 +123,7 @@ func getOwnersEndpoint(userId string) string {
 // userInfo 获取用户信息
 func (role *RoleHandlerImpl) userInfo(userID string) (user User, err error) {
 	ownerEndpoint := getOwnersEndpoint(userID)
-	resp := requests.NewHTTPRequest(ownerEndpoint).Get().ToJSON(&user)
+	resp := hivehttp.NewHTTPRequest(ownerEndpoint).Get().ToJSON(&user)
 	if resp.StatusCode != http.StatusOK {
 		err = fmt.Errorf("get user error: status code = %v, response err = %v", resp.StatusCode, resp.Error)
 		return

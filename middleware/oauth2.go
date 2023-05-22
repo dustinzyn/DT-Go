@@ -12,7 +12,7 @@ import (
 
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/requests"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
@@ -106,7 +106,7 @@ func introspection(token string, scopes []string) (result Introspection, err err
 		data += fmt.Sprintf("&scope=%s", strings.Join(scopes, " "))
 	}
 	introspectEndpoint := getIntrospectEndpoint()
-	req := requests.NewHTTPRequest(introspectEndpoint)
+	req := hivehttp.NewHTTPRequest(introspectEndpoint)
 	resp := req.Post().SetBody([]byte(data)).ToJSON(&result)
 	if resp.StatusCode != 200 {
 		err = fmt.Errorf("Introspection failed, status code is %d", resp.StatusCode)

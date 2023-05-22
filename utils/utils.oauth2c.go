@@ -14,7 +14,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/requests"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
 )
 
 // InitOauthHTTPClient .
@@ -36,7 +36,7 @@ func InitOauthHTTPClient(svcName string, conf DBConf) {
 		Scopes:       []string{},
 		TokenURL:     tokenEndpoint(),
 	}
-	requests.Oauth2HTTPClient = credConf.Client(ctx)
+	hivehttp.Oauth2HTTPClient = credConf.Client(ctx)
 	return
 }
 

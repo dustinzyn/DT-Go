@@ -9,7 +9,7 @@ import (
 	redis "github.com/go-redis/redis/v8"
 	iris "github.com/kataras/iris/v12"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/requests"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
 )
 
 type Repository struct {
@@ -58,8 +58,8 @@ func (repo *Repository) Redis() redis.Cmdable {
 }
 
 // NewHTTPRequest transferBus : Whether to pass the context, turned on by default. Typically used for tracking internal services.
-func (repo *Repository) NewHTTPRequest(url string, transferBus ...bool) requests.Request {
-	req := requests.NewHTTPRequest(url)
+func (repo *Repository) NewHTTPRequest(url string, transferBus ...bool) hivehttp.Request {
+	req := hivehttp.NewHTTPRequest(url)
 	if len(transferBus) > 0 && !transferBus[0] {
 		return req
 	}
@@ -72,8 +72,8 @@ func (repo *Repository) NewHTTPRequest(url string, transferBus ...bool) requests
 }
 
 // NewH2CRequest transferBus : Whether to pass the context, turned on by default. Typically used for tracking internal services.
-func (repo *Repository) NewH2CRequest(url string, transferBus ...bool) requests.Request {
-	req := requests.NewH2CRequest(url)
+func (repo *Repository) NewH2CRequest(url string, transferBus ...bool) hivehttp.Request {
+	req := hivehttp.NewH2CRequest(url)
 	if len(transferBus) > 0 && !transferBus[0] {
 		return req
 	}
@@ -86,8 +86,8 @@ func (repo *Repository) NewH2CRequest(url string, transferBus ...bool) requests.
 }
 
 // NewOAuth2Request transferBus : Whether to pass the context, turned on by default. Typically used for tracking internal services.
-func (repo *Repository) NewOAuth2Request(url string, transferBus ...bool) requests.Request {
-	req := requests.NewOauth2Request(url)
+func (repo *Repository) NewOAuth2Request(url string, transferBus ...bool) hivehttp.Request {
+	req := hivehttp.NewOauth2Request(url)
 	if len(transferBus) > 0 && !transferBus[0] {
 		return req
 	}
@@ -155,8 +155,8 @@ func repositoryAPIRun(irisConf iris.Configuration) {
 	if v, ok := irisConf.Other["repository_request_timeout"]; ok {
 		sec = v.(int64)
 	}
-	requests.InitHTTPClient(time.Duration(sec) * time.Second)
-	requests.InitH2cClient(time.Duration(sec) * time.Second)
+	hivehttp.InitHTTPClient(time.Duration(sec) * time.Second)
+	hivehttp.InitH2cClient(time.Duration(sec) * time.Second)
 }
 
 // Worker .

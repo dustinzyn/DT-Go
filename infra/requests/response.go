@@ -21,7 +21,7 @@ type JSONResponse struct {
 }
 
 // Dispatch overwrite response dispath
-func (jrep JSONResponse) Dispatch(ctx context.Context) {
+func (jrep JSONResponse) Dispatch(ctx *context.Context) {
 	if jrep.contentType == "" {
 		jrep.contentType = "application/json"
 	}

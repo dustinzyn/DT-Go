@@ -184,7 +184,7 @@ func (pool *InfraPool) registerShutdown(f func()) {
 
 // freeHandle .
 func (pool *InfraPool) freeHandle() context.Handler {
-	return func(ctx context.Context) {
+	return func(ctx *context.Context) {
 		ctx.Next()
 		rt := ctx.Values().Get(WorkerKey).(*worker)
 		if rt.IsDeferRecycle() {

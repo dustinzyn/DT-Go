@@ -10,8 +10,8 @@ import (
 )
 
 // NewTrace .
-func NewTrace(traceIDName string) func(context.Context) {
-	return func(ctx context.Context) {
+func NewTrace(traceIDName string) func(*context.Context) {
+	return func(ctx *context.Context) {
 		bus := hive.ToWorker(ctx).Bus()
 		traceID := bus.Get(traceIDName)
 		for {

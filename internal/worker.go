@@ -69,7 +69,7 @@ type Worker interface {
 }
 
 func newWorkerHandle(private bool) context.Handler {
-	return func(ctx context.Context) {
+	return func(ctx *context.Context) {
 		work := newWorker(ctx, private)
 		ctx.Values().Set(WorkerKey, work)
 		ctx.Next()

@@ -50,11 +50,12 @@ type BeginRequest interface {
 }
 
 var (
-	prepares []func(Initiator)
+	globalApp *Application
+	prepares  []func(Initiator)
 	// privatePrepares []func(Initiator)
 	// publicPrepares []func(Initiator)
 	privateStarters []func(starter Starter)
-	publicStarters []func(starter Starter)
+	publicStarters  []func(starter Starter)
 )
 
 // Prepare app.BindController or app.BindControllerByParty

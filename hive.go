@@ -39,6 +39,9 @@ type (
 	//SingleBoot .
 	SingleBoot = internal.SingleBoot
 
+	//UnitTest is a unit test tool.
+	UnitTest = internal.UnitTest
+
 	//Entity is the entity's father interface.
 	Entity = internal.Entity
 
@@ -81,6 +84,11 @@ func NewPublicApplication() Application {
 // NewPrivateApplication returns Application interface type
 func NewPrivateApplication() Application {
 	return privateApp
+}
+
+// NewUnitTest .
+func NewUnitTest() UnitTest {
+	return new(internal.UnitTestImpl)
 }
 
 // Application

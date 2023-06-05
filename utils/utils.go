@@ -3,6 +3,7 @@ package utils
 
 import (
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -34,4 +35,13 @@ func HasIntersection(a, b []string) bool {
         }
     }
     return false
+}
+
+// GetEnv 封装os.Getenv(),可以指定默认值
+func GetEnv(key, defaultV string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		v = defaultV
+	}
+	return v
 }

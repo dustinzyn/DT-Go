@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -41,9 +40,9 @@ func InitOauthHTTPClient(svcName string, conf DBConf) {
 }
 
 func hydraPublicURL() url.URL {
-	schema := os.Getenv("HYDRA_PUBLIC_PROTOCOL")
-	host := os.Getenv("HYDRA_PUBLIC_HOST")
-	port := os.Getenv("HYDRA_PUBLIC_PORT")
+	schema := GetEnv("HYDRA_PUBLIC_PROTOCOL", "http")
+	host := GetEnv("HYDRA_PUBLIC_HOST", "hydra-public.anyshare.svc.cluster.local")
+	port := GetEnv("HYDRA_PUBLIC_PORT", "4444")
 
 	url := url.URL{
 		Scheme: schema,

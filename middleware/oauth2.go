@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 
@@ -14,6 +13,7 @@ import (
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 )
@@ -83,9 +83,9 @@ func NewAuthentication() context.Handler {
 }
 
 func getHydraAdminURL() url.URL {
-	schema := os.Getenv("HYDRA_ADMIN_PROTOCOL")
-	host := os.Getenv("HYDRA_ADMIN_HOST")
-	port := os.Getenv("HYDRA_ADMIN_PORT")
+	schema := utils.GetEnv("HYDRA_ADMIN_PROTOCOL", "http")
+	host := utils.GetEnv("HYDRA_ADMIN_HOST", "hydra-admin.anyshare.svc.cluster.local")
+	port := utils.GetEnv("HYDRA_ADMIN_PORT", "4445")
 	url := url.URL{
 		Scheme: schema,
 		Host:   fmt.Sprintf("%v:%v", host, port),

@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 
 	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
@@ -103,9 +102,9 @@ func (role *RoleHandlerImpl) TrafficOpen() bool {
 }
 
 func getUserMgntPrivateURL() url.URL {
-	schema := os.Getenv("USER_MANAGEMENT_PRIVATE_PROTOCOL")
-	host := os.Getenv("USER_MANAGEMENT_PRIVATE_HOST")
-	port := os.Getenv("USER_MANAGEMENT_PRIVATE_PORT")
+	schema := utils.GetEnv("USER_MANAGEMENT_PRIVATE_PROTOCOL", "http")
+	host := utils.GetEnv("USER_MANAGEMENT_PRIVATE_HOST", "user-management-private.anyshare.svc.cluster.local")
+	port := utils.GetEnv("USER_MANAGEMENT_PRIVATE_PORT", "30980")
 
 	url := url.URL{
 		Scheme: schema,

@@ -99,7 +99,7 @@ func getHydraAdminURL() url.URL {
 
 func getIntrospectEndpoint() string {
 	url := getHydraAdminURL()
-	url.Path = "/oauth2/introspect"
+	url.Path = "/admin/oauth2/introspect"
 	return url.String()
 }
 

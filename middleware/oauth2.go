@@ -52,27 +52,31 @@ func NewAuthentication() context.Handler {
 		worker.Bus().Add("userId", result.Subject)
 		worker.Bus().Add("clientId", result.ClientID)
 		worker.Bus().Add("userToken", token)
-		worker.Bus().Add("ip", result.Extra["login_ip"].(string))
-		var cType, udid, visitorType string
-		if result.ClientID != result.Subject {
-			if str, ok := result.Extra["client_type"].(string); ok {
-				cType = str
+		if result.Extra != nil {
+			if str, ok := result.Extra["login_ip"].(string); ok {
+				worker.Bus().Add("ip", str)
 			}
-			if str, ok := result.Extra["udid"].(string); ok {
-				udid = str
-			}
-			if v, ok := result.Extra["visitor_type"].(string); ok {
-				switch v {
-				case "realname":
-					visitorType = "authenticated_user"
-				case "anonymous":
-					visitorType = "anonymous_user"
+			var cType, udid, visitorType string
+			if result.ClientID != result.Subject {
+				if str, ok := result.Extra["client_type"].(string); ok {
+					cType = str
+				}
+				if str, ok := result.Extra["udid"].(string); ok {
+					udid = str
+				}
+				if v, ok := result.Extra["visitor_type"].(string); ok {
+					switch v {
+					case "realname":
+						visitorType = "authenticated_user"
+					case "anonymous":
+						visitorType = "anonymous_user"
+					}
 				}
 			}
+			worker.Bus().Add("clientType", cType)
+			worker.Bus().Add("udid", udid)
+			worker.Bus().Add("visitorType", visitorType)
 		}
-		worker.Bus().Add("clientType", cType)
-		worker.Bus().Add("udid", udid)
-		worker.Bus().Add("visitorType", visitorType)
 		if err != nil {
 			err = errors.InternalServerError(&errors.ErrorInfo{Cause: "introspection failed", Detail: map[string]string{"reason": introErr.Error()}})
 			errorResponse(err, ctx)

@@ -4,6 +4,7 @@ package utils
 import (
 	"math/rand"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -44,4 +45,21 @@ func GetEnv(key, defaultV string) string {
 		v = defaultV
 	}
 	return v
+}
+
+// StrToInt 将字符串转换为int
+func StrToInt(s string) int {
+	i, _ := strconv.Atoi(s)
+	return i
+}
+
+// StrToUint64 将字符串转为Uint64
+func StrToUint64(s string) uint64 {
+	i, _ := strconv.ParseUint(s, 10, 64)
+	return i
+}
+
+// IntToStr int转string
+func IntToStr(i int) string {
+	return strconv.Itoa(i)
 }

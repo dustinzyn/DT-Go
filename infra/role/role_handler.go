@@ -122,10 +122,13 @@ func getOwnersEndpoint(userId string) string {
 // userInfo 获取用户信息
 func (role *RoleHandlerImpl) userInfo(userID string) (user User, err error) {
 	ownerEndpoint := getOwnersEndpoint(userID)
-	resp := hivehttp.NewHTTPRequest(ownerEndpoint).Get().ToJSON(&user)
+	users := make([]User, 1)
+	users[0] = User{}
+	resp := hivehttp.NewHTTPRequest(ownerEndpoint).Get().ToJSON(&users)
 	if resp.StatusCode != http.StatusOK {
 		err = fmt.Errorf("get user error: status code = %v, response err = %v", resp.StatusCode, resp.Error)
 		return
 	}
+	user = users[0]
 	return
 }

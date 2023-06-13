@@ -65,7 +65,7 @@ type AccountInfo struct {
 // clientInfo return clientID ad client secret.
 func clientInfo(svcName string, conf DBConf) (clientID, secret string) {
 	var result AccountInfo
-	db, _ := ConnectDB(conf)
+	db := ConnectDB(&conf)
 	err := db.Model(&Account{}).Where(&Account{Name: svcName}).Scan(&result).Error
 	if err != nil {
 		panic(err)

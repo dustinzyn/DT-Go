@@ -60,14 +60,14 @@ func NewDBConf() *DBConf {
 }
 
 // ConnectDB return a db conn pool.
-func ConnectDB(conf DBConf) (*gorm.DB, error) {
-	if conf.DBName == "" {
-		return nil, errors.New("Invalid database name")
-	}
+func ConnectDB(conf *DBConf) *gorm.DB {
 	dbOnce.Do(func() {
 		var err error
 		switch conf.Driver {
 		case "mysql":
+			if conf.DBName == "" {
+				panic(errors.New("Invalid database name"))
+			}
 			dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=%s&loc=Local&timeout=%dms",
 			conf.User, conf.Pwd, conf.Host, conf.Port, conf.DBName, conf.Charset, strconv.FormatBool(conf.ParseTime), conf.Timeout)
 			ormconf := gorm.Config{}
@@ -99,7 +99,7 @@ func ConnectDB(conf DBConf) (*gorm.DB, error) {
 			}
 		}
 	})
-	return db, nil
+	return db
 }
 
 // DisconnectDB .

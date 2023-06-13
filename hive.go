@@ -87,8 +87,8 @@ func NewPrivateApplication() Application {
 }
 
 // NewUnitTest .
-func NewUnitTest() UnitTest {
-	return new(internal.UnitTestImpl)
+func NewUnitTest(private bool) UnitTest {
+	return &internal.UnitTestImpl{Private: private}
 }
 
 // Application

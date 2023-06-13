@@ -12,10 +12,12 @@ var _ UnitTest = (*UnitTestImpl)(nil)
 
 // UnitTest .
 type UnitTest interface {
+	App() *Application
 	GetService(service interface{})
 	GetRepository(repository interface{})
 	GetFactory(factory interface{})
 	InstallDB(f func() (db interface{}))
+	InstallDBTable(f func() (tables map[string]interface{}))
 	InstallRedis(f func() (client redis.Cmdable))
 	Run()
 	SetRequest(request *http.Request)
@@ -26,70 +28,86 @@ type UnitTest interface {
 type UnitTestImpl struct {
 	rt      *worker
 	request *http.Request
+	Private bool
+}
+
+// App .
+func (u *UnitTestImpl) App() *Application {
+	if u.Private {
+		return privateApp
+	} else {
+		return publicApp
+	}
 }
 
 // GetService .
 func (u *UnitTestImpl) GetService(service interface{}) {
-	globalApp.GetService(u.rt.IrisContext(), service)
+	u.App().GetService(u.rt.IrisContext(), service)
 }
 
 // GetRepository .
 func (u *UnitTestImpl) GetRepository(repository interface{}) {
 	instance := serviceElement{calls: []BeginRequest{}, workers: []reflect.Value{}}
 	value := reflect.ValueOf(repository).Elem()
-	ok := globalApp.repoPool.diRepoFromValue(value, &instance)
+	ok := u.App().repoPool.diRepoFromValue(value, &instance)
 	if !ok {
-		globalApp.IrisApp.Logger().Fatalf("[Freedom] No dependency injection was found for the object,%v", value.Type().String())
+		u.App().IrisApp.Logger().Fatalf("[Freedom] No dependency injection was found for the object,%v", value.Type().String())
 	}
 	if !value.CanSet() {
-		globalApp.IrisApp.Logger().Fatalf("[Freedom] This use repository object must be a capital variable, %v" + value.Type().String())
+		u.App().IrisApp.Logger().Fatalf("[Freedom] This use repository object must be a capital variable, %v" + value.Type().String())
 	}
 
 	if br, ok := value.Interface().(BeginRequest); ok {
 		instance.calls = append(instance.calls, br)
 	}
-	globalApp.pool.beginRequest(u.rt, instance)
+	u.App().pool.beginRequest(u.rt, instance)
 }
 
 // GetFactory .
 func (u *UnitTestImpl) GetFactory(factory interface{}) {
 	instance := serviceElement{calls: []BeginRequest{}, workers: []reflect.Value{}}
 	value := reflect.ValueOf(factory).Elem()
-	ok := globalApp.factoryPool.diFactoryFromValue(value, &instance)
+	ok := u.App().factoryPool.diFactoryFromValue(value, &instance)
 	if !ok {
-		globalApp.IrisApp.Logger().Fatalf("[Freedom] No dependency injection was found for the object,%v", value.Type().String())
+		u.App().IrisApp.Logger().Fatalf("[Freedom] No dependency injection was found for the object,%v", value.Type().String())
 	}
 	if !value.CanSet() {
-		globalApp.IrisApp.Logger().Fatalf("[Freedom] This use repository object must be a capital variable, %v" + value.Type().String())
+		u.App().IrisApp.Logger().Fatalf("[Freedom] This use repository object must be a capital variable, %v" + value.Type().String())
 	}
 
-	globalApp.pool.beginRequest(u.rt, instance)
+	u.App().pool.beginRequest(u.rt, instance)
 }
 
 // InstallDB .
 func (u *UnitTestImpl) InstallDB(f func() (db interface{})) {
-	globalApp.InstallDB(f)
+	u.App().InstallDB(f)
+}
+
+// InstallDBTable .
+func (u *UnitTestImpl) InstallDBTable(f func() (tables map[string]interface{})) {
+	u.App().InstallDBTable(f)
 }
 
 // InstallRedis .
 func (u *UnitTestImpl) InstallRedis(f func() (client redis.Cmdable)) {
-	globalApp.InstallRedis(f)
+	u.App().InstallRedis(f)
 }
 
 // Run .
 func (u *UnitTestImpl) Run() {
 	for index := 0; index < len(prepares); index++ {
-		prepares[index](globalApp)
+		prepares[index](u.App())
 	}
 	u.rt = u.newRuntime()
 	logLevel := "debug"
-	globalApp.IrisApp.Logger().SetLevel(logLevel)
-	globalApp.installDB()
-	globalApp.comPool.singleBooting(globalApp)
+	u.App().IrisApp.Logger().SetLevel(logLevel)
+	u.App().installDB()
+	u.App().installDBTable()
+	u.App().comPool.singleBooting(u.App())
 }
 
 func (u *UnitTestImpl) newRuntime() *worker {
-	ctx := context.NewContext(globalApp.IrisApp)
+	ctx := context.NewContext(u.App().IrisApp)
 	if u.request == nil {
 		u.request = new(http.Request)
 	}

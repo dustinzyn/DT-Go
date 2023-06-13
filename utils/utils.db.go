@@ -101,3 +101,14 @@ func ConnectDB(conf DBConf) (*gorm.DB, error) {
 	})
 	return db, nil
 }
+
+// DisconnectDB .
+func DisconnectDB() error {
+	if db != nil {
+		opt, _ := db.DB()
+		err := opt.Close()
+		db = nil
+		return err
+	}
+	return nil
+}

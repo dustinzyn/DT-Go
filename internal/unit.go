@@ -20,6 +20,7 @@ type UnitTest interface {
 	InstallDB(f func() (db interface{}))
 	InstallDBTable(f func() (tables map[string]interface{}))
 	InstallRedis(f func() (client redis.Cmdable))
+	SetRedisMock(mock redismock.ClientMock)
 	RedisMock() redismock.ClientMock
 	Run()
 	SetRequest(request *http.Request)
@@ -46,6 +47,11 @@ func (u *UnitTestImpl) App() *Application {
 // RedisMock .
 func (u *UnitTestImpl) RedisMock() redismock.ClientMock {
 	return u.redisMock
+}
+
+// SetRedisMock
+func (u *UnitTestImpl) SetRedisMock(mock redismock.ClientMock) {
+	u.redisMock = mock
 }
 
 // GetService .

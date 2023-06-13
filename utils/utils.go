@@ -63,3 +63,8 @@ func StrToUint64(s string) uint64 {
 func IntToStr(i int) string {
 	return strconv.Itoa(i)
 }
+
+// Uint64ToStr uint64转string
+func Uint64ToStr(i uint64) string {
+	return strconv.FormatUint(i, 10)
+}

@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	redis "github.com/go-redis/redis/v8"
+	redismock "github.com/go-redis/redismock/v8"
 	"github.com/kataras/iris/v12/context"
 )
 
@@ -19,6 +20,7 @@ type UnitTest interface {
 	InstallDB(f func() (db interface{}))
 	InstallDBTable(f func() (tables map[string]interface{}))
 	InstallRedis(f func() (client redis.Cmdable))
+	RedisMock() redismock.ClientMock
 	Run()
 	SetRequest(request *http.Request)
 	InjectBaseEntity(entity interface{})
@@ -26,9 +28,10 @@ type UnitTest interface {
 
 // UnitTestImpl .
 type UnitTestImpl struct {
-	rt      *worker
-	request *http.Request
-	Private bool
+	rt        *worker
+	request   *http.Request
+	Private   bool
+	redisMock redismock.ClientMock
 }
 
 // App .
@@ -38,6 +41,11 @@ func (u *UnitTestImpl) App() *Application {
 	} else {
 		return publicApp
 	}
+}
+
+// RedisMock .
+func (u *UnitTestImpl) RedisMock() redismock.ClientMock {
+	return u.redisMock
 }
 
 // GetService .

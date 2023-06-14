@@ -20,6 +20,10 @@ import (
 	stdContext "context"
 )
 
+var _ Initiator = (*Application)(nil)
+var _ SingleBoot = (*Application)(nil)
+var _ Starter = (*Application)(nil)
+
 var (
 	publicApp      *Application
 	privateApp     *Application

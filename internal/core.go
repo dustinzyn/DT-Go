@@ -50,7 +50,6 @@ type BeginRequest interface {
 }
 
 var (
-	globalApp *Application
 	prepares  []func(Initiator)
 	// privatePrepares []func(Initiator)
 	// publicPrepares []func(Initiator)

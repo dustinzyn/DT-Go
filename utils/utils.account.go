@@ -53,6 +53,9 @@ func IntasllAPPAccount(svcName string, redisClient redis.Cmdable, db *gorm.DB) {
 			panic(err)
 		}
 	}()
+	if !db.Migrator().HasTable(&Account{}) {
+		db.AutoMigrate(&Account{})
+	}
 
 	// 查询是否已有账户
 	account := Account{}

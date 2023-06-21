@@ -6,6 +6,8 @@ HTTP Request reading and parsing.
 Created by Dustin.zhu on 2022/11/1.
 */
 
+//go:generate mockgen -package mock_infra -source request.go -destination ./mock/hivehttp_mock.go
+
 import (
 	"context"
 	"encoding/json"

@@ -118,6 +118,5 @@ func (l *requestLoggerMiddleware) ServeHTTP(ctx *context.Context) {
 	if len(rawQuery) > 0 && l.config.Query {
 		fieldsMessage["query"] = rawQuery.Encode()
 	}
-	app := ctx.Application()
-	app.Logger().Info(l.config.Title, fieldsMessage)
+	work.Logger().Info(fieldsMessage)
 }

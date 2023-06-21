@@ -16,6 +16,8 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate mockgen -package mock_infra -source manager.go -destination ./mock/domainevent_mock.go
+
 var (
 	eventManager *EventManagerImpl
 )

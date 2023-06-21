@@ -13,6 +13,8 @@ package store
 	Created by Dustin.zhu on 2023/04/24.
 */
 
+//go:generate mockgen -package mock_infra -source cacher.go -destination ./mock/cache_mock.go
+
 import (
 	"context"
 	"errors"

@@ -7,6 +7,8 @@ package role
 	Created by Dustin.zhu on 2023/05/03.
 */
 
+//go:generate mockgen -package mock_infra -source role_handler.go -destination ./mock/role_mock.go
+
 import (
 	"fmt"
 	"net/http"

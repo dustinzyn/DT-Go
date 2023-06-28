@@ -4,6 +4,7 @@ package utils
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"time"
 
 	redis "github.com/go-redis/redis/v8"
@@ -34,6 +35,18 @@ type RedisConf struct {
 	IdleCheckFrequency int `yaml:"idle_check_frequency"`
 	MaxConnAge         int `yaml:"max_conn_age"`
 	PoolTimeout        int `yaml:"pool_timeout"`
+}
+
+// InitRedisDefaultConfig 初始化redis的默认配置
+func InitRedisDefaultConfig() *RedisConf {
+	return &RedisConf{
+		MaxRetries: 0,
+		PoolSize: 2 * runtime.NumCPU(),
+		ReadTimeout: 3,
+		WriteTimeout: 3,
+		IdleTimeout: 300,
+		IdleCheckFrequency: 60,
+	}
 }
 
 // ConnectRedis return a redis client. If not connected,

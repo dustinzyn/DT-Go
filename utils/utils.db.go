@@ -39,7 +39,8 @@ type DBConf struct {
 	SlowSqlTime  int    `yaml:"slow_sql_time"` // 是否打印sql, 配合慢sql使用 单位毫秒
 }
 
-func NewDBConf() *DBConf {
+// InitDBDefaultConfig 初始化数据库的默认配置
+func InitDBDefaultConfig() *DBConf {
 	return &DBConf{
 		Host:         "mariadb-mariadb-cluster.resource.svc.cluster.local",
 		Port:         3330,

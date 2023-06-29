@@ -39,20 +39,22 @@ func (obj *Account) TableName() string {
 	return "Account"
 }
 
-func IntasllAPPAccount(svcName string, redisClient redis.Cmdable, db *gorm.DB) {
+func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *gorm.DB) {
 	var clientID string
 	var err error
-	ctx := context.Background()
-	lock := redisClient.SetNX(ctx, svcName, true, 5*time.Second)
-	if !lock.Val() {
-		return
-	}
-	defer func() {
-		redisClient.Del(ctx, svcName)
-		if err != nil {
-			panic(err)
+	if redisClient != nil {
+		ctx := context.Background()
+		lock := redisClient.SetNX(ctx, svcName, true, 5*time.Second)
+		if !lock.Val() {
+			return
 		}
-	}()
+		defer func() {
+			redisClient.Del(ctx, svcName)
+			if err != nil {
+				panic(err)
+			}
+		}()
+	}
 	if !db.Migrator().HasTable(&Account{}) {
 		db.AutoMigrate(&Account{})
 	}

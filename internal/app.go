@@ -415,7 +415,10 @@ func (app *Application) installDB() {
 	}
 
 	if app.Cache.Install != nil {
-		app.Cache.client = app.Cache.Install()
+		// redis连接不上，避免堵塞服务启动
+		go func() {
+			app.Cache.client = app.Cache.Install()
+		}()
 	}
 }
 

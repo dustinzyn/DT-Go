@@ -29,7 +29,7 @@ var (
 
 type Sonyflaker interface {
 	SetPodIP(ip string)
-	NextID() (uint64, error)
+	NextID() (int, error)
 }
 
 type SonyflakerImpl struct {
@@ -58,7 +58,7 @@ func (sfi *SonyflakerImpl) SetPodIP(ip string) {
 
 // NextID 获取唯一ID
 // https://github.com/tinrab/makaroni/tree/master/utilities/unique-id
-func (sfi *SonyflakerImpl) NextID() (uint64, error) {
+func (sfi *SonyflakerImpl) NextID() (int, error) {
 	settings := &sonyflake.Settings{}
 	settings.MachineID = func() (uint16, error) {
 		ip := net.ParseIP(sfi.podIP)
@@ -72,5 +72,6 @@ func (sfi *SonyflakerImpl) NextID() (uint64, error) {
 	if sf == nil {
 		return 0, errors.New("sonyflake create error")
 	}
-	return sf.NextID()
+	nextID, err := sf.NextID()
+	return int(nextID), err
 }

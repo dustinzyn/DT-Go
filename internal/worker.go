@@ -3,6 +3,7 @@ package internal
 import (
 	stdContext "context"
 	"math/rand"
+	"net/http"
 	"reflect"
 	"time"
 
@@ -89,7 +90,11 @@ func newWorker(ctx iris.Context, private bool) *worker {
 	work.private = private
 	work.services = make([]interface{}, 0)
 	work.coms = make([]interface{}, 0)
-	work.bus = newBus(ctx.Request().Header)
+	head := ctx.Request().Header
+	if head == nil {
+		head = make(http.Header)
+	}
+	work.bus = newBus(head)
 	work.stdCtx = ctx.Request().Context()
 	work.time = time.Now()
 	work.deferRecycle = false

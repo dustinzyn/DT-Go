@@ -24,6 +24,8 @@ import (
 Created by Dustin.zhu on 2023/05/10.
 */
 
+//go:generate mockgen -package mock_infra -source distributed_lock.go -destination ./mock/dlm_mock.go
+
 func init() {
 	hive.Prepare(func(initiator hive.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *DLMImpl {

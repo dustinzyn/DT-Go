@@ -10,6 +10,8 @@ package pager
 Created by Dustin.zhu on 2023/05/03.
 */
 
+//go:generate mockgen -package mock_infra -source db_pager.go -destination ./mock/pager_mock.go
+
 import (
 	"fmt"
 	"strings"

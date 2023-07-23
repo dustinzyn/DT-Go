@@ -15,6 +15,8 @@ require (
 )
 
 require (
+	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go v1.0.0
+	gitee.com/chunanyong/dm v1.8.12 // indirect
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/CloudyKit/jet/v6 v6.2.0 // indirect
 	github.com/Joker/jade v1.1.3 // indirect
@@ -72,6 +74,7 @@ require (
 )
 
 require (
+	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton_dm_dialect_go v0.0.0-20230615061324-afded188ccb9
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/Shopify/goreferrer v0.0.0-20220729165902-8cddb4f5de06 // indirect
 	github.com/go-redis/redis/v8 v8.11.5

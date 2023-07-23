@@ -3,7 +3,6 @@ package utils
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -15,6 +14,10 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	dm "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton_dm_dialect_go"
+
+	_ "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/driver" // 注册数据库驱动
 )
 
 var dbOnce sync.Once
@@ -23,6 +26,7 @@ var db *gorm.DB
 type DBConf struct {
 	Host         string `yaml:"db_host"`
 	Port         int    `yaml:"db_port"`
+	Type         string `yaml:"db_type"`
 	User         string `yaml:"db_user"`
 	Pwd          string `yaml:"db_pwd"`
 	DBName       string `yaml:"db_name"`
@@ -44,6 +48,7 @@ func InitDBDefaultConfig() *DBConf {
 	return &DBConf{
 		Host:         "mariadb-mariadb-cluster.resource.svc.cluster.local",
 		Port:         3330,
+		Type:         "mysql",
 		User:         "anyshare",
 		Pwd:          "eisoo.com123",
 		Charset:      "utf8mb4",
@@ -52,7 +57,7 @@ func InitDBDefaultConfig() *DBConf {
 		Timeout:      10000,
 		ReadTimeout:  10000,
 		WriteTimeout: 10000,
-		Driver:       "mysql",
+		Driver:       "proton-rds",
 		Timezone:     "Asia/Shanghai",
 		ParseTime:    true,
 		PrintSqlLog:  true,
@@ -67,10 +72,10 @@ func ConnectDB(conf *DBConf) *gorm.DB {
 		switch conf.Driver {
 		case "mysql":
 			if conf.DBName == "" {
-				panic(errors.New("Invalid database name"))
+				panic(fmt.Errorf("Invalid database name"))
 			}
 			dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=%s&loc=Local&timeout=%dms",
-			conf.User, conf.Pwd, conf.Host, conf.Port, conf.DBName, conf.Charset, strconv.FormatBool(conf.ParseTime), conf.Timeout)
+				conf.User, conf.Pwd, conf.Host, conf.Port, conf.DBName, conf.Charset, strconv.FormatBool(conf.ParseTime), conf.Timeout)
 			ormconf := gorm.Config{}
 			if conf.PrintSqlLog {
 				loggerNew := logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
@@ -98,6 +103,63 @@ func ConnectDB(conf *DBConf) *gorm.DB {
 			if err != nil {
 				panic(err)
 			}
+		}
+	})
+	return db
+}
+
+// ConnProtonRDS return a db conn pool.
+func ConnProtonRDS(conf *DBConf) *gorm.DB {
+	dbOnce.Do(func() {
+		var err error
+		switch conf.Driver {
+		case "proton-rds":
+			if conf.DBName == "" {
+				panic(fmt.Errorf("Invalid database name."))
+			}
+			dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=%s&loc=Local&timeout=%dms",
+				conf.User, conf.Pwd, conf.Host, conf.Port, conf.DBName, conf.Charset, strconv.FormatBool(conf.ParseTime), conf.Timeout)
+			ormconf := gorm.Config{SkipDefaultTransaction: true}
+			if conf.PrintSqlLog {
+				loggerNew := logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
+					SlowThreshold:             time.Duration(conf.SlowSqlTime) * time.Millisecond, //慢SQL阈值
+					LogLevel:                  logger.Warn,
+					Colorful:                  false, // 彩色打印开启
+					IgnoreRecordNotFoundError: true,
+				})
+				ormconf.Logger = loggerNew
+			}
+
+			operation, err := sql.Open(conf.Driver, dsn)
+			if err != nil {
+				panic(err)
+			}
+			var dialector gorm.Dialector
+			if conf.Type == "DM8" {
+				dialector = dm.New(dm.Config{Conn: operation})
+			} else {
+				// mysql mariadb tidb
+				dialector = mysql.New(mysql.Config{Conn: operation})
+			}
+			db, err = gorm.Open(dialector, &ormconf)
+			if err != nil {
+				panic(err)
+			}
+			var opt *sql.DB
+			opt, err = db.DB()
+			if err != nil {
+				panic(err)
+			}
+			opt.SetMaxIdleConns(conf.MaxIdleConns)
+			opt.SetMaxOpenConns(conf.MaxOpenConns)
+		case "sqlite3":
+			dsn := os.Getenv("DB_URL")
+			db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+			if err != nil {
+				panic(err)
+			}
+		default:
+			panic(fmt.Errorf("Invalid database driver."))
 		}
 	})
 	return db

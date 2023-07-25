@@ -7,10 +7,12 @@ import (
 
 // Error API异常错误结构，会作为最终返回给前端的JSON Body
 type Error struct {
-	Code    int         `json:"code"`             // 错误码，前三位等于状态码，中间三位为服务标识，后三位为错误标识
-	Message string      `json:"message"`          // 错误消息
-	Cause   string      `json:"cause"`            // 错误原因，用于问题排查
-	Detail  interface{} `json:"detail,omitempty"` // 错误详情，用于前端展示具体的错误对象
+	Code        int         `json:"code"`             // 错误码，前三位等于状态码，中间三位为服务标识，后三位为错误标识
+	Message     string      `json:"message"`          // 错误消息
+	Cause       string      `json:"cause"`            // 错误原因，产生错误的具体原因
+	Detail      interface{} `json:"detail,omitempty"` // 错误码拓展信息，补充说明错误信息
+	Description string      `json:"description"`      // 错误描述，可以和message保持一致，需要符合国际化要求，客户端采用此字段做错误提示
+	Solution    string      `json:"solution"`         // 操作提示，针对当前错误的操作提示，需要符合国际化要求
 }
 
 // Error 实现error接口

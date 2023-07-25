@@ -13,11 +13,11 @@ import (
 
 // JSONResponse
 type JSONResponse struct {
-	Code        int
-	Error       error
-	contentType string
-	content     []byte
-	Object      interface{}
+	Code        int         // 错误码 默认200不需要传递 Error不为空时也不需要传递
+	Error       error       // *errors.Error
+	contentType string      // Content-Type 默认application/json
+	content     []byte      // 用于将response数据保存到context
+	Object      interface{} // 返回的对象
 }
 
 // Dispatch overwrite response dispath
@@ -38,17 +38,19 @@ func (jrep JSONResponse) Dispatch(ctx *context.Context) {
 		ctx.Values().Set("response", string(jrep.content))
 		ctx.StatusCode(code)
 		ctx.JSON(iris.Map{
-			"code":    repErr.Code,
-			"message": repErr.Message,
-			"cause":   repErr.Cause,
-			"detail":  repErr.Detail,
+			"code":        repErr.Code,
+			"message":     repErr.Message,
+			"cause":       repErr.Cause,
+			"detail":      repErr.Detail,
+			"description": repErr.Description,
+			"solution":    repErr.Solution,
 		})
 		ctx.StopExecution()
 	} else {
 		if jrep.Code != 0 {
 			ctx.StatusCode(jrep.Code)
 			ctx.Values().Set("code", jrep.Code)
-		}else {
+		} else {
 			ctx.Values().Set("code", http.StatusOK)
 		}
 		jrep.content, _ = json.Marshal(jrep.Object)

@@ -3,6 +3,7 @@ package requests
 import (
 	"encoding/json"
 	"io/ioutil"
+	"strings"
 
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
@@ -86,29 +87,65 @@ func (req *Request) ReadFormDefault(key, defaultValue string) string {
 	return req.Worker().IrisContext().FormValueDefault(key, defaultValue)
 }
 
-type JSONResp struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Cause   string      `json:"cause"`
-	Detail  interface{} `json:"detail"`
-}
+// AcceptLanguage .
+func (req *Request) AcceptLanguage() (language string) {
+	// 支持的语言集
+	acceptLangs := map[string]string{
+		"zh-CN": "1",
+		"zh-TW": "1",
+		"en-US": "1",
+	}
 
-// errorResponse .
-func (req *Request) errorResponse(err *errors.Error) {
-	cStr := utils.IntToStr(err.Code)
-	code := utils.StrToInt(cStr[:3])
-	ctx := req.Worker().IrisContext()
-	ctx.Values().Set("code", code)
-	respByte, _ := json.Marshal(err)
-	ctx.Values().Set("response", string(respByte))
-	ctx.StatusCode(code)
-	ctx.JSON(JSONResp{
-		Code:    err.Code,
-		Message: err.Message,
-		Cause:   err.Cause,
-		Detail:  err.Detail,
-	})
-	ctx.StopExecution()
+	// eg. zh-CH, fr;q=0.9, en-US;q=0.8, de;q=0.7, *;q=0.5
+	xLanguage := strings.ReplaceAll(req.Worker().Bus().Header.Get("x-language"), " ", "")
+	defer func() {
+		if r := recover(); r != nil {
+			hive.Logger().Errorf("parse x-language: %v, error: %v", xLanguage, r)
+			language = utils.GetEnv("LANGUAGE", "zh-CN")
+			return
+		}
+		if language == "" {
+			language = utils.GetEnv("LANGUAGE", "zh-CN")
+			return
+		}
+	}()
+
+	langWeights := strings.Split(xLanguage, ",")
+	langWeightMap := make(map[string]string)
+	for _, langw := range langWeights {
+		langWeight := strings.Split(langw, ";")
+		switch len(langWeight) {
+		case 1:
+			// [zh-CH]
+			langWeightMap[langWeight[0]] = "1"
+		case 2:
+			// [fr,q=0.9]
+			weight := strings.Split(langWeight[1], "=")[1]
+			langWeightMap[langWeight[0]] = weight
+		default:
+		}
+	}
+	acceptWeight := ""
+	acceptAll := false
+	for lang, weight := range langWeightMap {
+		// 命中已支持的语言集，并且权重最高的
+		if _, ok := acceptLangs[lang]; ok {
+			if weight > acceptWeight {
+				acceptWeight = weight
+				language = lang
+			}
+		}
+		if lang == "*" {
+			acceptAll = true
+		}
+	}
+	// 未命中但存在通配符* 采用默认语言
+	if language == "" && acceptAll {
+		language = utils.GetEnv("LANGUAGE", "zh-CN")
+	}
+	// TODO 都未命中考虑降级，语言标签去掉区域后再匹配
+
+	return
 }
 
 // InternalError 500.

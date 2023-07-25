@@ -112,37 +112,33 @@ func (req *Request) errorResponse(err *errors.Error) {
 }
 
 // InternalError 500.
-func (req *Request) InternalErrorResponse(err error) {
+func (req *Request) InternalErrorResponse(err error) hive.Result {
 	e := errors.InternalServerError(&errors.ErrorInfo{
 		Cause: err.Error(),
 	})
-	req.errorResponse(e)
-	return
+	return &JSONResponse{Error: e}
 }
 
 // BadRequestError 400.
-func (req *Request) BadRequestErrorResponse(err error) {
+func (req *Request) BadRequestErrorResponse(err error) hive.Result {
 	e := errors.BadRequestError(&errors.ErrorInfo{
 		Cause: err.Error(),
 	})
-	req.errorResponse(e)
-	return
+	return &JSONResponse{Error: e}
 }
 
 // NoPermissionError 403.
-func (req *Request) NoPermissionErrorResponse(err error) {
+func (req *Request) NoPermissionErrorResponse(err error) hive.Result {
 	e := errors.NoPermissionError(&errors.ErrorInfo{
 		Cause: err.Error(),
 	})
-	req.errorResponse(e)
-	return
+	return &JSONResponse{Error: e}
 }
 
 // NotFoundError 404.
-func (req *Request) NotFoundErrorResponse(err error) {
+func (req *Request) NotFoundErrorResponse(err error) hive.Result {
 	e := errors.NotFoundError(&errors.ErrorInfo{
 		Cause: err.Error(),
 	})
-	req.errorResponse(e)
-	return
+	return &JSONResponse{Error: e}
 }

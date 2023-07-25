@@ -45,9 +45,11 @@ type ErrorType struct {
 
 // ErrorInfo 错误详情，是一些描述信的文本信息
 type ErrorInfo struct {
-	Message string      // 错误消息，用于前端未处理异常码时直接打印
-	Cause   string      // 错误原因，用于问题排查
-	Detail  interface{} // 错误详情，用于前端展示具体的错误对象
+	Message     string      `json:"message"`          // 错误消息
+	Cause       string      `json:"cause"`            // 错误原因，产生错误的具体原因
+	Detail      interface{} `json:"detail,omitempty"` // 错误码拓展信息，补充说明错误信息
+	Description string      `json:"description"`      // 错误描述，可以和message保持一致，需要符合国际化要求，客户端采用此字段做错误提示
+	Solution    string      `json:"solution"`         // 操作提示，针对当前错误的操作提示，需要符合国际化要求
 }
 
 // TypedErrorBuilder 固定Code，不同信息的错误生成器
@@ -78,6 +80,8 @@ func (builder *TypedErrorBuilder) OfType(errType *ErrorType) ErrorOfType {
 			Message: errType.Message,
 			Cause:   errType.Cause,
 			Detail:  errType.Detail,
+			Description: errType.Description,
+			Solution: errType.Solution,
 		}
 
 		if info == nil {
@@ -94,6 +98,12 @@ func (builder *TypedErrorBuilder) OfType(errType *ErrorType) ErrorOfType {
 
 		if info.Detail != nil {
 			err.Detail = info.Detail
+		}
+		if info.Description != "" {
+			err.Description = info.Description
+		}
+		if info.Solution != "" {
+			err.Solution = info.Solution
 		}
 
 		return &err

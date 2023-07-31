@@ -15,10 +15,10 @@ var validate *validator.Validate
 func init() {
 	validate = validator.New()
 	hive.Prepare(func(initiator hive.Initiator) {
-		initiator.BindInfra(false, initiator.IsPrivate(), func() *Request {
-			return &Request{}
+		initiator.BindInfra(false, initiator.IsPrivate(), func() *RequestImpl {
+			return &RequestImpl{}
 		})
-		initiator.InjectController(func(ctx hive.Context) (com *Request) {
+		initiator.InjectController(func(ctx hive.Context) (com *RequestImpl) {
 			initiator.GetInfra(ctx, &com)
 			return
 		})
@@ -26,17 +26,27 @@ func init() {
 }
 
 // Request .
-type Request struct {
+type Request interface {
+	ReadJSON(obj interface{}) (err error)
+	ReadQuery(obj interface{}) (err error)
+	ReadQueryDefault(key, defaultValue string) string
+	ReadForm(obj interface{}) (err error)
+	ReadFormDefault(key, defaultValue string) string
+	AcceptLanguage() (language string)
+}
+
+// RequestImpl .
+type RequestImpl struct {
 	hive.Infra
 }
 
 // BeginRequest .
-func (req *Request) BeginRequest(worker hive.Worker) {
+func (req *RequestImpl) BeginRequest(worker hive.Worker) {
 	req.Infra.BeginRequest(worker)
 }
 
 // ReadJSON .
-func (req *Request) ReadJSON(obj interface{}) (err error) {
+func (req *RequestImpl) ReadJSON(obj interface{}) (err error) {
 	rawData, err := ioutil.ReadAll(req.Worker().IrisContext().Request().Body)
 	if err != nil {
 		return
@@ -53,7 +63,7 @@ func (req *Request) ReadJSON(obj interface{}) (err error) {
 }
 
 // ReadQuery .
-func (req *Request) ReadQuery(obj interface{}) (err error) {
+func (req *RequestImpl) ReadQuery(obj interface{}) (err error) {
 	if err = req.Worker().IrisContext().ReadQuery(obj); err != nil {
 		return
 	}
@@ -65,12 +75,12 @@ func (req *Request) ReadQuery(obj interface{}) (err error) {
 }
 
 // ReadQueryDefault .
-func (req *Request) ReadQueryDefault(key, defaultValue string) string {
+func (req *RequestImpl) ReadQueryDefault(key, defaultValue string) string {
 	return req.Worker().IrisContext().URLParamDefault(key, defaultValue)
 }
 
 // ReadForm .
-func (req *Request) ReadForm(obj interface{}) (err error) {
+func (req *RequestImpl) ReadForm(obj interface{}) (err error) {
 	if err = req.Worker().IrisContext().ReadForm(obj); err != nil {
 		return
 	}
@@ -82,12 +92,12 @@ func (req *Request) ReadForm(obj interface{}) (err error) {
 }
 
 // ReadFormDefault .
-func (req *Request) ReadFormDefault(key, defaultValue string) string {
+func (req *RequestImpl) ReadFormDefault(key, defaultValue string) string {
 	return req.Worker().IrisContext().FormValueDefault(key, defaultValue)
 }
 
 // AcceptLanguage .
-func (req *Request) AcceptLanguage() (language string) {
+func (req *RequestImpl) AcceptLanguage() (language string) {
 	language = utils.ParseXLanguage(req.Worker().Bus().Header.Get("x-language"))
 	// 注入消息总线
 	req.Worker().Bus().Add("language", language)

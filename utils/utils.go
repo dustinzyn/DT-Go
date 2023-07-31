@@ -5,15 +5,18 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"time"
+
+	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 )
 
 const (
 	letters string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~-_."
 )
 
+// RandString 生成指定范围内的随机数
 func RandString(length int) string {
-	// 生成[6, 100]以内的随机数
 	letter := []rune(letters)
 	b := make([]rune, length)
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -67,4 +70,80 @@ func IntToStr(i int) string {
 // Uint64ToStr uint64转string
 func Uint64ToStr(i uint64) string {
 	return strconv.FormatUint(i, 10)
+}
+
+// GetDefaultLanguage 获取系统默认语言
+func GetDefaultLanguage() string {
+	lang := GetEnv("LANGUAGE", "zh_CN")
+	// 系统里定义的语言格式和http语言格式有差异
+	lang = strings.ReplaceAll(lang, "_", "-")
+	return lang
+}
+
+// ParseXLanguage 解析 http headers x-Language
+func ParseXLanguage(xLanguage string, acceptLangs ...string) (language string) {
+	// eg. zh-CH, fr;q=0.9, en-US;q=0.8, de;q=0.7, *;q=0.5
+	xLanguage = strings.ReplaceAll(xLanguage, " ", "")
+	// 支持的语言集
+	acceptLangMap := make(map[string]string)
+	if len(acceptLangs) != 0 {
+		for _, lang := range acceptLangs {
+			acceptLangMap[lang] = "1"
+		}
+	} else {
+		acceptLangMap = map[string]string{
+			"zh-CN": "1",
+			"zh-TW": "1",
+			"en-US": "1",
+		}
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			hive.Logger().Errorf("parse x-language: %v, error: %v", xLanguage, r)
+			language = GetDefaultLanguage()
+			return
+		}
+		if language == "" {
+			language = GetDefaultLanguage()
+			return
+		}
+	}()
+
+	langWeights := strings.Split(xLanguage, ",")
+	langWeightMap := make(map[string]string)
+	for _, langw := range langWeights {
+		langWeight := strings.Split(langw, ";")
+		switch len(langWeight) {
+		case 1:
+			// [zh-CH]
+			langWeightMap[langWeight[0]] = "1"
+		case 2:
+			// [fr,q=0.9]
+			weight := strings.Split(langWeight[1], "=")[1]
+			langWeightMap[langWeight[0]] = weight
+		default:
+		}
+	}
+	acceptWeight := ""
+	acceptAll := false
+	for lang, weight := range langWeightMap {
+		// 命中已支持的语言集，并且权重最高的
+		if _, ok := acceptLangMap[lang]; ok {
+			if weight > acceptWeight {
+				acceptWeight = weight
+				language = lang
+			}
+		}
+		if lang == "*" {
+			acceptAll = true
+		}
+	}
+	// 未命中但存在通配符* 采用默认语言
+	if language == "" && acceptAll {
+		language = GetDefaultLanguage()
+	}
+	// TODO 都未命中考虑降级，语言标签去掉区域后再匹配
+
+	return
 }

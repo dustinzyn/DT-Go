@@ -2,14 +2,13 @@
 package middleware
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
@@ -36,7 +35,7 @@ type Introspection struct {
 
 func NewAuthentication() context.Handler {
 	return func(ctx hive.Context) {
-		var err *errors.Error
+		language := utils.ParseXLanguage(ctx.GetHeader("x-language"))
 		token, err := parseBearerToken(ctx.Request())
 		if err != nil {
 			errorResponse(err, ctx)
@@ -44,7 +43,12 @@ func NewAuthentication() context.Handler {
 		}
 		result, introErr := introspection(token, nil)
 		if !result.Active {
-			err = errors.UnauthorizationError(&errors.ErrorInfo{Cause: "access token expired"})
+			err = errors.New(language, errors.UnauthorizedErr, "access token expired.", nil)
+			errorResponse(err, ctx)
+			return
+		}
+		if introErr != nil {
+			err = errors.New(language, errors.InternalErr, "introspection failed.", map[string]string{"reason": introErr.Error()})
 			errorResponse(err, ctx)
 			return
 		}
@@ -76,11 +80,6 @@ func NewAuthentication() context.Handler {
 			worker.Bus().Add("clientType", cType)
 			worker.Bus().Add("udid", udid)
 			worker.Bus().Add("visitorType", visitorType)
-		}
-		if err != nil {
-			err = errors.InternalServerError(&errors.ErrorInfo{Cause: "introspection failed", Detail: map[string]string{"reason": introErr.Error()}})
-			errorResponse(err, ctx)
-			return
 		}
 		ctx.Next()
 	}
@@ -120,35 +119,36 @@ func introspection(token string, scopes []string) (result Introspection, err err
 }
 
 // parseBearerToken 解析token
-func parseBearerToken(req *http.Request) (token string, err *errors.Error) {
+func parseBearerToken(req *http.Request) (token string, err *errors.ErrorResp) {
 	hdr := req.Header.Get("Authorization")
 	if hdr == "" {
-		err = errors.UnauthorizationError(&errors.ErrorInfo{Cause: "access_token empty", Detail: map[string]string{"original_data": hdr}})
+		err = errors.New(utils.ParseXLanguage(req.Header.Get("x-language")), errors.UnauthorizedErr, "access token is empty.", map[string]string{"original_data": hdr})
 		return
 	}
 
 	// Example: Bearer xxxx
 	tokenList := strings.SplitN(hdr, " ", 2)
 	if len(tokenList) != 2 || strings.ToLower(tokenList[0]) != "bearer" {
-		err = errors.UnauthorizationError(&errors.ErrorInfo{Cause: "access_token invalid", Detail: map[string]string{"original_data": hdr}})
+		err = errors.New(utils.ParseXLanguage(req.Header.Get("x-language")), errors.UnauthorizedErr, "invalid token.", map[string]string{"original_data": hdr})
 		return
 	}
 	return tokenList[1], nil
 }
 
 // errorResponse .
-func errorResponse(err *errors.Error, ctx hive.Context) {
-	codeStr := strconv.Itoa(err.Code)
+func errorResponse(err errors.APIError, ctx hive.Context) {
+	codeStr := strconv.Itoa(err.Code())
 	code, _ := strconv.Atoi(codeStr[:3])
 	ctx.Values().Set("code", code)
-	repByte, _ := json.Marshal(err)
-	ctx.Values().Set("response", string(repByte))
+	ctx.Values().Set("response", string(err.Marshal()))
 	ctx.StatusCode(code)
 	ctx.JSON(iris.Map{
-		"code":    err.Code,
-		"message": err.Message,
-		"cause":   err.Cause,
-		"detail":  err.Detail,
+		"code":        err.Code(),
+		"message":     err.Message(),
+		"cause":       err.Cause(),
+		"detail":      err.Detail(),
+		"description": err.Description(),
+		"solution":    err.Solution(),
 	})
 	ctx.StopExecution()
 }

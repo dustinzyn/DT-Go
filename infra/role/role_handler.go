@@ -1,10 +1,10 @@
 package role
 
 /**
-	角色管控组件
-	管控不同角色的访问权限
+角色管控组件
+管控不同角色的访问权限
 
-	Created by Dustin.zhu on 2023/05/03.
+Created by Dustin.zhu on 2023/05/03.
 */
 
 //go:generate mockgen -package mock_infra -source role_handler.go -destination ./mock/role_mock.go
@@ -63,7 +63,7 @@ type RoleHandler interface {
 	// 设置允许放行的角色
 	SetPermissibleRoles(roles []string) RoleHandler
 	// 角色管控
-	TrafficOpen() bool
+	TrafficOpen() (bool, error)
 }
 
 type RoleHandlerImpl struct {
@@ -91,16 +91,15 @@ func (role *RoleHandlerImpl) SetPermissibleRoles(roles []string) RoleHandler {
 }
 
 // TrafficOpen 角色管控 返回true允许访问 返回false禁止访问
-func (role *RoleHandlerImpl) TrafficOpen() bool {
+func (role *RoleHandlerImpl) TrafficOpen() (bool, error) {
 	user, err := role.userInfo(role.UserID)
 	if err != nil {
-		return false
+		return false, err
 	}
 	if !utils.HasIntersection(role.PermissibleRoles, user.Roles) {
-		// 用户所拥有的角色不在受限的范围内
-		return false
+		return false, err
 	}
-	return true
+	return true, nil
 }
 
 func getUserMgntPrivateURL() url.URL {

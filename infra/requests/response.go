@@ -3,18 +3,18 @@ package requests
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 )
 
 // JSONResponse
 type JSONResponse struct {
+	Error       error
 	Code        int         // 错误码 默认200不需要传递 Error不为空时也不需要传递
-	Error       error       // *errors.Error
 	contentType string      // Content-Type 默认application/json
 	content     []byte      // 用于将response数据保存到context
 	Object      interface{} // 返回的对象
@@ -26,24 +26,24 @@ func (jrep JSONResponse) Dispatch(ctx *context.Context) {
 		jrep.contentType = "application/json"
 	}
 	if jrep.Error != nil {
-		repErr, ok := jrep.Error.(*errors.Error)
+		repErr, ok := jrep.Error.(*errors.ErrorResp)
 		if !ok {
-			repErr = errors.InternalServerError(&errors.ErrorInfo{Cause: jrep.Error.Error()})
+			repErr = errors.New(utils.ParseXLanguage(ctx.GetHeader("x-language")), errors.InternalErr, "", nil)
 		}
 
-		codeStr := strconv.Itoa(repErr.Code)
-		code, _ := strconv.Atoi(codeStr[:3])
-		ctx.Values().Set("code", code)
-		jrep.content, _ = json.Marshal(repErr)
+		ctx.Values().Set("code", repErr.Code())
+		code := utils.IntToStr(repErr.Code())[:3]
+		jrep.Code = utils.StrToInt(code)
+		jrep.content = repErr.Marshal()
 		ctx.Values().Set("response", string(jrep.content))
-		ctx.StatusCode(code)
+		ctx.StatusCode(jrep.Code)
 		ctx.JSON(iris.Map{
-			"code":        repErr.Code,
-			"message":     repErr.Message,
-			"cause":       repErr.Cause,
-			"detail":      repErr.Detail,
-			"description": repErr.Description,
-			"solution":    repErr.Solution,
+			"code":        repErr.Code(),
+			"message":     repErr.Message(),
+			"cause":       repErr.Cause(),
+			"detail":      repErr.Detail(),
+			"description": repErr.Description(),
+			"solution":    repErr.Solution(),
 		})
 		ctx.StopExecution()
 	} else {

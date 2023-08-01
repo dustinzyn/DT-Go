@@ -85,17 +85,6 @@ func NewAuthentication() context.Handler {
 	}
 }
 
-func getHydraAdminURL() url.URL {
-	schema := utils.GetEnv("HYDRA_ADMIN_PROTOCOL", "http")
-	host := utils.GetEnv("HYDRA_ADMIN_HOST", "hydra-admin.anyshare.svc.cluster.local")
-	port := utils.GetEnv("HYDRA_ADMIN_PORT", "4445")
-	url := url.URL{
-		Scheme: schema,
-		Host:   fmt.Sprintf("%v:%v", host, port),
-	}
-	return url
-}
-
 func getIntrospectEndpoint() string {
 	cg := hive.NewConfiguration()
 	url := url.URL{

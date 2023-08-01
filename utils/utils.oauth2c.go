@@ -40,20 +40,12 @@ func InitOauthHTTPClient(svcName string, conf config.DBConfiguration) {
 	return
 }
 
-func hydraPublicURL() url.URL {
-	schema := GetEnv("HYDRA_PUBLIC_PROTOCOL", "http")
-	host := GetEnv("HYDRA_PUBLIC_HOST", "hydra-public.anyshare.svc.cluster.local")
-	port := GetEnv("HYDRA_PUBLIC_PORT", "4444")
-
-	url := url.URL{
-		Scheme: schema,
-		Host:   fmt.Sprintf("%v:%v", host, port),
-	}
-	return url
-}
-
 func tokenEndpoint() string {
-	url := hydraPublicURL()
+	cg := config.NewConfiguration().DS
+	url := url.URL{
+		Scheme: cg.HydraPublicProtocol,
+		Host:   fmt.Sprintf("%v:%v", cg.HydraPublicHost, cg.HydraPublicPort),
+	}
 	url.Path = "/oauth2/token"
 	return url.String()
 }

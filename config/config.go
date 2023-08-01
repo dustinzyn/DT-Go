@@ -5,9 +5,23 @@ import (
 	"io/ioutil"
 	"os"
 	"runtime"
+	"sync"
 
 	"github.com/kataras/iris/v12"
 	"gopkg.in/yaml.v3"
+)
+
+const (
+	// ProfileENV 配置文件所在目录的环境变量
+	ProfileENV = "CONFIG_PATH"
+)
+
+var (
+	cgOnce sync.Once
+	// configurer 配置器
+	configurer Configurer
+	// configuration 配置
+	configuration *Configurations
 )
 
 // Configure
@@ -15,14 +29,10 @@ type Configurer interface {
 	Configure(obj interface{}, file string, metadata ...interface{}) error
 }
 
-var configurer Configurer
-
 // SetConfigurer
 func SetConfigurer(confer Configurer) {
 	configurer = confer
 }
-
-var ProfileENV = "CONFIG_PATH"
 
 // Configure
 func Configure(obj interface{}, file string, metadata ...interface{}) (err error) {
@@ -65,58 +75,61 @@ type Configurations struct {
 
 // NewConfiguration 初始化默认配置
 func NewConfiguration() *Configurations {
-	irisCg := iris.DefaultConfiguration()
-	dbCg := &DBConfiguration{
-		Host:         "mariadb-mariadb-cluster.resource.svc.cluster.local",
-		Port:         3330,
-		Type:         "mysql",
-		User:         "anyshare",
-		Pwd:          "eisoo.com123",
-		Charset:      "utf8mb4",
-		MaxOpenConns: 20,
-		MaxIdleConns: 5,
-		Timeout:      10000,
-		ReadTimeout:  10000,
-		WriteTimeout: 10000,
-		Driver:       "proton-rds",
-		Timezone:     "Asia/Shanghai",
-		ParseTime:    true,
-		PrintSqlLog:  true,
-		SlowSqlTime:  1000,
-	}
-	redisCg := &RedisConfiguration{
-		MaxRetries:         0,
-		PoolSize:           2 * runtime.NumCPU(),
-		ReadTimeout:        3,
-		WriteTimeout:       3,
-		IdleTimeout:        300,
-		IdleCheckFrequency: 60,
-	}
-	dsCg := &DepSvcConfiguration{
-		UserMgntProtocol:    "http",
-		UserMgntHost:        "user-management-private.anyshare.svc.cluster.local",
-		UserMgntPort:        "30980",
-		HydraPublicProtocol: "http",
-		HydraPublicHost:     "hydra-public.anyshare.svc.cluster.local",
-		HydraPublicPort:     "4444",
-		HydraAdminProtocol:  "http",
-		HydraAdminHost:      "hydra-admin.anyshare.svc.cluster.local",
-		HydraAdminPort:      "4445",
-	}
-	mqCg := &MQConfiguration{
-		ConnectType:  "nsq",
-		ProducerHost: "proton-mq-nsq-nsqd.resource.svc.cluster.local",
-		ProducerPort: "4151",
-		ConsumerHost: "proton-mq-nsq-nsqlookupd.resource.svc.cluster.local",
-		ConsumerPort: "4161",
-	}
-	return &Configurations{
-		DB:    dbCg,
-		Redis: redisCg,
-		App:   &irisCg,
-		DS:    dsCg,
-		MQ:    mqCg,
-	}
+	cgOnce.Do(func() {
+		irisCg := iris.DefaultConfiguration()
+		dbCg := &DBConfiguration{
+			Host:         "mariadb-mariadb-cluster.resource.svc.cluster.local",
+			Port:         3330,
+			Type:         "mysql",
+			User:         "anyshare",
+			Pwd:          "eisoo.com123",
+			Charset:      "utf8mb4",
+			MaxOpenConns: 20,
+			MaxIdleConns: 5,
+			Timeout:      10000,
+			ReadTimeout:  10000,
+			WriteTimeout: 10000,
+			Driver:       "proton-rds",
+			Timezone:     "Asia/Shanghai",
+			ParseTime:    true,
+			PrintSqlLog:  true,
+			SlowSqlTime:  1000,
+		}
+		redisCg := &RedisConfiguration{
+			MaxRetries:         0,
+			PoolSize:           2 * runtime.NumCPU(),
+			ReadTimeout:        3,
+			WriteTimeout:       3,
+			IdleTimeout:        300,
+			IdleCheckFrequency: 60,
+		}
+		dsCg := &DepSvcConfiguration{
+			UserMgntProtocol:    "http",
+			UserMgntHost:        "user-management-private.anyshare.svc.cluster.local",
+			UserMgntPort:        "30980",
+			HydraPublicProtocol: "http",
+			HydraPublicHost:     "hydra-public.anyshare.svc.cluster.local",
+			HydraPublicPort:     "4444",
+			HydraAdminProtocol:  "http",
+			HydraAdminHost:      "hydra-admin.anyshare.svc.cluster.local",
+			HydraAdminPort:      "4445",
+		}
+		mqCg := &MQConfiguration{
+			ConnectType:  "nsq",
+			ProducerHost: "proton-mq-nsq-nsqd.resource.svc.cluster.local",
+			ProducerPort: "4151",
+			ConsumerHost: "proton-mq-nsq-nsqlookupd.resource.svc.cluster.local",
+			ConsumerPort: "4161",
+		}
+		configuration = &Configurations{
+			DB:    dbCg,
+			Redis: redisCg,
+			App:   &irisCg,
+			DS:    dsCg,
+			MQ:    mqCg,
+		}
+	})
+	return configuration
 }
 
 type DBConfiguration struct {

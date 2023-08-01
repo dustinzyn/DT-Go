@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
 
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/mq"
 	redis "github.com/go-redis/redis/v8"
 	"gorm.io/gorm"
@@ -102,15 +102,9 @@ func registerAPPAccount(name string, password string) (appID string, err error) 
 	}
 
 	reqBodyByte, _ := json.Marshal(reqBody)
-	userMgntHost := os.Getenv("USER_MANAGEMENT_PRIVATE_HOST")
-	if userMgntHost == "" {
-		userMgntHost = "user-management-private.anyshare.svc.cluster.local"
-	}
-	userMgntPort := os.Getenv("USER_MANAGEMENT_PRIVATE_PORT")
-	if userMgntPort == "" {
-		userMgntPort = "30980"
-	}
-	url := fmt.Sprintf("http://%v:%v/api/user-management/v1/apps", userMgntHost, userMgntPort)
+
+	cg := config.NewConfiguration().DS
+	url := fmt.Sprintf("http://%v:%v/api/user-management/v1/apps", cg.UserMgntHost, cg.UserMgntPort)
 
 	req, _ := http.NewRequest("POST", url, bytes.NewReader(reqBodyByte))
 	req.Header.Add("Content-Type", "application/json")

@@ -13,11 +13,12 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
 )
 
 // InitOauthHTTPClient .
-func InitOauthHTTPClient(svcName string, conf DBConf) {
+func InitOauthHTTPClient(svcName string, conf config.DBConfiguration) {
 	tr := &http.Transport{
 		TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 		MaxIdleConnsPerHost:   100,
@@ -63,7 +64,7 @@ type AccountInfo struct {
 }
 
 // clientInfo return clientID ad client secret.
-func clientInfo(svcName string, conf DBConf) (clientID, secret string) {
+func clientInfo(svcName string, conf config.DBConfiguration) (clientID, secret string) {
 	var result AccountInfo
 	db := ConnectDB(&conf)
 	err := db.Model(&Account{}).Where(&Account{Name: svcName}).Scan(&result).Error

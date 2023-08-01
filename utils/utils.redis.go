@@ -4,54 +4,16 @@ package utils
 import (
 	"context"
 	"fmt"
-	"runtime"
 	"time"
 
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
 	redis "github.com/go-redis/redis/v8"
 )
 
-type RedisConf struct {
-	ConnectType      string `yaml:"connect_type"`
-	MasterGroupName  string `yaml:"master_group_name"`
-	SentinelHost     string `yaml:"sentinel_host"`
-	SentinelPort     string `yaml:"sentinel_port"`
-	SentinelUsername string `yaml:"sentinel_username"`
-	SentinelPwd      string `yaml:"sentinel_password"`
-
-	UserName string `yaml:"user_name"`
-	Password string `yaml:"password"`
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-
-	ClusterHosts []string `yaml:"cluster_addrs"`
-	ClusterPwd   string   `yaml:"cluster_password"`
-
-	DB                 int `yaml:"db"`
-	MaxRetries         int `yaml:"max_retries"`
-	PoolSize           int `yaml:"pool_size"`
-	ReadTimeout        int `yaml:"read_timeout"`
-	WriteTimeout       int `yaml:"write_timeout"`
-	IdleTimeout        int `yaml:"idle_timeout"`
-	IdleCheckFrequency int `yaml:"idle_check_frequency"`
-	MaxConnAge         int `yaml:"max_conn_age"`
-	PoolTimeout        int `yaml:"pool_timeout"`
-}
-
-// InitRedisDefaultConfig 初始化redis的默认配置
-func InitRedisDefaultConfig() *RedisConf {
-	return &RedisConf{
-		MaxRetries: 0,
-		PoolSize: 2 * runtime.NumCPU(),
-		ReadTimeout: 3,
-		WriteTimeout: 3,
-		IdleTimeout: 300,
-		IdleCheckFrequency: 60,
-	}
-}
 
 // ConnectRedis return a redis client. If not connected,
 // it will automatically reconnect until connected.
-func ConnectRedis(conf RedisConf) (client redis.Cmdable) {
+func ConnectRedis(conf config.RedisConfiguration) (client redis.Cmdable) {
 	ctx := context.Background()
 	if conf.UserName == "" {
 		conf.UserName = "root"
@@ -129,7 +91,7 @@ func ConnectRedis(conf RedisConf) (client redis.Cmdable) {
 }
 
 // masterSlave 主从模式/标准模式客户端
-func masterSlave(conf RedisConf) *redis.Client {
+func masterSlave(conf config.RedisConfiguration) *redis.Client {
 	if conf.Host == "" {
 		conf.Host = "proton-redis-proton-redis.resource.svc.cluster.local"
 	}
@@ -153,7 +115,7 @@ func masterSlave(conf RedisConf) *redis.Client {
 }
 
 // sentinel 哨兵模式客户端
-func sentinel(conf RedisConf) *redis.Client {
+func sentinel(conf config.RedisConfiguration) *redis.Client {
 	if conf.MasterGroupName == "" {
 		conf.MasterGroupName = "mymaster"
 	}
@@ -186,7 +148,7 @@ func sentinel(conf RedisConf) *redis.Client {
 }
 
 // cluster 集群模式客户端
-func cluster(conf RedisConf) *redis.ClusterClient {
+func cluster(conf config.RedisConfiguration) *redis.ClusterClient {
 	if conf.ClusterPwd == "" {
 		conf.ClusterPwd = "eisoo.com123"
 	}

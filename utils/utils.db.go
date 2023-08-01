@@ -15,6 +15,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
 	dm "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton_dm_dialect_go"
 
 	_ "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/driver" // 注册数据库驱动
@@ -23,50 +24,8 @@ import (
 var dbOnce sync.Once
 var db *gorm.DB
 
-type DBConf struct {
-	Host         string `yaml:"db_host"`
-	Port         int    `yaml:"db_port"`
-	Type         string `yaml:"db_type"`
-	User         string `yaml:"db_user"`
-	Pwd          string `yaml:"db_pwd"`
-	DBName       string `yaml:"db_name"`
-	Charset      string `yaml:"charset"`
-	MaxOpenConns int    `yaml:"max_open_conns"` // 允许打开的最大连接数
-	MaxIdleConns int    `yaml:"max_idle_conns"` // 连接池里的空闲连接数
-	Timeout      int    `yaml:"timeout"`        // 连接超时时间 单位毫秒
-	ReadTimeout  int    `yaml:"read_timeout"`
-	WriteTimeout int    `yaml:"write_timeout"`
-	Driver       string `yaml:"driver"`
-	Timezone     string `yaml:"timezone"`
-	ParseTime    bool   `yaml:"parse_time"`    // 支持把数据库datetime和date类型转换为golang的time.Time类型
-	PrintSqlLog  bool   `yaml:"print_sql_log"` // 慢sql时间,单位毫秒,超过这个时间会打印sql
-	SlowSqlTime  int    `yaml:"slow_sql_time"` // 是否打印sql, 配合慢sql使用 单位毫秒
-}
-
-// InitDBDefaultConfig 初始化数据库的默认配置
-func InitDBDefaultConfig() *DBConf {
-	return &DBConf{
-		Host:         "mariadb-mariadb-cluster.resource.svc.cluster.local",
-		Port:         3330,
-		Type:         "mysql",
-		User:         "anyshare",
-		Pwd:          "eisoo.com123",
-		Charset:      "utf8mb4",
-		MaxOpenConns: 20,
-		MaxIdleConns: 5,
-		Timeout:      10000,
-		ReadTimeout:  10000,
-		WriteTimeout: 10000,
-		Driver:       "proton-rds",
-		Timezone:     "Asia/Shanghai",
-		ParseTime:    true,
-		PrintSqlLog:  true,
-		SlowSqlTime:  1000,
-	}
-}
-
 // ConnectDB return a db conn pool.
-func ConnectDB(conf *DBConf) *gorm.DB {
+func ConnectDB(conf *config.DBConfiguration) *gorm.DB {
 	dbOnce.Do(func() {
 		var err error
 		switch conf.Driver {
@@ -109,7 +68,7 @@ func ConnectDB(conf *DBConf) *gorm.DB {
 }
 
 // ConnProtonRDS return a db conn pool.
-func ConnProtonRDS(conf *DBConf) *gorm.DB {
+func ConnProtonRDS(conf *config.DBConfiguration) *gorm.DB {
 	dbOnce.Do(func() {
 		var err error
 		switch conf.Driver {

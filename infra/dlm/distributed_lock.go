@@ -189,5 +189,5 @@ func (dlm *DLMImpl) Unlock() error {
 		}
 	}
 	err = fmt.Errorf("unlock script fail: %v", dlm.key)
-	return nil
+	return err
 }

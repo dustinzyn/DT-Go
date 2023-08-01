@@ -102,20 +102,13 @@ func (role *RoleHandlerImpl) TrafficOpen() (bool, error) {
 	return true, nil
 }
 
-func getUserMgntPrivateURL() url.URL {
-	schema := utils.GetEnv("USER_MANAGEMENT_PRIVATE_PROTOCOL", "http")
-	host := utils.GetEnv("USER_MANAGEMENT_PRIVATE_HOST", "user-management-private.anyshare.svc.cluster.local")
-	port := utils.GetEnv("USER_MANAGEMENT_PRIVATE_PORT", "30980")
+func getOwnersEndpoint(userId string) string {
+	cg := hive.NewConfiguration()
 
 	url := url.URL{
-		Scheme: schema,
-		Host:   fmt.Sprintf("%v:%v", host, port),
+		Scheme: cg.DS.UserMgntProtocol,
+		Host:   fmt.Sprintf("%v:%v", cg.DS.UserMgntHost, cg.DS.UserMgntPort),
 	}
-	return url
-}
-
-func getOwnersEndpoint(userId string) string {
-	url := getUserMgntPrivateURL()
 	url.Path = fmt.Sprintf("/api/user-management/v1/users/%v/roles,csf_level,name,enabled,frozen,auth_type", userId)
 	return url.String()
 }

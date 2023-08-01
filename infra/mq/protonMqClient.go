@@ -2,7 +2,6 @@
 package mqclient
 
 import (
-	"os"
 	"strconv"
 
 	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
@@ -38,17 +37,18 @@ type ProtonMQClientImpl struct {
 }
 
 func (mq *ProtonMQClientImpl) newClient() {
-	mq.producerHost = os.Getenv("MQ_PRODUCER_HOST")
-	producerPort := os.Getenv("MQ_PRODUCER_PORT")
+	cg := hive.NewConfiguration()
+	mq.producerHost = cg.MQ.ProducerHost
+	producerPort := cg.MQ.ProducerPort
 	pport, _ := strconv.Atoi(producerPort)
 	mq.producerPort = pport
 
-	mq.consumerHost = os.Getenv("MQ_CONSUMER_HOST")
-	consumerPort := os.Getenv("MQ_CONSUMER_PORT")
+	mq.consumerHost = cg.MQ.ConsumerHost
+	consumerPort := cg.MQ.ConsumerPort
 	cport, _ := strconv.Atoi(consumerPort)
 	mq.consumerPort = cport
 
-	mq.connectorType = os.Getenv("MQ_CONNECTOR_TYPE")
+	mq.connectorType = cg.MQ.ConnectType
 	mq.mqClient = msqclient.NewProtonMSQClient(
 		mq.producerHost, mq.producerPort,
 		mq.consumerHost, mq.consumerPort,

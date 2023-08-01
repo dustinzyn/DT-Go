@@ -1,9 +1,6 @@
 package hive
 
 import (
-	"io/ioutil"
-	"os"
-
 	redis "github.com/go-redis/redis/v8"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
@@ -11,16 +8,20 @@ import (
 	"github.com/kataras/iris/v12/hero"
 	"github.com/kataras/iris/v12/mvc"
 
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
-	"gopkg.in/yaml.v3"
 )
 
-var privateApp *internal.Application
-var publicApp *internal.Application
+var (
+	privateApp    *internal.Application
+	publicApp     *internal.Application
+	configuration *config.Configurations
+)
 
 func init() {
 	publicApp = internal.NewPublicApplication()
 	privateApp = internal.NewPrivateApplication()
+	configuration = config.NewConfiguration()
 }
 
 type (
@@ -60,9 +61,6 @@ type (
 	// Bus is the bus message type.
 	Bus = internal.Bus
 
-	// Configuration is the configuration type of the app.
-	Configuration = iris.Configuration
-
 	// DomainEvent .
 	DomainEvent = internal.DomainEvent
 
@@ -74,6 +72,21 @@ type (
 
 	// LogFields is the column type of the log.
 	LogFields = golog.Fields
+
+	// Configuration is the configuration type of the app.
+	Configuration = config.Configurations
+
+	// Configuration is the database configuration type of the app.
+	DBConfiguration = config.DBConfiguration
+
+	// Configuration is the redis configuration type of the app.
+	RedisConfiguration = config.RedisConfiguration
+
+	// Configuration is the message client configuration type of the app.
+	MQConfiguration = config.MQConfiguration
+
+	// DepSvcConfiguration is the denpendency service configuration type of the app.
+	DepSvcConfiguration = config.DepSvcConfiguration
 )
 
 // NewPublicApplication returns Application interface type
@@ -89,6 +102,11 @@ func NewPrivateApplication() Application {
 // NewUnitTest .
 func NewUnitTest(private bool) UnitTest {
 	return &internal.UnitTestImpl{Private: private}
+}
+
+// NewConfiguration .
+func NewConfiguration() *config.Configurations {
+	return configuration
 }
 
 // Application
@@ -124,56 +142,9 @@ func Logger() *golog.Logger {
 	}
 }
 
-// Configure
-type Configurer interface {
-	Configure(obj interface{}, file string, metadata ...interface{}) error
-}
-
-var configurer Configurer
-
-// SetConfigurer
-func SetConfigurer(confer Configurer) {
-	configurer = confer
-}
-
-var ProfileENV = "CONFIG_PATH"
-
-// Configure
-func Configure(obj interface{}, file string, metadata ...interface{}) (err error) {
-	if configurer != nil {
-		return configurer.Configure(obj, file, metadata...)
-	}
-	path := os.Getenv(ProfileENV)
-	if path == "" {
-		path = "./conf"
-		if _, err := os.Stat(path); err != nil {
-			path = "./server/conf"
-			if _, err := os.Stat(path); err != nil {
-				path = ""
-			}
-		}
-	}
-	ioStream, err := ioutil.ReadFile(path + "/" + file)
-	if err != nil {
-		Logger().Errorf("Configure readfile error: %v", err)
-	}
-	err = yaml.Unmarshal(ioStream, obj)
-	if err != nil {
-		Logger().Errorf("Configure decode error: %s", err.Error())
-	} else {
-		Logger().Infof("Configure decode: %s", path+"/"+file)
-	}
-	return
-}
-
 func ToWorker(ctx Context) Worker {
 	if result, ok := ctx.Values().Get(internal.WorkerKey).(Worker); ok {
 		return result
 	}
 	return nil
-}
-
-// DefaultConfiguration the default profile.
-func DefaultConfiguration() iris.Configuration {
-	return iris.DefaultConfiguration()
 }

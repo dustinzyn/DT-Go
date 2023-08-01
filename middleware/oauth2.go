@@ -97,7 +97,11 @@ func getHydraAdminURL() url.URL {
 }
 
 func getIntrospectEndpoint() string {
-	url := getHydraAdminURL()
+	cg := hive.NewConfiguration()
+	url := url.URL{
+		Scheme: cg.DS.HydraAdminProtocol,
+		Host:   fmt.Sprintf("%v:%v", cg.DS.HydraAdminHost, cg.DS.HydraAdminPort),
+	}
 	url.Path = "/admin/oauth2/introspect"
 	return url.String()
 }

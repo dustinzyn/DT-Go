@@ -18,11 +18,11 @@ func NewTrace(traceIDName string) func(*context.Context) {
 			if traceID != "" {
 				break
 			}
-			uuidv1, e := uuid.NewV1()
+			uuidv4, e := uuid.NewV4()
 			if e != nil {
 				break
 			}
-			traceID = strings.ReplaceAll(uuidv1.String(), "-", "")
+			traceID = strings.ReplaceAll(uuidv4.String(), "-", "")
 			bus.Add(traceIDName, traceID)
 			break
 		}

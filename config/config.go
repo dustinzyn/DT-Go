@@ -120,23 +120,24 @@ func NewConfiguration() *Configurations {
 }
 
 type DBConfiguration struct {
-	Host         string `yaml:"db_host"`
-	Port         int    `yaml:"db_port"`
-	Type         string `yaml:"db_type"`
-	User         string `yaml:"db_user"`
-	Pwd          string `yaml:"db_pwd"`
-	DBName       string `yaml:"db_name"`
-	Charset      string `yaml:"charset"`
-	MaxOpenConns int    `yaml:"max_open_conns"` // 允许打开的最大连接数
-	MaxIdleConns int    `yaml:"max_idle_conns"` // 连接池里的空闲连接数
-	Timeout      int    `yaml:"timeout"`        // 连接超时时间 单位毫秒
-	ReadTimeout  int    `yaml:"read_timeout"`
-	WriteTimeout int    `yaml:"write_timeout"`
-	Driver       string `yaml:"driver"`
-	Timezone     string `yaml:"timezone"`
-	ParseTime    bool   `yaml:"parse_time"`    // 支持把数据库datetime和date类型转换为golang的time.Time类型
-	PrintSqlLog  bool   `yaml:"print_sql_log"` // 慢sql时间,单位毫秒,超过这个时间会打印sql
-	SlowSqlTime  int    `yaml:"slow_sql_time"` // 是否打印sql, 配合慢sql使用 单位毫秒
+	Host         string      `yaml:"db_host"`
+	Port         int         `yaml:"db_port"`
+	Type         string      `yaml:"db_type"`
+	User         string      `yaml:"db_user"`
+	Pwd          string      `yaml:"db_pwd"`
+	DBName       string      `yaml:"db_name"`
+	Charset      string      `yaml:"charset"`
+	MaxOpenConns int         `yaml:"max_open_conns"` // 允许打开的最大连接数
+	MaxIdleConns int         `yaml:"max_idle_conns"` // 连接池里的空闲连接数
+	Timeout      int         `yaml:"timeout"`        // 连接超时时间 单位毫秒
+	ReadTimeout  int         `yaml:"read_timeout"`
+	WriteTimeout int         `yaml:"write_timeout"`
+	Driver       string      `yaml:"driver"`
+	Timezone     string      `yaml:"timezone"`
+	ParseTime    bool        `yaml:"parse_time"`    // 支持把数据库datetime和date类型转换为golang的time.Time类型
+	PrintSqlLog  bool        `yaml:"print_sql_log"` // 慢sql时间,单位毫秒,超过这个时间会打印sql
+	SlowSqlTime  int         `yaml:"slow_sql_time"` // 是否打印sql, 配合慢sql使用 单位毫秒
+	Other        interface{} `yaml:"Other"`
 }
 
 type RedisConfiguration struct {
@@ -164,28 +165,31 @@ type RedisConfiguration struct {
 	IdleCheckFrequency int `yaml:"idle_check_frequency"`
 	MaxConnAge         int `yaml:"max_conn_age"`
 	PoolTimeout        int `yaml:"pool_timeout"`
+
+	Other interface{} `yaml:"Other"`
 }
 
 type MQConfiguration struct {
-	ConnectType  string `yaml:"connect_type"`
-	ProducerHost string `yaml:"producer_host"`
-	ProducerPort string `yaml:"producer_port"`
-	ConsumerHost string `yaml:"consumer_host"`
-	ConsumerPort string `yaml:"consumer_port"`
+	ConnectType  string      `yaml:"connect_type"`
+	ProducerHost string      `yaml:"producer_host"`
+	ProducerPort string      `yaml:"producer_port"`
+	ConsumerHost string      `yaml:"consumer_host"`
+	ConsumerPort string      `yaml:"consumer_port"`
+	Other        interface{} `yaml:"Other"`
 }
 
 // DepSvcConfiguration 公共的依赖服务配置
 type DepSvcConfiguration struct {
-	UserMgntProtocol    string `yaml:"user_management_private_protocol"`
-	UserMgntHost        string `yaml:"user_management_private_host"`
-	UserMgntPort        string `yaml:"user_management_private_port"`
-	HydraPublicProtocol string `yaml:"hydra_public_protocol"`
-	HydraPublicHost     string `yaml:"hydra_public_host"`
-	HydraPublicPort     string `yaml:"hydra_public_port"`
-	HydraAdminProtocol  string `yaml:"hydra_admin_protocol"`
-	HydraAdminHost      string `yaml:"hydra_admin_host"`
-	HydraAdminPort      string `yaml:"hydra_admin_port"`
-	Other               interface{}
+	UserMgntProtocol    string      `yaml:"user_management_private_protocol"`
+	UserMgntHost        string      `yaml:"user_management_private_host"`
+	UserMgntPort        string      `yaml:"user_management_private_port"`
+	HydraPublicProtocol string      `yaml:"hydra_public_protocol"`
+	HydraPublicHost     string      `yaml:"hydra_public_host"`
+	HydraPublicPort     string      `yaml:"hydra_public_port"`
+	HydraAdminProtocol  string      `yaml:"hydra_admin_protocol"`
+	HydraAdminHost      string      `yaml:"hydra_admin_host"`
+	HydraAdminPort      string      `yaml:"hydra_admin_port"`
+	Other               interface{} `yaml:"Other"`
 }
 
 func (cg *Configurations) ConfigureApp(file string) {

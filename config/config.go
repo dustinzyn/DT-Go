@@ -96,12 +96,17 @@ func NewConfiguration() *Configurations {
 			SlowSqlTime:  1000,
 		}
 		redisCg := &RedisConfiguration{
-			MaxRetries:         0,
+			UserName:           "root",
+			Password:           "eisoo.com123",
+			DB:                 10,
+			MaxRetries:         10,
 			PoolSize:           2 * runtime.NumCPU(),
 			ReadTimeout:        3,
 			WriteTimeout:       3,
 			IdleTimeout:        300,
 			IdleCheckFrequency: 60,
+			MaxConnAge:         300,
+			PoolTimeout:        8,
 		}
 		dsCg := &DepSvcConfiguration{
 			UserMgntProtocol:    "http",
@@ -135,7 +140,7 @@ func NewConfiguration() *Configurations {
 type DBConfiguration struct {
 	Host         string      `yaml:"db_host"`
 	Port         int         `yaml:"db_port"`
-	Type         string      `yaml:"db_type"`
+	Type         string      `yaml:"db_type"` // 类型 mysql dm8
 	User         string      `yaml:"db_user"`
 	Pwd          string      `yaml:"db_pwd"`
 	DBName       string      `yaml:"db_name"`
@@ -143,9 +148,9 @@ type DBConfiguration struct {
 	MaxOpenConns int         `yaml:"max_open_conns"` // 允许打开的最大连接数
 	MaxIdleConns int         `yaml:"max_idle_conns"` // 连接池里的空闲连接数
 	Timeout      int         `yaml:"timeout"`        // 连接超时时间 单位毫秒
-	ReadTimeout  int         `yaml:"read_timeout"`
-	WriteTimeout int         `yaml:"write_timeout"`
-	Driver       string      `yaml:"driver"`
+	ReadTimeout  int         `yaml:"read_timeout"`   // 读超时时间
+	WriteTimeout int         `yaml:"write_timeout"`  // 写超时时间
+	Driver       string      `yaml:"driver"`         // 驱动 proton-rds: proton提供的 sqlite3: 单元测试用
 	Timezone     string      `yaml:"timezone"`
 	ParseTime    bool        `yaml:"parse_time"`    // 支持把数据库datetime和date类型转换为golang的time.Time类型
 	PrintSqlLog  bool        `yaml:"print_sql_log"` // 慢sql时间,单位毫秒,超过这个时间会打印sql
@@ -154,7 +159,7 @@ type DBConfiguration struct {
 }
 
 type RedisConfiguration struct {
-	ConnectType      string `yaml:"connect_type"`
+	ConnectType      string `yaml:"connect_type"` // 部署方式 sentinel:哨兵模式 master-slave:主从或单机模式 cluster:集群模式
 	MasterGroupName  string `yaml:"master_group_name"`
 	SentinelHost     string `yaml:"sentinel_host"`
 	SentinelPort     string `yaml:"sentinel_port"`
@@ -169,15 +174,15 @@ type RedisConfiguration struct {
 	ClusterHosts []string `yaml:"cluster_addrs"`
 	ClusterPwd   string   `yaml:"cluster_password"`
 
-	DB                 int `yaml:"db"`
-	MaxRetries         int `yaml:"max_retries"`
-	PoolSize           int `yaml:"pool_size"`
-	ReadTimeout        int `yaml:"read_timeout"`
-	WriteTimeout       int `yaml:"write_timeout"`
-	IdleTimeout        int `yaml:"idle_timeout"`
-	IdleCheckFrequency int `yaml:"idle_check_frequency"`
-	MaxConnAge         int `yaml:"max_conn_age"`
-	PoolTimeout        int `yaml:"pool_timeout"`
+	DB                 int `yaml:"db"`                   // 数据库 默认第10个
+	MaxRetries         int `yaml:"max_retries"`          // 最大重试次数
+	PoolSize           int `yaml:"pool_size"`            // 连接池大小
+	ReadTimeout        int `yaml:"read_timeout"`         // 读取超时时间 默认3秒
+	WriteTimeout       int `yaml:"write_timeout"`        // 写入超时时间 默认3秒
+	IdleTimeout        int `yaml:"idle_timeout"`         // 连接空闲时间 默认300秒
+	IdleCheckFrequency int `yaml:"idle_check_frequency"` // 检测死连接并清理 默认60秒
+	MaxConnAge         int `yaml:"max_conn_age"`         // 连接最长时间 默认300秒
+	PoolTimeout        int `yaml:"pool_timeout"`         // 如果连接池已满 等待可用连接的时间 默认8秒
 
 	Other interface{} `yaml:"Other"`
 }

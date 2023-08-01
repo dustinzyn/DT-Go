@@ -10,53 +10,10 @@ import (
 	redis "github.com/go-redis/redis/v8"
 )
 
-
 // ConnectRedis return a redis client. If not connected,
 // it will automatically reconnect until connected.
 func ConnectRedis(conf config.RedisConfiguration) (client redis.Cmdable) {
 	ctx := context.Background()
-	if conf.UserName == "" {
-		conf.UserName = "root"
-	}
-	if conf.Password == "" {
-		conf.Password = "eisoo.com123"
-	}
-	// 数据库 默认第10个
-	if conf.DB == 0 {
-		conf.DB = 10
-	}
-	// 最大重试次数
-	if conf.MaxRetries == 0 {
-		conf.MaxRetries = 10
-	}
-	// 连接池大小
-	if conf.PoolSize == 0 {
-		conf.PoolSize = 32
-	}
-	// 读取超时时间 默认3秒
-	if conf.ReadTimeout == 0 {
-		conf.ReadTimeout = 3
-	}
-	// 写入超时时间 默认3秒
-	if conf.WriteTimeout == 0 {
-		conf.WriteTimeout = 3
-	}
-	// 连接空闲时间 默认300秒
-	if conf.IdleTimeout == 0 {
-		conf.IdleTimeout = 300
-	}
-	// 检测死连接并清理 默认60秒
-	if conf.IdleCheckFrequency == 0 {
-		conf.IdleCheckFrequency = 60
-	}
-	// 连接最长时间 默认300秒
-	if conf.MaxConnAge == 0 {
-		conf.MaxConnAge = 300
-	}
-	// 如果连接池已满 等待可用连接的时间 默认8秒
-	if conf.PoolTimeout == 0 {
-		conf.PoolTimeout = 8
-	}
 
 	switch conf.ConnectType {
 	case "master-slave", "standalone":

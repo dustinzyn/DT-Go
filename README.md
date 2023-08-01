@@ -1,5 +1,6 @@
 # 简介
 Hive 是一个基于六边形架构，结合领域模型范式（DDD）的框架。
+> 参考 https://confluence.aishu.cn/pages/viewpage.action?pageId=166869672
 
 ## Hive名字由来
 如上简介说明，Hive是一个框架，是基于六边形架构的框架。为什么取名Hive呢？

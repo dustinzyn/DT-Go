@@ -58,7 +58,10 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *gorm.DB) {
 		}
 	}()
 	if !db.Migrator().HasTable(&Account{}) {
-		db.AutoMigrate(&Account{})
+		err = db.AutoMigrate(&Account{})
+		if err != nil {
+			return
+		}
 	}
 
 	// 查询是否已有账户

@@ -19,6 +19,7 @@ import (
 	dm "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton_dm_dialect_go"
 
 	_ "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/driver" // 注册数据库驱动
+	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 )
 
 var dbOnce sync.Once
@@ -122,6 +123,15 @@ func ConnProtonRDS(conf *config.DBConfiguration) *gorm.DB {
 		}
 	})
 	return db
+}
+
+// ConnProtonRWDB return a connection pool object for database read-write separation.
+func ConnProtonRWDB(conf *sqlx.DBConfig) *sqlx.DB{
+	rwdb, err := sqlx.NewDB(conf)
+	if err != nil {
+		panic(err)
+	}
+	return rwdb
 }
 
 // DisconnectDB .

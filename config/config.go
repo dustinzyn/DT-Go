@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"sync"
 
+	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 	"github.com/kataras/iris/v12"
 	"gopkg.in/yaml.v3"
 )
@@ -68,6 +69,7 @@ func Configure(obj interface{}, file string, metadata ...interface{}) (err error
 type Configurations struct {
 	App   *iris.Configuration  // Application配置
 	DB    *DBConfiguration     // Database配置
+	RWDB  *sqlx.DBConfig       // Database读写分离配置
 	Redis *RedisConfiguration  // Redis配置
 	MQ    *MQConfiguration     // MQ配置
 	DS    *DepSvcConfiguration // 依赖的第三方服务配置
@@ -94,6 +96,20 @@ func NewConfiguration() *Configurations {
 			ParseTime:    true,
 			PrintSqlLog:  true,
 			SlowSqlTime:  1000,
+		}
+		rwdbCg := &sqlx.DBConfig{
+			Host:             "mariadb-mariadb-cluster.resource.svc.cluster.local",
+			Port:             3330,
+			HostRead:         "mariadb-mariadb-cluster.resource.svc.cluster.local",
+			PortRead:         3330,
+			User:             "anyshare",
+			Password:         "eisoo.com123",
+			Charset:          "utf8mb4",
+			MaxOpenConns:     20,
+			Timeout:          10000,
+			ReadTimeout:      10000,
+			WriteTimeout:     10000,
+			MaxOpenReadConns: 20,
 		}
 		redisCg := &RedisConfiguration{
 			UserName:           "root",
@@ -128,6 +144,7 @@ func NewConfiguration() *Configurations {
 		}
 		configuration = &Configurations{
 			DB:    dbCg,
+			RWDB:  rwdbCg,
 			Redis: redisCg,
 			App:   &irisCg,
 			DS:    dsCg,
@@ -141,10 +158,10 @@ type DBConfiguration struct {
 	Host         string      `yaml:"db_host"`
 	Port         int         `yaml:"db_port"`
 	Type         string      `yaml:"db_type"` // 类型 mysql dm8
-	User         string      `yaml:"db_user"`
-	Pwd          string      `yaml:"db_pwd"`
+	User         string      `yaml:"user_name"`
+	Pwd          string      `yaml:"user_pwd"`
 	DBName       string      `yaml:"db_name"`
-	Charset      string      `yaml:"charset"`
+	Charset      string      `yaml:"db_charset"`
 	MaxOpenConns int         `yaml:"max_open_conns"` // 允许打开的最大连接数
 	MaxIdleConns int         `yaml:"max_idle_conns"` // 连接池里的空闲连接数
 	Timeout      int         `yaml:"timeout"`        // 连接超时时间 单位毫秒
@@ -216,6 +233,10 @@ func (cg *Configurations) ConfigureApp(file string) {
 
 func (cg *Configurations) ConfigureDB(file string) {
 	Configure(cg.DB, file)
+}
+
+func (cg *Configurations) ConfigureRWDB(file string) {
+	Configure(cg.RWDB, file)
 }
 
 func (cg *Configurations) ConfigureRedis(file string) {

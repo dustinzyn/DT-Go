@@ -30,6 +30,8 @@ type APIError interface {
 	Code() int
 	// Error 格式化错误信息
 	Error() string
+	// StatusCode 状态码
+	StatusCode() int
 	// Message 错误信息
 	Message() string
 	// Cause 产生错误的具体原因

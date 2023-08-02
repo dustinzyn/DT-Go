@@ -31,12 +31,10 @@ func (jrep JSONResponse) Dispatch(ctx *context.Context) {
 			repErr = errors.New(utils.ParseXLanguage(ctx.GetHeader("x-language")), errors.InternalErr, "", nil)
 		}
 
-		ctx.Values().Set("code", repErr.Code())
-		code := utils.IntToStr(repErr.Code())[:3]
-		jrep.Code = utils.StrToInt(code)
+		ctx.Values().Set("code", repErr.StatusCode())
 		jrep.content = repErr.Marshal()
 		ctx.Values().Set("response", string(jrep.content))
-		ctx.StatusCode(jrep.Code)
+		ctx.StatusCode(repErr.StatusCode())
 		ctx.JSON(iris.Map{
 			"code":        repErr.Code(),
 			"message":     repErr.Message(),

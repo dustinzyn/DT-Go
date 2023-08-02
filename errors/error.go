@@ -47,6 +47,8 @@ type APIError interface {
 	Codes() []int
 	// Code 错误码 前三位等于状态码，中间三位为服务标识，后三位为错误标识
 	Code() int
+	// StatusCode 状态码
+	StatusCode() int
 	// Error 格式化错误信息
 	Error() string
 	// Message 错误信息
@@ -110,6 +112,12 @@ func (e *ErrorResp) Codes() []int {
 // Code 错误码
 func (e *ErrorResp) Code() int {
 	return e.code
+}
+
+// StatusCode 状态码
+func (e *ErrorResp) StatusCode() int {
+	code := utils.IntToStr(e.Code())[:3]
+	return utils.StrToInt(code)
 }
 
 // Message .

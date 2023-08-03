@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
-	msqclient "devops.aishu.cn/AISHUDevOps/ICT/_git/go-msq"
+	msqclient "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-mq-go"
 )
 
 func init() {
@@ -33,10 +33,11 @@ type ProtonMQClientImpl struct {
 	consumerHost  string
 	consumerPort  int
 	connectorType string
-	mqClient      msqclient.ProtonMSQClient
+	mqClient      msqclient.ProtonMQClient
 }
 
 func (mq *ProtonMQClientImpl) newClient() {
+	var err error
 	cg := hive.NewConfiguration()
 	mq.producerHost = cg.MQ.ProducerHost
 	producerPort := cg.MQ.ProducerPort
@@ -49,11 +50,14 @@ func (mq *ProtonMQClientImpl) newClient() {
 	mq.consumerPort = cport
 
 	mq.connectorType = cg.MQ.ConnectType
-	mq.mqClient = msqclient.NewProtonMSQClient(
+	mq.mqClient, err = msqclient.NewProtonMQClient(
 		mq.producerHost, mq.producerPort,
 		mq.consumerHost, mq.consumerPort,
 		mq.connectorType,
 	)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (mq *ProtonMQClientImpl) BeginRequest(worker hive.Worker) {

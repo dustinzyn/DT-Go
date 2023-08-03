@@ -10,6 +10,7 @@ import (
 
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
+	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 )
 
 var (
@@ -76,13 +77,16 @@ type (
 	// Configuration is the configuration type of the app.
 	Configuration = config.Configurations
 
-	// Configuration is the database configuration type of the app.
+	// DBConfiguration is the database configuration type of the app.
 	DBConfiguration = config.DBConfiguration
 
-	// Configuration is the redis configuration type of the app.
+	// RWDBConfiguration is the database read-write configuration type of the app.
+	RWDBConfiguration = sqlx.DBConfig
+
+	// RedisConfiguration is the redis configuration type of the app.
 	RedisConfiguration = config.RedisConfiguration
 
-	// Configuration is the message client configuration type of the app.
+	// MQConfiguration is the message client configuration type of the app.
 	MQConfiguration = config.MQConfiguration
 
 	// DepSvcConfiguration is the denpendency service configuration type of the app.

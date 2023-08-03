@@ -15,6 +15,8 @@ import (
 	"github.com/sony/sonyflake"
 )
 
+//go:generate mockgen -package mock_infra -source sonyflake.go -destination ./mock/sonyflake_mock.go
+
 func init() {
 	hive.Prepare(func(initiator hive.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *SonyflakerImpl {

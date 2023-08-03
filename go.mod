@@ -3,7 +3,9 @@ module devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive
 go 1.18
 
 require (
+	bou.ke/monkey v1.0.2
 	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-mq-go v1.7.4
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/kataras/golog v0.1.8
 	github.com/kataras/iris/v12 v12.2.0
 	github.com/sony/sonyflake v1.1.0
@@ -15,7 +17,6 @@ require (
 )
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
 	github.com/avast/retry-go v3.0.0+incompatible // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/segmentio/kafka-go v0.4.39 // indirect

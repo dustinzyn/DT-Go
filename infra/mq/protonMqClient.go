@@ -8,6 +8,8 @@ import (
 	msqclient "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-mq-go"
 )
 
+//go:generate mockgen -package mock_infra -source protonMqClient.go -destination ./mock/protonmq_mock.go
+
 func init() {
 	hive.Prepare(func(initiator hive.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *ProtonMQClientImpl {

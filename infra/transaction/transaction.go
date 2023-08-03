@@ -15,6 +15,8 @@ import (
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 )
 
+//go:generate mockgen -package mock_infra -source transaction.go -destination ./mock/transaction_mock.go
+
 func init() {
 	hive.Prepare(func(initiator hive.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *GormImpl {

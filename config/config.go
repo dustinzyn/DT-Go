@@ -52,15 +52,15 @@ func Configure(obj interface{}, file string, metadata ...interface{}) (err error
 	}
 	ioStream, err := ioutil.ReadFile(path + "/" + file)
 	if err != nil {
-		fmt.Printf("Configure readfile error: %v", err)
+		fmt.Printf("Configure readfile error: %v\n", err)
 		return
 	}
 	err = yaml.Unmarshal(ioStream, obj)
 	if err != nil {
-		fmt.Printf("Configure decode error: %s", err.Error())
+		fmt.Printf("Configure decode error: %s\n", err.Error())
 		return
 	} else {
-		fmt.Printf("Configure decode: %s", path+"/"+file)
+		fmt.Printf("Configure decode: %s\n", path+"/"+file)
 	}
 	return
 }

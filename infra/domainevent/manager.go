@@ -7,13 +7,14 @@ Created by Dustin.zhu on 2022/11/1.
 package domainevent
 
 import (
+	"database/sql"
 	"errors"
 	"time"
 
 	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/uniqueid"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
-	"gorm.io/gorm"
+	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 )
 
 //go:generate mockgen -package mock_infra -source manager.go -destination ./mock/domainevent_mock.go
@@ -69,12 +70,31 @@ type EventManagerImpl struct {
 // Booting .
 func (m *EventManagerImpl) Booting(singleBoot hive.SingleBoot) {
 	db := m.db()
-	if !db.Migrator().HasTable(&domainEventPublish{}) {
-		db.AutoMigrate(&domainEventPublish{})
+	sqlPub := "CREATE TABLE IF NOT EXISTS `hivecore.domain_event_publish` (" +
+		"`id` bigint(20) NOT NULL AUTO_INCREMENT," +
+		"`topic` varchar(50) NOT NULL COMMENT '主题'," +
+		"`content` varchar(2000) NOT NULL COMMENT '内容'," +
+		"`status` bigint(20) NOT NULL COMMENT '0:待处理 1:处理失败'," +
+		"`created` datetime(3) NOT NULL," +
+		"`updated` datetime(3) NOT NULL," +
+		"PRIMARY KEY (`id`)" +
+		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	if _, err := db.Exec(sqlPub); err != nil {
+		m.Worker().Logger().Errorf("Event manager booting error: %v", err)
+		return
 	}
-
-	if !db.Migrator().HasTable(&domainEventSubscribe{}) {
-		db.AutoMigrate(&domainEventSubscribe{})
+	sqlSub := "CREATE TABLE IF NOT EXISTS `domain_event_subscribe` (" +
+		"`id` bigint(20) NOT NULL AUTO_INCREMENT," +
+		"`topic` varchar(50) NOT NULL," +
+		"`status` bigint(20) NOT NULL," +
+		"`content` varchar(2000) NOT NULL," +
+		"`created` datetime(3) NOT NULL," +
+		"`updated` datetime(3) NOT NULL," +
+		"PRIMARY KEY (`id`)" +
+		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	if _, err := db.Exec(sqlSub); err != nil {
+		m.Worker().Logger().Errorf("Event manager booting error: %v", err)
+		return
 	}
 }
 
@@ -94,28 +114,22 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 	// Insert PubEvent
 	for _, domainEvent := range entity.GetPubEvent() {
 		uid, _ := m.uniqueID.NextID()
-		model := domainEventPublish{
-			ID:      int(uid),
-			Topic:   domainEvent.Topic(),
-			Content: string(domainEvent.Marshal()),
-			Created: time.Now(),
-			Updated: time.Now(),
-		}
-		err = txDB.Create(&model).Error
+		ct := time.Now()
+		sqlStr := "INSERT INTO hivecore.domain_event_publish (id, topic, content, created, updated) VALUES (?, ?, ?, ?, ?)"
+		_, err = txDB.Exec(sqlStr, uid, domainEvent.Topic(), string(domainEvent.Marshal()), ct, ct)
 		if err != nil {
 			hive.Logger().Errorf("Insert PubEvent error: %v", err)
 			return
 		}
-		domainEvent.SetIdentity(model.ID)
+		domainEvent.SetIdentity(uid)
 	}
 	m.addPubToWOrker(repo.Worker(), entity.GetPubEvent())
 
 	// Delete SubEvent
 	for _, subEvent := range entity.GetSubEvent() {
 		eventID := subEvent.Identity().(int)
-		subscribe := &domainEventSubscribe{ID: eventID}
-		err = txDB.Delete(subscribe).Error
-
+		sqlStr := "DELETE FROM hivecore.domain_event_subscribe WHERE id = ?"
+		_, err = txDB.Exec(sqlStr, eventID)
 		if err != nil {
 			hive.Logger().Error(err)
 			return
@@ -126,14 +140,9 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 
 // InsertSubEvent .
 func (m *EventManagerImpl) InsertSubEvent(event hive.DomainEvent) error {
-	model := domainEventSubscribe{
-		ID:      event.Identity().(int),
-		Topic:   event.Topic(),
-		Content: string(event.Marshal()),
-		Created: time.Now(),
-		Updated: time.Now(),
-	}
-	err := m.db().Create(&model).Error
+	ct := time.Now()
+	sqlStr := "INSERT INTO hivecore.domain_event_subscribe (id, topic, content, created, updated) VALUES (?, ?, ?, ?, ?)"
+	_, err := m.db().Exec(sqlStr, event.Identity().(int), event.Topic(), string(event.Marshal()), ct, ct)
 	if err != nil {
 		hive.Logger().Errorf("InsertSubEvent error: %v", err)
 		return err
@@ -142,15 +151,18 @@ func (m *EventManagerImpl) InsertSubEvent(event hive.DomainEvent) error {
 }
 
 // SetSubEventFail 将订阅事件置为失败状态
-func (m *EventManagerImpl) SetSubEventFail(event hive.DomainEvent) error {
+func (m *EventManagerImpl) SetSubEventFail(event hive.DomainEvent) (err error) {
 	sub := domainEventSubscribe{ID: event.Identity().(int)}
 	sub.SetStatus(1)
 	sub.SetUpdated(time.Now())
 	changes := sub.TakeChanges()
-	err := m.db().Model(&sub).Updates(changes).Error
-	if err != nil {
-		hive.Logger().Errorf("SetSubEventFail error: %v", err)
-		return err
+	if changes != "" {
+		sqlStr := "UPDATE hivecore.domain_event_subscribe SET ? WHERE id = ?"
+		_, err = m.db().Exec(sqlStr, changes, event.Identity().(int))
+		if err != nil {
+			hive.Logger().Errorf("SetSubEventFail error: %v", err)
+			return err
+		}
 	}
 	return nil
 }
@@ -202,15 +214,17 @@ func (m *EventManagerImpl) push(event hive.DomainEvent) {
 				publish.SetStatus(1)
 				publish.SetUpdated(time.Now())
 				changes := publish.TakeChanges()
-				if changes != nil {
-					if e := m.db().Model(publish).Updates(changes).Error; e != nil {
+				if changes != "" {
+					sqlStr := "UPDATE hivecore.domain_event_publish SET ? WHERE id = ?"
+					if _, e := m.db().Exec(sqlStr, changes, eventID); e != nil {
 						hive.Logger().Errorf("update event error:%v", e)
 					}
 				}
 				return
 			}
 			// push 成功后删除事件
-			if err := m.db().Delete(&publish).Error; err != nil {
+			sqlStr := "DELETE FROM hivecore.domain_event_publish WHERE id = ?"
+			if _, err := m.db().Exec(sqlStr, eventID); err != nil {
 				hive.Logger().Error(err)
 				return
 			}
@@ -221,11 +235,11 @@ func (m *EventManagerImpl) push(event hive.DomainEvent) {
 	}()
 }
 
-func (m *EventManagerImpl) db() *gorm.DB {
-	return m.SourceDB().(*gorm.DB)
+func (m *EventManagerImpl) db() *sqlx.DB {
+	return m.SourceDB().(*sqlx.DB)
 }
 
-func getTxDB(repo *hive.Repository) (db *gorm.DB) {
+func getTxDB(repo *hive.Repository) (db *sql.DB) {
 	if err := repo.FetchDB(&db); err != nil {
 		panic(err)
 	}
@@ -269,14 +283,25 @@ func (m *EventManagerImpl) retryPub() (needTimer bool) {
 	}()
 
 	pubs := make([]domainEventPublish, 0)
-	err = m.db().Model(&domainEventPublish{}).Where("status = ?", 1).Scan(&pubs).Limit(100).Error
+	sqlStr := "SELECT id, topic, content FROM hivecore.domain_event_publish WHERE status = ? LIMIT 100"
+	rows, err := m.db().Query(sqlStr, 1)
+	defer m.closeRows(rows)
+	if err != nil {
+		hive.Logger().Errorf("retry pub error:%v", err)
+		return
+	}
+	for rows.Next() {
+		pub := domainEventPublish{Status: 1}
+		err = rows.Scan(&pub.ID, &pub.Topic, &pub.Content)
+		if err != nil {
+			hive.Logger().Errorf("retry pub error:%v", err)
+			return
+		}
+		pubs = append(pubs, pub)
+	}
 	if len(pubs) == 0 {
 		// 全部完成由定时器再次触发
 		needTimer = true
-		return
-	}
-	if err != nil {
-		hive.Logger().Errorf("retry pub error:%v", err)
 		return
 	}
 	for _, event := range pubs {
@@ -286,7 +311,23 @@ func (m *EventManagerImpl) retryPub() (needTimer bool) {
 			continue
 		}
 		// 推送成功删除事件
-		m.db().Delete(&domainEventPublish{ID: event.ID})
+		sqlStr := "DELETE FROM hivecore.domain_event_publish WHERE id = ?"
+		if _, err := m.db().Exec(sqlStr, event.ID); err != nil {
+			hive.Logger().Error(err)
+			return
+		}
 	}
 	return
+}
+
+func (m *EventManagerImpl) closeRows(rows *sql.Rows) {
+	if rows != nil {
+		if rowsErr := rows.Err(); rowsErr != nil {
+			hive.Logger().Error(rowsErr)
+		}
+
+		if closeErr := rows.Close(); closeErr != nil {
+			hive.Logger().Error(closeErr)
+		}
+	}
 }

@@ -2,6 +2,7 @@
 package utils
 
 import (
+	"database/sql"
 	"math/rand"
 	"os"
 	"strconv"
@@ -146,4 +147,16 @@ func ParseXLanguage(xLanguage string, acceptLangs ...string) (language string) {
 	// TODO 都未命中考虑降级，语言标签去掉区域后再匹配
 
 	return
+}
+
+func CloseRows(rows *sql.Rows) {
+	if rows != nil {
+		if rowsErr := rows.Err(); rowsErr != nil {
+			hive.Logger().Error(rowsErr)
+		}
+
+		if closeErr := rows.Close(); closeErr != nil {
+			hive.Logger().Error(closeErr)
+		}
+	}
 }

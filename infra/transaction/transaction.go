@@ -7,25 +7,26 @@ Created by Dustin.zhu on 2022/11/1.
 */
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 
-	"gorm.io/gorm"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 )
 
 //go:generate mockgen -package mock_infra -source transaction.go -destination ./mock/transaction_mock.go
 
 func init() {
 	hive.Prepare(func(initiator hive.Initiator) {
-		initiator.BindInfra(false, initiator.IsPrivate(), func() *GormImpl {
-			return &GormImpl{}
+		initiator.BindInfra(false, initiator.IsPrivate(), func() *SqlDBImpl {
+			return &SqlDBImpl{}
 		})
 	})
 }
 
-var _ Transaction = (*GormImpl)(nil)
+var _ Transaction = (*SqlDBImpl)(nil)
 
 // Transaction .
 type Transaction interface {
@@ -33,39 +34,45 @@ type Transaction interface {
 	ExecuteTx(fun func() error, opts *sql.TxOptions) (err error)
 }
 
-// GormImpl .
-type GormImpl struct {
+// SqlDBImpl .
+type SqlDBImpl struct {
 	hive.Infra
-	db *gorm.DB
+	db *sql.Tx
 }
 
 // BeginRequest .
-func (t *GormImpl) BeginRequest(worker hive.Worker) {
+func (t *SqlDBImpl) BeginRequest(worker hive.Worker) {
 	t.db = nil
 	t.Infra.BeginRequest(worker)
 }
 
 // Execute .
-func (t *GormImpl) Execute(fun func() error) (err error) {
+func (t *SqlDBImpl) Execute(fun func() error) (err error) {
 	return t.execute(fun, nil)
 }
 
 // ExecuteTx .
-func (t *GormImpl) ExecuteTx(fun func() error, opts *sql.TxOptions) (err error) {
+func (t *SqlDBImpl) ExecuteTx(fun func() error, opts *sql.TxOptions) (err error) {
 	return t.execute(fun, opts)
 }
 
 // execute .
-func (t *GormImpl) execute(fun func() error, opts *sql.TxOptions) (err error) {
+func (t *SqlDBImpl) execute(fun func() error, opts *sql.TxOptions) (err error) {
 	if t.db != nil {
 		panic("unknown error")
 	}
 
-	db := t.SourceDB().(*gorm.DB)
+	db := t.SourceDB().(*sqlx.DB)
 	if opts != nil {
-		t.db = db.Begin(opts)
+		t.db, err = db.BeginTx(context.Background(), opts)
+		if err != nil {
+			return
+		}
 	} else {
-		t.db = db.Begin()
+		t.db, err = db.Begin()
+		if err != nil {
+			return
+		}
 	}
 
 	t.Worker().Store().Set("local_transaction_db", t.db)
@@ -83,12 +90,12 @@ func (t *GormImpl) execute(fun func() error, opts *sql.TxOptions) (err error) {
 		t.db = nil
 		if err != nil {
 			e2 := deferDb.Rollback()
-			if e2.Error != nil {
-				err = errors.New(err.Error() + "," + e2.Error.Error())
+			if e2 != nil {
+				err = errors.New(err.Error() + "," + e2.Error())
 			}
 			return
 		}
-		err = deferDb.Commit().Error
+		err = deferDb.Commit()
 	}()
 	err = fun()
 	return

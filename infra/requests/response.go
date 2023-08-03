@@ -28,7 +28,7 @@ func (jrep JSONResponse) Dispatch(ctx *context.Context) {
 	if jrep.Error != nil {
 		repErr, ok := jrep.Error.(*errors.ErrorResp)
 		if !ok {
-			repErr = errors.New(utils.ParseXLanguage(ctx.GetHeader("x-language")), errors.InternalErr, "", nil)
+			repErr = errors.New(utils.ParseXLanguage(ctx.GetHeader("x-language")), errors.InternalErr, jrep.Error.Error(), nil)
 		}
 
 		ctx.Values().Set("code", repErr.StatusCode())

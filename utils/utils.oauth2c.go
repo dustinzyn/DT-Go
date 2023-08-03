@@ -18,7 +18,7 @@ import (
 )
 
 // InitOauthHTTPClient .
-func InitOauthHTTPClient(svcName string, conf config.DBConfiguration) {
+func InitOauthHTTPClient(svcName string, conf config.Configurations) {
 	tr := &http.Transport{
 		TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 		MaxIdleConnsPerHost:   100,
@@ -56,12 +56,19 @@ type AccountInfo struct {
 }
 
 // clientInfo return clientID ad client secret.
-func clientInfo(svcName string, conf config.DBConfiguration) (clientID, secret string) {
+func clientInfo(svcName string, conf config.Configurations) (clientID, secret string) {
 	var result AccountInfo
-	db := ConnectDB(&conf)
-	err := db.Model(&Account{}).Where(&Account{Name: svcName}).Scan(&result).Error
+	db := ConnProtonRWDB(conf.RWDB)
+	sqlStr := "SELECT client_id, client_secret FROM hivecore.account WHERE name = ?"
+	rows, err := db.Query(sqlStr, svcName)
+	defer CloseRows(rows)
 	if err != nil {
 		panic(err)
+	}
+	for rows.Next() {
+		if err := rows.Scan(&result.ClientID, &result.ClientSecret);err != nil {
+			panic(err)
+		}
 	}
 	return result.ClientID, result.ClientSecret
 }

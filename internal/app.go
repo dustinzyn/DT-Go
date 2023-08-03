@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 	redis "github.com/go-redis/redis/v8"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
@@ -498,8 +499,8 @@ func (app *Application) CallService(fun interface{}, worker ...Worker) {
 }
 
 // Db return an instance of database client
-func (app *Application) Db() *gorm.DB {
-	return app.Database.db.(*gorm.DB)
+func (app *Application) Db() *sqlx.DB {
+	return app.Database.db.(*sqlx.DB)
 }
 
 // Redis return an instance of redis client

@@ -1,6 +1,8 @@
 package domainevent
 
 import (
+	"fmt"
+	"strings"
 	"time"
 )
 
@@ -21,14 +23,14 @@ func (obj *domainEventPublish) TableName() string {
 }
 
 // TakeChanges .
-func (obj *domainEventPublish) TakeChanges() map[string]interface{} {
+func (obj *domainEventPublish) TakeChanges() (result string) {
 	if obj.changes == nil {
-		return nil
+		return ""
 	}
-	result := make(map[string]interface{})
 	for k, v := range obj.changes {
-		result[k] = v
+		result += fmt.Sprintf("%v=%v,", k, v)
 	}
+	result = strings.TrimRight(result, ",")
 	obj.changes = nil
 	return result
 }

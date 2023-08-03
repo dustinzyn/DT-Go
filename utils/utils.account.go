@@ -12,8 +12,8 @@ import (
 
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/mq"
+	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 	redis "github.com/go-redis/redis/v8"
-	"gorm.io/gorm"
 )
 
 const (
@@ -39,7 +39,7 @@ func (obj *Account) TableName() string {
 	return "Account"
 }
 
-func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *gorm.DB) {
+func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 	var clientID string
 	var err error
 	ctx := context.Background()
@@ -57,18 +57,32 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *gorm.DB) {
 			panic(err)
 		}
 	}()
-	if !db.Migrator().HasTable(&Account{}) {
-		err = db.AutoMigrate(&Account{})
-		if err != nil {
-			return
-		}
+	sqlStr := "CREATE TABLE IF NOT EXISTS `account` (" +
+		"`id` bigint(20) NOT NULL AUTO_INCREMENT," +
+		"`client_id` varchar(36) DEFAULT NULL," +
+		"`client_secret` varchar(12) DEFAULT NULL," +
+		"`name` varchar(36) DEFAULT NULL COMMENT '应用账户名称'," +
+		"`perm` bigint(20) DEFAULT NULL COMMENT '0:未配置 1:已配置'," +
+		"`created` datetime(3) DEFAULT NULL," +
+		"`updated` datetime(3) DEFAULT NULL," +
+		"PRIMARY KEY (`id`)" +
+	  	") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	if _, err = db.Exec(sqlStr); err != nil {
+		return
 	}
 
 	// 查询是否已有账户
 	account := Account{}
-	e := db.Model(&Account{}).Where("name = ?", svcName).First(&account).Error;
-	if e != gorm.ErrRecordNotFound && e != nil {
-		err = e
+	sqlStr = "SELECT id, client_id FROM hivecore.account WHERE name = ?"
+	rows, err := db.Query(sqlStr, svcName)
+	defer CloseRows(rows)
+	if err != nil {
+		return
+	}
+	for rows.Next() {
+		if err = rows.Scan(&account.ID, &account.ClientID); err != nil {
+			return
+		}
 	}
 	clientID = account.ClientID
 	if account.ID == 0 {
@@ -83,7 +97,8 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *gorm.DB) {
 		ct := time.Now()
 		account.Updated = ct
 		account.Created = ct
-		err = db.Model(&Account{}).Create(&account).Error
+		sqlStr = "INSERT INTO hivecore.account (client_id, client_secret, name, perm, updated, created) VALUES (?,?,?,?,?,?)"
+		_, err = db.Exec(sqlStr, clientID, clientSecret, svcName, 0, ct, ct)
 	}
 	if account.Perm == 1 {
 		return
@@ -91,8 +106,8 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *gorm.DB) {
 	// 配置权限
 	err = setAPPAccountPerm(clientID)
 	// 更新状态
-	upsMap := map[string]interface{}{"perm": 1, "updated": time.Now()}
-	db.Model(&Account{}).Where("client_id = ?", account.ClientID).Updates(upsMap)
+	sqlStr = "UPDATE hivecore.account SET perm = 1, updated = ? WHERE client_id = ?"
+	_, err = db.Exec(sqlStr, time.Now(), account.ClientID)
 }
 
 func registerAPPAccount(name string, password string) (appID string, err error) {

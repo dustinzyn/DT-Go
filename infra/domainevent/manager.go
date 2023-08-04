@@ -70,13 +70,13 @@ type EventManagerImpl struct {
 // Booting .
 func (m *EventManagerImpl) Booting(singleBoot hive.SingleBoot) {
 	db := m.db()
-	sqlPub := "CREATE TABLE IF NOT EXISTS `hivecore.domain_event_publish` (" +
+	sqlPub := "CREATE TABLE IF NOT EXISTS `domain_event_publish` (" +
 		"`id` bigint(20) NOT NULL AUTO_INCREMENT," +
 		"`topic` varchar(50) NOT NULL COMMENT '主题'," +
 		"`content` varchar(2000) NOT NULL COMMENT '内容'," +
 		"`status` bigint(20) NOT NULL COMMENT '0:待处理 1:处理失败'," +
-		"`created` datetime(3) NOT NULL," +
-		"`updated` datetime(3) NOT NULL," +
+		"`created` bigint(20) NOT NULL," +
+		"`updated` bigint(20) NOT NULL," +
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	if _, err := db.Exec(sqlPub); err != nil {
@@ -88,8 +88,8 @@ func (m *EventManagerImpl) Booting(singleBoot hive.SingleBoot) {
 		"`topic` varchar(50) NOT NULL," +
 		"`status` bigint(20) NOT NULL," +
 		"`content` varchar(2000) NOT NULL," +
-		"`created` datetime(3) NOT NULL," +
-		"`updated` datetime(3) NOT NULL," +
+		"`created` bigint(20) NOT NULL," +
+		"`updated` bigint(20) NOT NULL," +
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	if _, err := db.Exec(sqlSub); err != nil {
@@ -114,7 +114,7 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 	// Insert PubEvent
 	for _, domainEvent := range entity.GetPubEvent() {
 		uid, _ := m.uniqueID.NextID()
-		ct := time.Now()
+		ct := utils.NowTimestamp()
 		sqlStr := "INSERT INTO hivecore.domain_event_publish (id, topic, content, created, updated) VALUES (?, ?, ?, ?, ?)"
 		_, err = txDB.Exec(sqlStr, uid, domainEvent.Topic(), string(domainEvent.Marshal()), ct, ct)
 		if err != nil {
@@ -140,7 +140,7 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 
 // InsertSubEvent .
 func (m *EventManagerImpl) InsertSubEvent(event hive.DomainEvent) error {
-	ct := time.Now()
+	ct := utils.NowTimestamp()
 	sqlStr := "INSERT INTO hivecore.domain_event_subscribe (id, topic, content, created, updated) VALUES (?, ?, ?, ?, ?)"
 	_, err := m.db().Exec(sqlStr, event.Identity().(int), event.Topic(), string(event.Marshal()), ct, ct)
 	if err != nil {
@@ -154,7 +154,7 @@ func (m *EventManagerImpl) InsertSubEvent(event hive.DomainEvent) error {
 func (m *EventManagerImpl) SetSubEventFail(event hive.DomainEvent) (err error) {
 	sub := domainEventSubscribe{ID: event.Identity().(int)}
 	sub.SetStatus(1)
-	sub.SetUpdated(time.Now())
+	sub.SetUpdated(utils.NowTimestamp())
 	changes := sub.TakeChanges()
 	if changes != "" {
 		sqlStr := "UPDATE hivecore.domain_event_subscribe SET ? WHERE id = ?"
@@ -212,7 +212,7 @@ func (m *EventManagerImpl) push(event hive.DomainEvent) {
 				// 推送失败 标记事件为失败
 				hive.Logger().Errorf("push event error:%v", err)
 				publish.SetStatus(1)
-				publish.SetUpdated(time.Now())
+				publish.SetUpdated(utils.NowTimestamp())
 				changes := publish.TakeChanges()
 				if changes != "" {
 					sqlStr := "UPDATE hivecore.domain_event_publish SET ? WHERE id = ?"

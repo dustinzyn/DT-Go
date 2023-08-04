@@ -3,18 +3,17 @@ package domainevent
 import (
 	"fmt"
 	"strings"
-	"time"
 )
 
 // domainEventPublish .
 type domainEventPublish struct {
-	changes       map[string]interface{}
-	ID            int       `gorm:"primary_key;column:id"`
-	Topic         string    `gorm:"column:topic;size:50;not null;comment:'主题'"`
-	Content       string    `gorm:"column:content;size:2000;not null;comment:'内容'"`
-	Status        int       `gorm:"column:status;not null;comment:'0:待处理 1:处理失败'"`
-	Created       time.Time `gorm:"column:created;not null"`
-	Updated       time.Time `gorm:"column:updated;not null"`
+	changes map[string]interface{}
+	ID      int
+	Topic   string // 主题
+	Content string // 事件内容
+	Status  int    // 0:待处理 1:处理失败
+	Created int64
+	Updated int64
 }
 
 // TableName .
@@ -56,7 +55,7 @@ func (obj *domainEventPublish) SetContent(content string) {
 }
 
 // SetCreated .
-func (obj *domainEventPublish) SetCreated(created time.Time) {
+func (obj *domainEventPublish) SetCreated(created int64) {
 	obj.Created = created
 	obj.setChanges("created", created)
 }
@@ -68,7 +67,7 @@ func (obj *domainEventPublish) SetStatus(status int) {
 }
 
 // SetUpdated .
-func (obj *domainEventPublish) SetUpdated(updated time.Time) {
+func (obj *domainEventPublish) SetUpdated(updated int64) {
 	obj.Updated = updated
 	obj.setChanges("updated", updated)
 }

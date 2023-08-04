@@ -30,16 +30,16 @@ func RandString(length int) string {
 
 // 判断a、b两个数组是否有交集
 func HasIntersection(a, b []string) bool {
-    m := make(map[string]bool)
-    for _, x := range a {
-        m[x] = true
-    }
-    for _, x := range b {
-        if m[x] {
-            return true
-        }
-    }
-    return false
+	m := make(map[string]bool)
+	for _, x := range a {
+		m[x] = true
+	}
+	for _, x := range b {
+		if m[x] {
+			return true
+		}
+	}
+	return false
 }
 
 // GetEnv 封装os.Getenv(),可以指定默认值
@@ -149,6 +149,10 @@ func ParseXLanguage(xLanguage string, acceptLangs ...string) (language string) {
 	return
 }
 
+// CloseRows closes the Rows, preventing further enumeration. If Next is called
+// and returns false and there are no further result sets,
+// the Rows are closed automatically and it will suffice to check the
+// result of Err. Close is idempotent and does not affect the result of Err.
 func CloseRows(rows *sql.Rows) {
 	if rows != nil {
 		if rowsErr := rows.Err(); rowsErr != nil {
@@ -159,4 +163,10 @@ func CloseRows(rows *sql.Rows) {
 			hive.Logger().Error(closeErr)
 		}
 	}
+}
+
+// NowTimestamp 获取当前时间戳 毫秒级13位
+func NowTimestamp() int64 {
+	now := time.Now()
+	return now.UnixNano() / 1000
 }

@@ -25,13 +25,13 @@ const (
 
 // Account 服务应用账户
 type Account struct {
-	ID           int       `gorm:"primary_key;column:id"`
-	ClientID     string    `gorm:"column:client_id;size:36"`
-	ClientSecret string    `gorm:"column:client_secret;size:12"`
-	Name         string    `gorm:"column:name;size:36;comment:'应用账户名称'"`
-	Perm         int       `gorm:"column:perm;comment:'0:未配置 1:已配置'"`
-	Created      time.Time `gorm:"column:created"`
-	Updated      time.Time `gorm:"column:updated"`
+	ID           int
+	ClientID     string
+	ClientSecret string
+	Name         string
+	Perm         int
+	Created      int64
+	Updated      int64
 }
 
 // TableName .
@@ -63,10 +63,10 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 		"`client_secret` varchar(12) DEFAULT NULL," +
 		"`name` varchar(36) DEFAULT NULL COMMENT '应用账户名称'," +
 		"`perm` bigint(20) DEFAULT NULL COMMENT '0:未配置 1:已配置'," +
-		"`created` datetime(3) DEFAULT NULL," +
-		"`updated` datetime(3) DEFAULT NULL," +
+		"`created` bigint(20) DEFAULT NULL," +
+		"`updated` bigint(20) DEFAULT NULL," +
 		"PRIMARY KEY (`id`)" +
-	  	") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	if _, err = db.Exec(sqlStr); err != nil {
 		return
 	}
@@ -94,7 +94,7 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 		account.ClientSecret = clientSecret
 		account.Name = svcName
 		account.Perm = 0
-		ct := time.Now()
+		ct := NowTimestamp()
 		account.Updated = ct
 		account.Created = ct
 		sqlStr = "INSERT INTO hivecore.account (client_id, client_secret, name, perm, updated, created) VALUES (?,?,?,?,?,?)"
@@ -107,7 +107,7 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 	err = setAPPAccountPerm(clientID)
 	// 更新状态
 	sqlStr = "UPDATE hivecore.account SET perm = 1, updated = ? WHERE client_id = ?"
-	_, err = db.Exec(sqlStr, time.Now(), account.ClientID)
+	_, err = db.Exec(sqlStr, NowTimestamp(), account.ClientID)
 }
 
 func registerAPPAccount(name string, password string) (appID string, err error) {
@@ -194,4 +194,3 @@ func setAPPAccountPerm(clientID string) (err error) {
 	}
 	return
 }
-

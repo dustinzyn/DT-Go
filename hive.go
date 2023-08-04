@@ -76,6 +76,8 @@ type (
 	// Configuration is the configuration type of the app.
 	Configuration = config.Configurations
 
+	APPConfiguration = iris.Configuration
+
 	// DBConfiguration is the database configuration type of the app.
 	DBConfiguration = config.DBConfiguration
 

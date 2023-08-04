@@ -22,8 +22,14 @@ import (
 	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 )
 
-var dbOnce sync.Once
-var db *gorm.DB
+var (
+	dbOnce   sync.Once
+	rwdbOnce sync.Once
+	// db gorm数据库连接池对象
+	db *gorm.DB
+	// dbrw 数据库读写分离连接池对象
+	dbrw *sqlx.DB
+)
 
 // ConnectDB return a db conn pool.
 func ConnectDB(conf *config.DBConfiguration) *gorm.DB {
@@ -122,16 +128,20 @@ func ConnProtonRDS(conf *config.DBConfiguration) *gorm.DB {
 			panic(fmt.Errorf("Invalid database driver."))
 		}
 	})
+	db.Begin()
 	return db
 }
 
 // ConnProtonRWDB return a connection pool object for database read-write separation.
-func ConnProtonRWDB(conf *sqlx.DBConfig) *sqlx.DB{
-	rwdb, err := sqlx.NewDB(conf)
-	if err != nil {
-		panic(err)
-	}
-	return rwdb
+func ConnProtonRWDB(conf *sqlx.DBConfig) *sqlx.DB {
+	rwdbOnce.Do(func() {
+		var err error
+		dbrw, err = sqlx.NewDB(conf)
+		if err != nil {
+			panic(err)
+		}
+	})
+	return dbrw
 }
 
 // DisconnectDB .

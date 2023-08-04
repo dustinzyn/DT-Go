@@ -239,7 +239,7 @@ func (m *EventManagerImpl) db() *sqlx.DB {
 	return m.SourceDB().(*sqlx.DB)
 }
 
-func getTxDB(repo *hive.Repository) (db *sql.DB) {
+func getTxDB(repo *hive.Repository) (db *sql.Tx) {
 	if err := repo.FetchDB(&db); err != nil {
 		panic(err)
 	}

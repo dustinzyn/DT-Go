@@ -50,7 +50,7 @@ type BeginRequest interface {
 }
 
 var (
-	prepares  []func(Initiator)
+	prepares []func(Initiator)
 	// privatePrepares []func(Initiator)
 	// publicPrepares []func(Initiator)
 	privateStarters []func(starter Starter)

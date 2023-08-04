@@ -51,8 +51,8 @@ func tokenEndpoint() string {
 }
 
 type AccountInfo struct {
-	ClientID     string `gorm:"column:client_id"`
-	ClientSecret string `gorm:"column:client_secret"`
+	ClientID     string
+	ClientSecret string
 }
 
 // clientInfo return clientID ad client secret.

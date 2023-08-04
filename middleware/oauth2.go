@@ -56,6 +56,7 @@ func NewAuthentication() context.Handler {
 		worker.Bus().Add("userId", result.Subject)
 		worker.Bus().Add("clientId", result.ClientID)
 		worker.Bus().Add("userToken", token)
+		worker.Bus().Add("language", language)
 		if result.Extra != nil {
 			if str, ok := result.Extra["login_ip"].(string); ok {
 				worker.Bus().Add("ip", str)

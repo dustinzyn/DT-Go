@@ -115,8 +115,8 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 	for _, domainEvent := range entity.GetPubEvent() {
 		uid, _ := m.uniqueID.NextID()
 		ct := utils.NowTimestamp()
-		sqlStr := "INSERT INTO hivecore.domain_event_publish (id, topic, content, created, updated) VALUES (?, ?, ?, ?, ?)"
-		_, err = txDB.Exec(sqlStr, uid, domainEvent.Topic(), string(domainEvent.Marshal()), ct, ct)
+		sqlStr := "INSERT INTO hivecore.domain_event_publish (id, topic, content, created, updated, status) VALUES (?, ?, ?, ?, ?, ?)"
+		_, err = txDB.Exec(sqlStr, uid, domainEvent.Topic(), string(domainEvent.Marshal()), ct, ct, 0)
 		if err != nil {
 			hive.Logger().Errorf("Insert PubEvent error: %v", err)
 			return
@@ -141,8 +141,8 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 // InsertSubEvent .
 func (m *EventManagerImpl) InsertSubEvent(event hive.DomainEvent) error {
 	ct := utils.NowTimestamp()
-	sqlStr := "INSERT INTO hivecore.domain_event_subscribe (id, topic, content, created, updated) VALUES (?, ?, ?, ?, ?)"
-	_, err := m.db().Exec(sqlStr, event.Identity().(int), event.Topic(), string(event.Marshal()), ct, ct)
+	sqlStr := "INSERT INTO hivecore.domain_event_subscribe (id, topic, content, created, updated, status) VALUES (?, ?, ?, ?, ?, ?)"
+	_, err := m.db().Exec(sqlStr, event.Identity().(int), event.Topic(), string(event.Marshal()), ct, ct, 0)
 	if err != nil {
 		hive.Logger().Errorf("InsertSubEvent error: %v", err)
 		return err

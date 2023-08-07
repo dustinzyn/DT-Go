@@ -16,7 +16,6 @@ import (
 	"github.com/kataras/iris/v12/mvc"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
-	"gorm.io/gorm"
 
 	stdContext "context"
 )
@@ -426,12 +425,12 @@ func (app *Application) installDB() {
 func (app *Application) installDBTable() {
 	if app.DBTable.Install != nil {
 		app.DBTable.tables = app.DBTable.Install()
-		db := app.Database.db.(*gorm.DB)
-		for k, v := range app.DBTable.tables {
-			if !db.Migrator().HasTable(k) {
-				db.AutoMigrate(v)
-			}
-		}
+		// db := app.Database.db.(*sqlx.DB)
+		// for k, v := range app.DBTable.tables {
+		// 	if !db.Migrator().HasTable(k) {
+		// 		db.AutoMigrate(v)
+		// 	}
+		// }
 	}
 }
 

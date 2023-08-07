@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"bou.ke/monkey"
+	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 	"github.com/DATA-DOG/go-sqlmock"
 	redis "github.com/go-redis/redis/v8"
 	redismock "github.com/go-redis/redismock/v8"
@@ -18,7 +19,7 @@ import (
 var (
 	dbOnce     sync.Once
 	gormDBMock *gorm.DB
-	sqlDBMock  *sql.DB
+	sqlDBMock  *sqlx.DB
 	sqlMock    sqlmock.Sqlmock
 )
 
@@ -39,7 +40,7 @@ type UnitTest interface {
 	SetRequest(request *http.Request)
 	InjectBaseEntity(entity interface{})
 	NewGormDBMock(repo *Repository) (*gorm.DB, sqlmock.Sqlmock)
-	NewSqlDBMock(repo *Repository) (*sql.DB, sqlmock.Sqlmock)
+	NewSqlDBMock(repo *Repository) (*sqlx.DB, sqlmock.Sqlmock)
 }
 
 // UnitTestImpl .
@@ -130,8 +131,12 @@ func (u *UnitTestImpl) Run() {
 	u.rt = u.newRuntime()
 	logLevel := "debug"
 	u.App().IrisApp.Logger().SetLevel(logLevel)
+	u.InstallDB(func() interface{} {
+		db, _ := u.dbMock()
+		return db
+	})
 	u.App().installDB()
-	u.App().installDBTable()
+	// u.App().installDBTable()
 	u.App().comPool.singleBooting(u.App())
 }
 
@@ -161,9 +166,9 @@ func (u *UnitTestImpl) InjectBaseEntity(entity interface{}) {
 func (u *UnitTestImpl) NewGormDBMock(repo *Repository) (*gorm.DB, sqlmock.Sqlmock) {
 	dbOnce.Do(func() {
 		var err error
-		var mockDB *sql.DB
 		// 创建 sqlmock 实例
-		mockDB, sqlMock, err = sqlmock.New()
+		var dbMock *sql.DB
+		dbMock, sqlMock, err = sqlmock.New()
 		if err != nil {
 			panic(err)
 		}
@@ -175,7 +180,7 @@ func (u *UnitTestImpl) NewGormDBMock(repo *Repository) (*gorm.DB, sqlmock.Sqlmoc
 
 		// 使用 sqlmock 实例创建 GORM 数据库连接
 		gormDBMock, err = gorm.Open(mysql.New(mysql.Config{
-			Conn: mockDB,
+			Conn: dbMock,
 		}), &gorm.Config{})
 		if err != nil {
 			panic(err)
@@ -200,19 +205,9 @@ func (u *UnitTestImpl) NewGormDBMock(repo *Repository) (*gorm.DB, sqlmock.Sqlmoc
 }
 
 // NewSqlDBMock return sql.DB mock and sqlmock.
-func (u *UnitTestImpl) NewSqlDBMock(repo *Repository) (*sql.DB, sqlmock.Sqlmock) {
+func (u *UnitTestImpl) NewSqlDBMock(repo *Repository) (*sqlx.DB, sqlmock.Sqlmock) {
 	dbOnce.Do(func() {
-		var err error
-		// 创建 sqlmock 实例
-		sqlDBMock, sqlMock, err = sqlmock.New()
-		if err != nil {
-			panic(err)
-		}
-
-		// 设置 'SELECT VERSION()' 查询的预期
-		columns := []string{"VERSION()"}
-		rows := sqlmock.NewRows(columns).AddRow("10.5.1")
-		sqlMock.ExpectQuery("SELECT VERSION()").WillReturnRows(rows)
+		sqlDBMock, sqlMock = u.dbMock()
 
 		// mock Repository FetchDB
 		monkey.PatchInstanceMethod(reflect.TypeOf(repo), "FetchDB", func(repo *Repository, db interface{}) error {
@@ -229,5 +224,20 @@ func (u *UnitTestImpl) NewSqlDBMock(repo *Repository) (*sql.DB, sqlmock.Sqlmock)
 			return nil
 		})
 	})
+	return sqlDBMock, sqlMock
+}
+
+func (u *UnitTestImpl) dbMock() (*sqlx.DB, sqlmock.Sqlmock) {
+	var err error
+	// 创建 sqlmock 实例
+	sqlDBMock, sqlMock, err = sqlx.New()
+	if err != nil {
+		panic(err)
+	}
+
+	// 设置 'SELECT VERSION()' 查询的预期
+	columns := []string{"VERSION()"}
+	rows := sqlmock.NewRows(columns).AddRow("10.5.1")
+	sqlMock.ExpectQuery("SELECT VERSION()").WillReturnRows(rows)
 	return sqlDBMock, sqlMock
 }

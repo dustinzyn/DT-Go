@@ -80,7 +80,7 @@ func (m *EventManagerImpl) Booting(singleBoot hive.SingleBoot) {
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	if _, err := db.Exec(sqlPub); err != nil {
-		m.Worker().Logger().Errorf("Event manager booting error: %v", err)
+		hive.Logger().Errorf("Event manager booting error: %v", err)
 		return
 	}
 	sqlSub := "CREATE TABLE IF NOT EXISTS `domain_event_subscribe` (" +
@@ -93,7 +93,7 @@ func (m *EventManagerImpl) Booting(singleBoot hive.SingleBoot) {
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	if _, err := db.Exec(sqlSub); err != nil {
-		m.Worker().Logger().Errorf("Event manager booting error: %v", err)
+		hive.Logger().Errorf("Event manager booting error: %v", err)
 		return
 	}
 }

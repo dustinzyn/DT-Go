@@ -334,11 +334,6 @@ func (s *Default) RemoteInfo() (result struct {
 ``` golang
 package dependency
 
-import (
-	"HiveCore/domain/entity"
-	"HiveCore/domain/vo"
-)
-
 // DefaultRepoInterface .
 type DefaultRepoInterface interface {
 	GetUA() string

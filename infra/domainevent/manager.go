@@ -22,6 +22,7 @@ import (
 var (
 	eventManager *EventManagerImpl
 )
+var _ EventManager = (*EventManagerImpl)(nil)
 
 func init() {
 	eventManager = &EventManagerImpl{}
@@ -53,6 +54,8 @@ type EventManager interface {
 	RegisterPubHandler(f func(topic string, content string) error)
 	// Save 保存领域发布事件
 	Save(repo *hive.Repository, entity hive.Entity) (err error)
+	// GetFailSubEvents 获取n个处理失败的领域订阅事件(id,topic,content)
+	GetFailSubEvents(n int) ([]map[string]interface{}, error)
 	// DeleteSubEvent 删除领域订阅事件
 	DeleteSubEvent(eventID int) error
 	// SetSubEventFail 将订阅事件置为失败状态
@@ -133,6 +136,27 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 			hive.Logger().Errorf("InsertSubEvent error: %v", err)
 			return err
 		}
+	}
+	return
+}
+
+// GetFailSubEvents 获取n个处理失败的领域订阅事件(id,topic,content)
+func (m *EventManagerImpl) GetFailSubEvents(n int) (subs []map[string]interface{}, err error) {
+	subs = make([]map[string]interface{}, 0)
+	sqlStr := "SELECT id, topic, content FROM hivecore.domain_event_subscribe WHERE status = ? LIMIT ?"
+	rows, err := m.db().Query(sqlStr, 1, n)
+	defer utils.CloseRows(rows)
+	if err != nil {
+		return
+	}
+	for rows.Next() {
+		var id int
+		var topic, content string
+		if err = rows.Scan(&id, &topic, &content); err != nil {
+			return
+		}
+		sub := map[string]interface{}{"id": id, "topic": topic, "content": content}
+		subs = append(subs, sub)
 	}
 	return
 }

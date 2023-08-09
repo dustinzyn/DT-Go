@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"reflect"
 	"sync"
+	"time"
 
 	"bou.ke/monkey"
 	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
@@ -144,6 +145,8 @@ func (u *UnitTestImpl) Run() {
 	u.App().installDB()
 	// u.App().installDBTable()
 	u.App().comPool.singleBooting(u.App())
+	// 等待redisMock启动
+	time.Sleep(time.Duration(500) * time.Millisecond)
 }
 
 func (u *UnitTestImpl) newRuntime() *worker {

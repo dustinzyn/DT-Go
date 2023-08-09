@@ -204,7 +204,7 @@ func (u *UnitTestImpl) NewGormDBMock(repo *Repository) (*gorm.DB, sqlmock.Sqlmoc
 	return gormDBMock, sqlMock
 }
 
-// NewSqlDBMock return sql.DB mock and sqlmock.
+// NewSqlDBMock return sqlx.DB mock and sqlmock.
 func (u *UnitTestImpl) NewSqlDBMock(repo *Repository) (*sqlx.DB, sqlmock.Sqlmock) {
 	dbOnce.Do(func() {
 		sqlDBMock, sqlMock = u.dbMock()
@@ -219,6 +219,12 @@ func (u *UnitTestImpl) NewSqlDBMock(repo *Repository) (*sqlx.DB, sqlmock.Sqlmock
 			srvValue := reflect.ValueOf(sqlDBMock)
 			if value.Type() == srvValue.Type() {
 				value.Set(srvValue)
+			} else {
+				txMock, _ := sqlDBMock.Begin()
+				txValue := reflect.ValueOf(txMock)
+				if value.Type() == txValue.Type() {
+					value.Set(txValue)
+				}
 			}
 			u.App().Logger().Infof("patch repo.Repository FetchDB...")
 			return nil

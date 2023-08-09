@@ -240,10 +240,5 @@ func (u *UnitTestImpl) dbMock() (*sqlx.DB, sqlmock.Sqlmock) {
 	if err != nil {
 		panic(err)
 	}
-
-	// 设置 'SELECT VERSION()' 查询的预期
-	columns := []string{"VERSION()"}
-	rows := sqlmock.NewRows(columns).AddRow("10.5.1")
-	sqlMock.ExpectQuery("SELECT VERSION()").WillReturnRows(rows)
 	return sqlDBMock, sqlMock
 }

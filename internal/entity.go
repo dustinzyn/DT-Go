@@ -3,9 +3,6 @@ package internal
 import (
 	"fmt"
 	"reflect"
-	"strings"
-
-	uuid "github.com/iris-contrib/go.uuid"
 )
 
 var _ Entity = (*entity)(nil)
@@ -22,7 +19,7 @@ type DomainEvent interface {
 
 // Entity is the entity's father interface.
 type Entity interface {
-	Identity() string
+	Identity() int
 	Worker() Worker
 	Marshal() []byte
 	AddPubEvent(DomainEvent)
@@ -36,7 +33,7 @@ type Entity interface {
 type entity struct {
 	worker       Worker
 	entityName   string
-	identity     string
+	identity     int
 	producer     string
 	entityObject interface{}
 	pubEvents    []DomainEvent
@@ -67,11 +64,7 @@ func injectBaseEntity(run Worker, entityObject interface{}) {
 	return
 }
 
-func (e *entity) Identity() string {
-	if e.identity == "" {
-		u, _ := uuid.NewV1()
-		e.identity = strings.ToLower(strings.ReplaceAll(u.String(), "-", " "))
-	}
+func (e *entity) Identity() int {
 	return e.identity
 }
 

@@ -54,9 +54,9 @@ type EventManager interface {
 	// Save 保存领域发布事件
 	Save(repo *hive.Repository, entity hive.Entity) (err error)
 	// DeleteSubEvent 删除领域订阅事件
-	DeleteSubEvent(event hive.DomainEvent) error
+	DeleteSubEvent(eventID int) error
 	// SetSubEventFail 将订阅事件置为失败状态
-	SetSubEventFail(event hive.DomainEvent) error
+	SetSubEventFail(eventID int) error
 	// RetryPubThread 定时器扫描表中失败的Pub事件
 	RetryPubThread(app hive.Application)
 }
@@ -138,9 +138,9 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 }
 
 // DeleteSubEvent .
-func (m *EventManagerImpl) DeleteSubEvent(event hive.DomainEvent) error {
-	sqlStr := "DELETE hivecore.domain_event_subscribe WHERE id = ?"
-	_, err := m.db().Exec(sqlStr, event.Identity().(int))
+func (m *EventManagerImpl) DeleteSubEvent(eventID int) error {
+	sqlStr := "DELETE FROM hivecore.domain_event_subscribe WHERE id = ?"
+	_, err := m.db().Exec(sqlStr, eventID)
 	if err != nil {
 		hive.Logger().Errorf("DeleteSubEvent error: %v", err)
 		return err
@@ -149,14 +149,14 @@ func (m *EventManagerImpl) DeleteSubEvent(event hive.DomainEvent) error {
 }
 
 // SetSubEventFail 将订阅事件置为失败状态
-func (m *EventManagerImpl) SetSubEventFail(event hive.DomainEvent) (err error) {
-	sub := domainEventSubscribe{ID: event.Identity().(int)}
+func (m *EventManagerImpl) SetSubEventFail(eventID int) (err error) {
+	sub := domainEventSubscribe{ID: eventID}
 	sub.SetStatus(1)
 	sub.SetUpdated(utils.NowTimestamp())
 	changes := sub.TakeChanges()
 	if changes != "" {
 		sqlStr := "UPDATE hivecore.domain_event_subscribe SET ? WHERE id = ?"
-		_, err = m.db().Exec(sqlStr, changes, event.Identity().(int))
+		_, err = m.db().Exec(sqlStr, changes, eventID)
 		if err != nil {
 			hive.Logger().Errorf("SetSubEventFail error: %v", err)
 			return err

@@ -69,33 +69,33 @@ type EventManagerImpl struct {
 
 // Booting .
 func (m *EventManagerImpl) Booting(singleBoot hive.SingleBoot) {
-	db := m.db()
-	sqlPub := "CREATE TABLE IF NOT EXISTS `domain_event_publish` (" +
-		"`id` bigint(20) NOT NULL AUTO_INCREMENT," +
-		"`topic` varchar(50) NOT NULL COMMENT '主题'," +
-		"`content` varchar(2000) NOT NULL COMMENT '内容'," +
-		"`status` bigint(20) NOT NULL COMMENT '0:待处理 1:处理失败'," +
-		"`created` bigint(20) NOT NULL," +
-		"`updated` bigint(20) NOT NULL," +
-		"PRIMARY KEY (`id`)" +
-		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
-	if _, err := db.Exec(sqlPub); err != nil {
-		hive.Logger().Errorf("Event manager booting error: %v", err)
-		return
-	}
-	sqlSub := "CREATE TABLE IF NOT EXISTS `domain_event_subscribe` (" +
-		"`id` bigint(20) NOT NULL AUTO_INCREMENT," +
-		"`topic` varchar(50) NOT NULL," +
-		"`status` bigint(20) NOT NULL," +
-		"`content` varchar(2000) NOT NULL," +
-		"`created` bigint(20) NOT NULL," +
-		"`updated` bigint(20) NOT NULL," +
-		"PRIMARY KEY (`id`)" +
-		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
-	if _, err := db.Exec(sqlSub); err != nil {
-		hive.Logger().Errorf("Event manager booting error: %v", err)
-		return
-	}
+	// db := m.db()
+	// sqlPub := "CREATE TABLE IF NOT EXISTS `domain_event_publish` (" +
+	// 	"`id` bigint(20) NOT NULL AUTO_INCREMENT," +
+	// 	"`topic` varchar(50) NOT NULL COMMENT '主题'," +
+	// 	"`content` varchar(2000) NOT NULL COMMENT '内容'," +
+	// 	"`status` bigint(20) NOT NULL COMMENT '0:待处理 1:处理失败'," +
+	// 	"`created` bigint(20) NOT NULL," +
+	// 	"`updated` bigint(20) NOT NULL," +
+	// 	"PRIMARY KEY (`id`)" +
+	// 	") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	// if _, err := db.Exec(sqlPub); err != nil {
+	// 	hive.Logger().Errorf("Event manager booting error: %v", err)
+	// 	return
+	// }
+	// sqlSub := "CREATE TABLE IF NOT EXISTS `domain_event_subscribe` (" +
+	// 	"`id` bigint(20) NOT NULL AUTO_INCREMENT," +
+	// 	"`topic` varchar(50) NOT NULL," +
+	// 	"`status` bigint(20) NOT NULL," +
+	// 	"`content` varchar(2000) NOT NULL," +
+	// 	"`created` bigint(20) NOT NULL," +
+	// 	"`updated` bigint(20) NOT NULL," +
+	// 	"PRIMARY KEY (`id`)" +
+	// 	") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	// if _, err := db.Exec(sqlSub); err != nil {
+	// 	hive.Logger().Errorf("Event manager booting error: %v", err)
+	// 	return
+	// }
 }
 
 // RegisterPubHandler .

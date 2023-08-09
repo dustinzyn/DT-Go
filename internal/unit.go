@@ -131,9 +131,15 @@ func (u *UnitTestImpl) Run() {
 	u.rt = u.newRuntime()
 	logLevel := "debug"
 	u.App().IrisApp.Logger().SetLevel(logLevel)
-	u.InstallDB(func() interface{} {
+	u.App().InstallDB(func() interface{} {
 		db, _ := u.dbMock()
 		return db
+	})
+	u.App().InstallRedis(func() (client redis.Cmdable) {
+		// 创建一个redis mock
+		redisClient, mock := redismock.NewClientMock()
+		u.SetRedisMock(mock)
+		return redisClient
 	})
 	u.App().installDB()
 	// u.App().installDBTable()

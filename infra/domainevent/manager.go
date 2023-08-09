@@ -53,8 +53,8 @@ type EventManager interface {
 	RegisterPubHandler(f func(topic string, content string) error)
 	// Save 保存领域发布事件
 	Save(repo *hive.Repository, entity hive.Entity) (err error)
-	// InsertSubEvent 插入领域订阅事件
-	InsertSubEvent(event hive.DomainEvent) error
+	// DeleteSubEvent 删除领域订阅事件
+	DeleteSubEvent(event hive.DomainEvent) error
 	// SetSubEventFail 将订阅事件置为失败状态
 	SetSubEventFail(event hive.DomainEvent) error
 	// RetryPubThread 定时器扫描表中失败的Pub事件
@@ -111,10 +111,10 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 	defer entity.RemoveAllPubEvent()
 	defer entity.RemoveAllSubEvent()
 
+	ct := utils.NowTimestamp()
 	// Insert PubEvent
 	for _, domainEvent := range entity.GetPubEvent() {
 		uid, _ := m.uniqueID.NextID()
-		ct := utils.NowTimestamp()
 		sqlStr := "INSERT INTO hivecore.domain_event_publish (id, topic, content, created, updated, status) VALUES (?, ?, ?, ?, ?, ?)"
 		_, err = txDB.Exec(sqlStr, uid, domainEvent.Topic(), string(domainEvent.Marshal()), ct, ct, 0)
 		if err != nil {
@@ -125,26 +125,24 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 	}
 	m.addPubToWOrker(repo.Worker(), entity.GetPubEvent())
 
-	// Delete SubEvent
+	// Insert SubEvent
 	for _, subEvent := range entity.GetSubEvent() {
-		eventID := subEvent.Identity().(int)
-		sqlStr := "DELETE FROM hivecore.domain_event_subscribe WHERE id = ?"
-		_, err = txDB.Exec(sqlStr, eventID)
+		sqlStr := "INSERT INTO hivecore.domain_event_subscribe (id, topic, content, created, updated, status) VALUES (?, ?, ?, ?, ?, ?)"
+		_, err := m.db().Exec(sqlStr, subEvent.Identity().(int), subEvent.Topic(), string(subEvent.Marshal()), ct, ct, 0)
 		if err != nil {
-			hive.Logger().Error(err)
-			return
+			hive.Logger().Errorf("InsertSubEvent error: %v", err)
+			return err
 		}
 	}
 	return
 }
 
-// InsertSubEvent .
-func (m *EventManagerImpl) InsertSubEvent(event hive.DomainEvent) error {
-	ct := utils.NowTimestamp()
-	sqlStr := "INSERT INTO hivecore.domain_event_subscribe (id, topic, content, created, updated, status) VALUES (?, ?, ?, ?, ?, ?)"
-	_, err := m.db().Exec(sqlStr, event.Identity().(int), event.Topic(), string(event.Marshal()), ct, ct, 0)
+// DeleteSubEvent .
+func (m *EventManagerImpl) DeleteSubEvent(event hive.DomainEvent) error {
+	sqlStr := "DELETE hivecore.domain_event_subscribe WHERE id = ?"
+	_, err := m.db().Exec(sqlStr, event.Identity().(int))
 	if err != nil {
-		hive.Logger().Errorf("InsertSubEvent error: %v", err)
+		hive.Logger().Errorf("DeleteSubEvent error: %v", err)
 		return err
 	}
 	return nil

@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"bou.ke/monkey"
 	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/agiledragon/gomonkey/v2"
 	redis "github.com/go-redis/redis/v8"
 	redismock "github.com/go-redis/redismock/v8"
 	"github.com/kataras/iris/v12/context"
@@ -196,7 +196,7 @@ func (u *UnitTestImpl) NewGormDBMock(repo *Repository) (*gorm.DB, sqlmock.Sqlmoc
 		}
 
 		// mock Repository FetchDB
-		monkey.PatchInstanceMethod(reflect.TypeOf(repo), "FetchDB", func(repo *Repository, db interface{}) error {
+		gomonkey.ApplyMethodFunc(repo, "FetchDB", func(db interface{}) error {
 			value := reflect.ValueOf(db)
 			if value.Kind() != reflect.Ptr {
 				panic("db error")
@@ -219,7 +219,7 @@ func (u *UnitTestImpl) NewSqlDBMock(repo *Repository) (*sqlx.DB, sqlmock.Sqlmock
 		sqlDBMock, sqlMock = u.dbMock()
 
 		// mock Repository FetchDB
-		monkey.PatchInstanceMethod(reflect.TypeOf(repo), "FetchDB", func(repo *Repository, db interface{}) error {
+		gomonkey.ApplyMethodFunc(repo, "FetchDB", func(db interface{}) error {
 			value := reflect.ValueOf(db)
 			if value.Kind() != reflect.Ptr {
 				panic("db error")

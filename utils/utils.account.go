@@ -42,6 +42,7 @@ func (obj *Account) TableName() string {
 func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 	var clientID string
 	var err error
+	cgdb := config.NewConfiguration().DB
 	ctx := context.Background()
 	if redisClient != nil {
 		lock := redisClient.SetNX(ctx, svcName, true, 5*time.Second)
@@ -57,23 +58,11 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 			panic(err)
 		}
 	}()
-	sqlStr := "CREATE TABLE IF NOT EXISTS `account` (" +
-		"`id` bigint(20) NOT NULL AUTO_INCREMENT," +
-		"`client_id` varchar(36) DEFAULT NULL," +
-		"`client_secret` varchar(12) DEFAULT NULL," +
-		"`name` varchar(36) DEFAULT NULL COMMENT '应用账户名称'," +
-		"`perm` bigint(20) DEFAULT NULL COMMENT '0:未配置 1:已配置'," +
-		"`created` bigint(20) DEFAULT NULL," +
-		"`updated` bigint(20) DEFAULT NULL," +
-		"PRIMARY KEY (`id`)" +
-		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
-	if _, err = db.Exec(sqlStr); err != nil {
-		return
-	}
 
 	// 查询是否已有账户
 	account := Account{}
-	sqlStr = "SELECT id, client_id FROM hivecore.account WHERE name = ?"
+	sqlStr := "SELECT id, client_id FROM %v.account WHERE name = ?"
+	sqlStr = fmt.Sprintf(sqlStr, cgdb.DBName)
 	rows, err := db.Query(sqlStr, svcName)
 	defer CloseRows(rows)
 	if err != nil {
@@ -97,7 +86,8 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 		ct := NowTimestamp()
 		account.Updated = ct
 		account.Created = ct
-		sqlStr = "INSERT INTO hivecore.account (client_id, client_secret, name, perm, updated, created) VALUES (?,?,?,?,?,?)"
+		sqlStr = "INSERT INTO %v.account (client_id, client_secret, name, perm, updated, created) VALUES (?,?,?,?,?,?)"
+		sqlStr = fmt.Sprintf(sqlStr, cgdb.DBName)
 		_, err = db.Exec(sqlStr, clientID, clientSecret, svcName, 0, ct, ct)
 	}
 	if account.Perm == 1 {
@@ -106,7 +96,8 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 	// 配置权限
 	err = setAPPAccountPerm(clientID)
 	// 更新状态
-	sqlStr = "UPDATE hivecore.account SET perm = 1, updated = ? WHERE client_id = ?"
+	sqlStr = "UPDATE %v.account SET perm = 1, updated = ? WHERE client_id = ?"
+	sqlStr = fmt.Sprintf(sqlStr, cgdb.DBName)
 	_, err = db.Exec(sqlStr, NowTimestamp(), account.ClientID)
 }
 

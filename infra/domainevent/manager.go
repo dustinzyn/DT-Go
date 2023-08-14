@@ -21,6 +21,15 @@ import (
 
 //go:generate mockgen -package mock_infra -source manager.go -destination ./mock/domainevent_mock.go
 
+const (
+	// DelayInterval 延迟启动间隔
+	DelayInterval int = 5
+	// RetryInterval 重试扫描失败的事件间隔
+	RetryInterval int = 30
+	// SingleRetryNum 每次重试读取的sub/pub事件数
+	SingleRetryNum int = 100
+)
+
 var (
 	eventManager *EventManagerImpl
 )
@@ -54,22 +63,25 @@ func GetEventManager() *EventManagerImpl {
 type EventManager interface {
 	// RegisterPubHandler 注册领域发布事件函数
 	RegisterPubHandler(f func(topic string, content string) error)
-	// Save 保存领域发布事件
+	// RegisterSubHandler 注册领域发布事件函数
+	RegisterSubHandler(f func(topic string, content string) error)
+	// RetryPubEvent 定时器扫描表中失败的Pub事件
+	RetryPubEvent(app hive.Application)
+	// RetrySubEvent 定时器扫描表中失败的Pub事件
+	RetrySubEvent(app hive.Application)
+	// Save 保存领域事件
 	Save(repo *hive.Repository, entity hive.Entity) (err error)
-	// GetFailSubEvents 获取n个处理失败的领域订阅事件(id,topic,content)
-	GetFailSubEvents(n int) ([]map[string]interface{}, error)
 	// DeleteSubEvent 删除领域订阅事件
 	DeleteSubEvent(eventID int) error
 	// SetSubEventFail 将订阅事件置为失败状态
 	SetSubEventFail(eventID int) error
-	// RetryPubThread 定时器扫描表中失败的Pub事件
-	RetryPubThread(app hive.Application)
 }
 
 type EventManagerImpl struct {
 	hive.Infra
 	uniqueID   uniqueid.Sonyflaker                      // 唯一性ID组件
 	pubHandler func(topic string, content string) error // 发布事件函数 由使用方自定义
+	subHandler func(topic string, content string) error // 订阅事件函数 由使用方自定义
 }
 
 // Booting .
@@ -82,7 +94,56 @@ func (m *EventManagerImpl) RegisterPubHandler(f func(topic string, content strin
 	m.pubHandler = f
 }
 
-// Save .
+// RegisterSubHandler .
+func (m *EventManagerImpl) RegisterSubHandler(f func(topic string, content string) error) {
+	m.subHandler = f
+}
+
+// RetryPubEvent 定时器扫描表中失败的Pub事件
+func (m *EventManagerImpl) RetryPubEvent(app hive.Application) {
+	time.Sleep(time.Duration(DelayInterval) * time.Second) //延迟，等待程序Application.Run
+	hive.Logger().Info("***************** EventManager Retry Publish *****************")
+	timeTicker := time.NewTicker(time.Duration(RetryInterval) * time.Second)
+	needTimer := true
+	for {
+		select {
+		case <-timeTicker.C:
+			if !needTimer {
+				continue
+			}
+		}
+		for {
+			needTimer = m.retryPub()
+			// 全部重试成功后退出 定时器会再次触发
+			if needTimer {
+				break
+			}
+		}
+	}
+}
+
+// RetrySubEvent 定时器扫描表中失败的Sub事件
+func (m *EventManagerImpl) RetrySubEvent(app hive.Application) {
+	time.Sleep(time.Duration(DelayInterval) * time.Second) // 延迟，等待程序Application.Run
+	hive.Logger().Info("***************** EventManager Retry Subscribe *****************")
+	timeTicker := time.NewTicker(time.Duration(RetryInterval) * time.Second)
+	needTimer := true
+	for {
+		<-timeTicker.C
+		if !needTimer {
+			continue
+		}
+		for {
+			needTimer = m.retrySub()
+			// 全部重试成功后退出 定时器会再次触发
+			if needTimer {
+				break
+			}
+		}
+	}
+}
+
+// Save 保存领域事件
 func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err error) {
 	txDB := getTxDB(repo)
 
@@ -118,29 +179,7 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 	return
 }
 
-// GetFailSubEvents 获取n个处理失败的领域订阅事件(id,topic,content)
-func (m *EventManagerImpl) GetFailSubEvents(n int) (subs []map[string]interface{}, err error) {
-	subs = make([]map[string]interface{}, 0)
-	sqlStr := "SELECT id, topic, content FROM %v.domain_event_subscribe WHERE status = ? LIMIT ?"
-	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
-	rows, err := m.db().Query(sqlStr, 1, n)
-	defer utils.CloseRows(rows)
-	if err != nil {
-		return
-	}
-	for rows.Next() {
-		var id int
-		var topic, content string
-		if err = rows.Scan(&id, &topic, &content); err != nil {
-			return
-		}
-		sub := map[string]interface{}{"id": id, "topic": topic, "content": content}
-		subs = append(subs, sub)
-	}
-	return
-}
-
-// DeleteSubEvent .
+// DeleteSubEvent 删除领域订阅事件
 func (m *EventManagerImpl) DeleteSubEvent(eventID int) error {
 	sqlStr := "DELETE FROM %v.domain_event_subscribe WHERE id = ?"
 	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
@@ -166,6 +205,137 @@ func (m *EventManagerImpl) SetSubEventFail(eventID int) (err error) {
 			hive.Logger().Errorf("SetSubEventFail error: %v", err)
 			return err
 		}
+	}
+	return nil
+}
+
+func (m *EventManagerImpl) retrySub() (needTimer bool) {
+	var err error
+	defer func() {
+		if r := recover(); r != nil {
+			hive.Logger().Errorf("retrySub error: %v", r)
+			err = errors.New("retrySub panic, recover")
+		}
+		if err != nil {
+			needTimer = true
+			return
+		}
+	}()
+	subs, err := eventManager.getFailSubEvents(SingleRetryNum)
+	if err != nil {
+		hive.Logger().Infof("retrySub error: %v", err)
+		needTimer = true
+		return
+	}
+	if len(subs) == 0 {
+		// 全部完成由定时器再次触发
+		needTimer = true
+		return
+	}
+	for _, event := range subs {
+		err = m.subHandler(event["topic"].(string), event["content"].(string))
+		if err != nil {
+			hive.Logger().Errorf("execPush error: %v", err)
+			continue
+		}
+		// 推送成功删除事件
+		if err = eventManager.DeleteSubEvent(event["id"].(int)); err != nil {
+			hive.Logger().Errorf("execPush: delete sub event error: %v", err)
+		}
+	}
+	return
+}
+
+func (m *EventManagerImpl) retryPub() (needTimer bool) {
+	var err error
+	defer func() {
+		if r := recover(); r != nil {
+			hive.Logger().Errorf("retryPub error: %v", r)
+			err = errors.New("retryPub panic, recover")
+		}
+		if err != nil {
+			needTimer = true
+			return
+		}
+	}()
+
+	pubs, err := m.getFailPubEvents(SingleRetryNum)
+	if err != nil {
+		hive.Logger().Infof("retryPub error: %v", err)
+		needTimer = true
+		return
+	}
+	if len(pubs) == 0 {
+		// 全部完成由定时器再次触发
+		needTimer = true
+		return
+	}
+	for _, event := range pubs {
+		err = m.pubHandler(event["topic"].(string), event["content"].(string))
+		if err != nil {
+			hive.Logger().Errorf("execPush error: %v", err)
+			continue
+		}
+		// 推送成功删除事件
+		if err = eventManager.DeletePubEvent(event["id"].(int)); err != nil {
+			hive.Logger().Errorf("execPush: delete pub event error: %v", err)
+		}
+	}
+	return
+}
+
+// getFailSubEvents 获取n个处理失败的领域订阅事件(id,topic,content)
+func (m *EventManagerImpl) getFailSubEvents(n int) (subs []map[string]interface{}, err error) {
+	subs = make([]map[string]interface{}, 0)
+	sqlStr := "SELECT id, topic, content FROM %v.domain_event_subscribe WHERE status = ? LIMIT ?"
+	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+	rows, err := m.db().Query(sqlStr, 1, n)
+	defer utils.CloseRows(rows)
+	if err != nil {
+		return
+	}
+	for rows.Next() {
+		var id int
+		var topic, content string
+		if err = rows.Scan(&id, &topic, &content); err != nil {
+			return
+		}
+		sub := map[string]interface{}{"id": id, "topic": topic, "content": content}
+		subs = append(subs, sub)
+	}
+	return
+}
+
+// getFailPubEvents 获取n个处理失败的领域发布事件(id,topic,content)
+func (m *EventManagerImpl) getFailPubEvents(n int) (pubs []map[string]interface{}, err error) {
+	pubs = make([]map[string]interface{}, 0)
+	sqlStr := "SELECT id, topic, content FROM %v.domain_event_publish WHERE status = ? LIMIT ?"
+	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+	rows, err := m.db().Query(sqlStr, 1, n)
+	defer utils.CloseRows(rows)
+	if err != nil {
+		return
+	}
+	for rows.Next() {
+		var id int
+		var topic, content string
+		if err = rows.Scan(&id, &topic, &content); err != nil {
+			return
+		}
+		sub := map[string]interface{}{"id": id, "topic": topic, "content": content}
+		pubs = append(pubs, sub)
+	}
+	return
+}
+
+// DeletePubEvent 删除领域发布事件
+func (m *EventManagerImpl) DeletePubEvent(eventID int) error {
+	sqlStr := "DELETE FROM %v.domain_event_publish WHERE id = ?"
+	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+	_, err := m.db().Exec(sqlStr, eventID)
+	if err != nil {
+		hive.Logger().Errorf("DeletePubEvent error: %v", err)
+		return err
 	}
 	return nil
 }
@@ -240,93 +410,6 @@ func (m *EventManagerImpl) push(event hive.DomainEvent) {
 	}()
 }
 
-func (m *EventManagerImpl) db() *sqlx.DB {
-	return m.SourceDB().(*sqlx.DB)
-}
-
-func getTxDB(repo *hive.Repository) (db *sql.Tx) {
-	if err := repo.FetchDB(&db); err != nil {
-		panic(err)
-	}
-	return
-}
-
-// RetryPubThread 定时器扫描表中失败的Pub事件
-func (m *EventManagerImpl) RetryPubThread(app hive.Application) {
-	time.Sleep(5 * time.Second) //延迟，等待程序Application.Run
-	hive.Logger().Info("***************** EventManager Retry Publish *****************")
-	timeTicker := time.NewTicker(time.Duration(300) * time.Second)
-	needTimer := true
-	for {
-		select {
-		case <-timeTicker.C:
-			if !needTimer {
-				continue
-			}
-		}
-		for {
-			needTimer = m.retryPub()
-			// 全部重试成功后退出 定时器会再次触发
-			if needTimer {
-				break
-			}
-		}
-	}
-}
-
-func (m *EventManagerImpl) retryPub() (needTimer bool) {
-	var err error
-	defer func() {
-		if r := recover(); r != nil {
-			hive.Logger().Errorf("retryPub error: %v", r)
-			err = errors.New("retryPub panic, recover")
-		}
-		if err != nil {
-			needTimer = true
-			return
-		}
-	}()
-
-	pubs := make([]domainEventPublish, 0)
-	sqlStr := "SELECT id, topic, content FROM %v.domain_event_publish WHERE status = ? LIMIT 100"
-	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
-	rows, err := m.db().Query(sqlStr, 1)
-	defer m.closeRows(rows)
-	if err != nil {
-		hive.Logger().Errorf("retry pub error:%v", err)
-		return
-	}
-	for rows.Next() {
-		pub := domainEventPublish{Status: 1}
-		err = rows.Scan(&pub.ID, &pub.Topic, &pub.Content)
-		if err != nil {
-			hive.Logger().Errorf("retry pub error:%v", err)
-			return
-		}
-		pubs = append(pubs, pub)
-	}
-	if len(pubs) == 0 {
-		// 全部完成由定时器再次触发
-		needTimer = true
-		return
-	}
-	for _, event := range pubs {
-		err = m.pubHandler(event.Topic, event.Content)
-		if err != nil {
-			hive.Logger().Errorf("execPush error: %v", err)
-			continue
-		}
-		// 推送成功删除事件
-		sqlStr := "DELETE FROM %v.domain_event_publish WHERE id = ?"
-		sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
-		if _, err := m.db().Exec(sqlStr, event.ID); err != nil {
-			hive.Logger().Error(err)
-			return
-		}
-	}
-	return
-}
-
 func (m *EventManagerImpl) closeRows(rows *sql.Rows) {
 	if rows != nil {
 		if rowsErr := rows.Err(); rowsErr != nil {
@@ -341,4 +424,15 @@ func (m *EventManagerImpl) closeRows(rows *sql.Rows) {
 
 func (m *EventManagerImpl) dbConfig() *hive.DBConfiguration {
 	return config.NewConfiguration().DB
+}
+
+func (m *EventManagerImpl) db() *sqlx.DB {
+	return m.SourceDB().(*sqlx.DB)
+}
+
+func getTxDB(repo *hive.Repository) (db *sql.Tx) {
+	if err := repo.FetchDB(&db); err != nil {
+		panic(err)
+	}
+	return
 }

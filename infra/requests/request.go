@@ -3,6 +3,7 @@ package requests
 import (
 	"encoding/json"
 	"io/ioutil"
+	"mime/multipart"
 
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
@@ -33,6 +34,8 @@ type Request interface {
 	ReadForm(obj interface{}) (err error)
 	ReadFormDefault(key, defaultValue string) string
 	AcceptLanguage() (language string)
+	FormFile(key string) (multipart.File, *multipart.FileHeader, error)
+	FormFiles(key string, before ...func(hive.Context, *multipart.FileHeader) bool) (files []multipart.File, headers []*multipart.FileHeader, err error)
 }
 
 // RequestImpl .
@@ -102,4 +105,14 @@ func (req *RequestImpl) AcceptLanguage() (language string) {
 	// 注入消息总线
 	req.Worker().Bus().Add("language", language)
 	return
+}
+
+// FormFile .
+func (req *RequestImpl) FormFile(key string) (multipart.File, *multipart.FileHeader, error) {
+	return req.Worker().IrisContext().FormFile(key)
+}
+
+// FormFile .
+func (req *RequestImpl) FormFiles(key string, before ...func(hive.Context, *multipart.FileHeader) bool) (files []multipart.File, headers []*multipart.FileHeader, err error) {
+	return req.Worker().IrisContext().FormFiles(key, before...)
 }

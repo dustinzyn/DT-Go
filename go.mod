@@ -3,6 +3,7 @@ module devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive
 go 1.18
 
 require (
+	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Go.git/span v0.0.0-20220630050945-066aff45c950
 	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-mq-go v1.7.4
 	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go v1.1.0
 	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton_dm_dialect_go v0.0.0-20230615061324-afded188ccb9
@@ -46,7 +47,7 @@ require (
 	github.com/gobwas/ws v1.1.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
@@ -87,6 +88,8 @@ require (
 	github.com/xdg/scram v1.0.5 // indirect
 	github.com/xdg/stringprep v1.0.3 // indirect
 	github.com/yosssi/ace v0.0.5 // indirect
+	go.opentelemetry.io/otel v1.0.1 // indirect
+	go.opentelemetry.io/otel/trace v1.0.1 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect

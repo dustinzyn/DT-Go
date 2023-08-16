@@ -38,6 +38,7 @@ type Request interface {
 	Delete() Request
 	Head() Request
 	Options() Request
+	SetMethod(string) Request
 	SetJSONBody(obj interface{}) Request
 	SetBody(byts []byte) Request
 	ToJSON(obj interface{}) *Response

@@ -65,6 +65,12 @@ func (req *HTTPRequest) Options() Request {
 	return req
 }
 
+// SetMethod .
+func (req *HTTPRequest) SetMethod(method string) Request {
+	req.StdRequest.Method = method
+	return req
+}
+
 // AddCookie .
 func (req *HTTPRequest) AddCookie(c *http.Cookie) Request {
 	req.StdRequest.AddCookie(c)

@@ -13,4 +13,6 @@ const (
 	ForbiddenErr = 403000000
 	// Conflict 通用错误码，资源冲突
 	ConflictErr = 409000000
+	// TooManyRequestsErr 通用错误码，请求过于频繁
+	TooManyRequestsErr = 429000000
 )

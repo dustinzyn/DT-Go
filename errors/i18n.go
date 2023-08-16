@@ -85,5 +85,17 @@ var (
 				ENUS: "Please contact the administrator or refresh the page.",
 			},
 		},
+		TooManyRequestsErr: {
+			Description: map[string]string{
+				ZHCN: "请求过于频繁。",
+				ZHTW: "請求過於頻繁。",
+				ENUS: "Too many requests.",
+			},
+			Solution: map[string]string{
+				ZHCN: "请刷新页面后再重试。",
+				ZHTW: "請刷新頁面後再重試。",
+				ENUS: "Please refresh the page and try again.",
+			},
+		},
 	}
 )

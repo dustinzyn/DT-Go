@@ -8,6 +8,8 @@ import (
 	"sync"
 
 	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
+	sentinel "github.com/alibaba/sentinel-golang/api"
+	"github.com/alibaba/sentinel-golang/core/flow"
 	"github.com/kataras/iris/v12"
 	"gopkg.in/yaml.v3"
 )
@@ -67,12 +69,13 @@ func Configure(obj interface{}, file string, metadata ...interface{}) (err error
 
 // Configuration 服务配置
 type Configurations struct {
-	App   *iris.Configuration  // Application配置
-	DB    *DBConfiguration     // Database配置
-	RWDB  *sqlx.DBConfig       // Database读写分离配置
-	Redis *RedisConfiguration  // Redis配置
-	MQ    *MQConfiguration     // MQ配置
-	DS    *DepSvcConfiguration // 依赖的第三方服务配置
+	App      *iris.Configuration      // Application配置
+	DB       *DBConfiguration         // Database配置
+	RWDB     *sqlx.DBConfig           // Database读写分离配置
+	Redis    *RedisConfiguration      // Redis配置
+	MQ       *MQConfiguration         // MQ配置
+	DS       *DepSvcConfiguration     // 依赖的第三方服务配置
+	RateRule []*RateRuleConfiguration // 限流配置
 }
 
 // NewConfiguration 初始化默认配置
@@ -143,12 +146,13 @@ func NewConfiguration() *Configurations {
 			ConsumerPort: "4161",
 		}
 		configuration = &Configurations{
-			DB:    dbCg,
-			RWDB:  rwdbCg,
-			Redis: redisCg,
-			App:   &irisCg,
-			DS:    dsCg,
-			MQ:    mqCg,
+			DB:       dbCg,
+			RWDB:     rwdbCg,
+			Redis:    redisCg,
+			App:      &irisCg,
+			DS:       dsCg,
+			MQ:       mqCg,
+			RateRule: make([]*RateRuleConfiguration, 0),
 		}
 	})
 	return configuration
@@ -227,6 +231,43 @@ type DepSvcConfiguration struct {
 	Other               interface{} `yaml:"Other"`
 }
 
+// RateRuleConfiguration 限流配置
+// Rule describes the strategy of flow control, the flow control strategy is based on QPS statistic metric
+// StatIntervalInMs 和 Threshold 这两个字段，这两个字段决定了流量控制器的灵敏度。
+// 以 Direct + Reject 的流控策略为例，流量控制器的行为就是在 StatIntervalInMs 周期内，
+// 允许的最大请求数量是Threshold。比如如果 StatIntervalInMs 是 10000，Threshold 是10000，
+// 那么流量控制器的行为就是控制该资源10s内运行最多10000次访问。
+type RateRuleConfiguration struct {
+	// Resource represents the resource name.
+	Resource string `yaml:"resource" json:"resource"`
+
+	// TokenCalculateStrategy means the control strategy of the flow controller;
+	// Reject indicates a direct rejection when the threshold is exceeded,
+	// and Throttling indicates a uniform queue speed. The token calculation strategy for the current traffic controller.
+	// Direct means directly using the field Threshold as the threshold
+	TokenCalculateStrategy string `json:"token_calculate_strategy"`
+
+	// ControlBehavior means the control strategy of the flow controller;
+	// Reject indicates a direct rejection when the threshold is exceeded,
+	// and Throttling indicates a uniform queue speed.
+	ControlBehavior string `yaml:"control_behavior" json:"control_behavior"`
+
+	// Threshold means the threshold during StatIntervalInMs
+	// If StatIntervalInMs is 1000(1 second), Threshold means QPS
+	Threshold float64 `yaml:"threshold" json:"threshold"`
+
+	// MaxQueueingTimeMs only takes effect when ControlBehavior is Throttling.
+	// When MaxQueueingTimeMs is 0, it means Throttling only controls interval of requests,
+	// and requests exceeding the threshold will be rejected directly.
+	MaxQueueingTimeMs int `yaml:"max_queueing_time_ms" json:"max_queueing_time_ms"`
+
+	// StatIntervalInMs indicates the statistic interval and it's the optional setting for flow Rule.
+	// If user doesn't set StatIntervalInMs, that means using default metric statistic of resource.
+	// If the StatIntervalInMs user specifies can not reuse the global statistic of resource,
+	// sentinel will generate independent statistic structure for this rule.
+	StatIntervalInMs int `yaml:"stat_interval_in_ms" json:"stat_interval_in_ms"`
+}
+
 func (cg *Configurations) ConfigureApp(file string) {
 	Configure(cg.App, file)
 }
@@ -249,4 +290,38 @@ func (cg *Configurations) ConfigureMQ(file string) {
 
 func (cg *Configurations) ConfigureDS(file string) {
 	Configure(cg.DS, file)
+}
+
+func (cg *Configurations) ConfigureRateRule(file string) {
+	Configure(&cg.RateRule, file)
+	err := sentinel.InitDefault()
+	if err != nil {
+		panic(err)
+	}
+	// 添加规则
+	flowRules := make([]*flow.Rule, 0)
+	for _, rule := range cg.RateRule {
+		behavior := flow.Reject
+		switch rule.ControlBehavior {
+		case "Reject":
+			behavior = flow.Reject
+		case "Throttling":
+			behavior = flow.Throttling
+		}
+
+		flowRule := flow.Rule{
+			Resource:               rule.Resource,
+			Threshold:              rule.Threshold,
+			TokenCalculateStrategy: flow.Direct,
+			ControlBehavior:        behavior,
+			StatIntervalInMs:       uint32(rule.StatIntervalInMs),
+		}
+		if behavior == flow.Throttling {
+			flowRule.MaxQueueingTimeMs = uint32(rule.MaxQueueingTimeMs)
+		}
+		flowRules = append(flowRules, &flowRule)
+	}
+	if _, err := flow.LoadRules(flowRules); err != nil {
+		fmt.Println("Failed to load rules:", err)
+	}
 }

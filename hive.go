@@ -90,6 +90,9 @@ type (
 
 	// DepSvcConfiguration is the denpendency service configuration type of the app.
 	DepSvcConfiguration = config.DepSvcConfiguration
+
+	// RateRuleConfiguration is a rate rule configuration type of the app.
+	RateRuleConfiguration = config.RateRuleConfiguration
 )
 
 // NewPublicApplication returns Application interface type

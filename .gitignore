@@ -3,5 +3,4 @@
 cover.out
 *.env
 tapi
-*debug*
 *mock

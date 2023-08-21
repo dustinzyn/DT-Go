@@ -99,6 +99,11 @@ func (repo *Repository) NewOAuth2Request(url string, transferBus ...bool) hiveht
 	return req
 }
 
+// // NewThriftClient .
+// func (repo *Repository) NewThriftClient(config *hivethrift.ThriftPoolConfig) *hivethrift.ThriftPoolAgent {
+// 	return hivethrift.NewThriftPoolAgent(config)
+// }
+
 // // SingleFlight .
 // func (repo *Repository) SingleFlight(key string, value, takeObject interface{}, fn func() (interface{}, error)) error {
 // 	takeValue := reflect.ValueOf(takeObject)

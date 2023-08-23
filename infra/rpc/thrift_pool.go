@@ -63,7 +63,7 @@ type ThriftPoolConfig struct {
 	// 客户端尝试连接到Thrift服务器的超时时间
 	ConnTimeout time.Duration
 	// 在已建立连接的情况下，客户端发送请求并等待服务器响应的最大时间
-	SocketTimeout time.Duration
+	// SocketTimeout time.Duration
 	// 空闲连接的超时时间，超时会主动释放
 	IdleTimeout time.Duration
 	// 获取client的超时时间
@@ -112,9 +112,6 @@ func checkThriftConfig(config *ThriftPoolConfig) {
 	}
 	if config.ConnTimeout == 0 {
 		config.ConnTimeout = DEFAULT_CONN_TIMEOUT
-	}
-	if config.SocketTimeout == 0 {
-		config.SocketTimeout = DEFAULT_SOCKET_TIMEOUT
 	}
 	if config.IdleTimeout <= 0 {
 		config.IdleTimeout = DEFAULT_IDLE_TIMEOUT

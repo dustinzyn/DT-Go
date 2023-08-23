@@ -70,17 +70,13 @@ func NewAuthentication() context.Handler {
 					udid = str
 				}
 				if v, ok := result.Extra["visitor_type"].(string); ok {
-					switch v {
-					case "realname":
-						visitorType = "authenticated_user"
-					case "anonymous":
-						visitorType = "anonymous_user"
-					}
+					// realname anonymous
+					visitorType = v
 				}
 			}
-			worker.Bus().Add("clientType", cType)
+			worker.Bus().Add("client_type", cType)
 			worker.Bus().Add("udid", udid)
-			worker.Bus().Add("visitorType", visitorType)
+			worker.Bus().Add("visitor_type", visitorType)
 		}
 		ctx.Next()
 	}

@@ -53,9 +53,9 @@ func NewAuthentication() context.Handler {
 			return
 		}
 		worker := ctx.Values().Get(internal.WorkerKey).(internal.Worker)
-		worker.Bus().Add("userId", result.Subject)
-		worker.Bus().Add("clientId", result.ClientID)
-		worker.Bus().Add("userToken", token)
+		worker.Bus().Add("user_id", result.Subject)
+		worker.Bus().Add("client_id", result.ClientID)
+		worker.Bus().Add("bearer_token", token)
 		worker.Bus().Add("language", language)
 		if result.Extra != nil {
 			if str, ok := result.Extra["login_ip"].(string); ok {

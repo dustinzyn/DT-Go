@@ -8,6 +8,7 @@ import (
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
+	"github.com/kataras/iris/v12"
 	"gopkg.in/go-playground/validator.v9"
 )
 
@@ -85,6 +86,10 @@ func (req *RequestImpl) ReadQueryDefault(key, defaultValue string) string {
 // ReadForm .
 func (req *RequestImpl) ReadForm(obj interface{}) (err error) {
 	if err = req.Worker().IrisContext().ReadForm(obj); err != nil {
+		if !iris.IsErrPath(err) {
+			err = errors.New(req.AcceptLanguage(), errors.BadRequestErr, err.Error(), nil)
+			return
+		}
 		return
 	}
 	if err = validate.Struct(obj); err != nil {

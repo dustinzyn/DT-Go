@@ -48,6 +48,10 @@ func (jrep JSONResponse) Dispatch(ctx *context.Context) {
 		if jrep.Code != 0 {
 			ctx.StatusCode(jrep.Code)
 			ctx.Values().Set("code", jrep.Code)
+			if jrep.Code == http.StatusNoContent {
+				ctx.Values().Set("response", "")
+				return
+			}
 		} else {
 			ctx.Values().Set("code", http.StatusOK)
 		}

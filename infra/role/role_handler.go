@@ -64,42 +64,53 @@ type RoleHandler interface {
 	SetPermissibleRoles(roles []string) RoleHandler
 	// 角色管控
 	TrafficOpen() (bool, error)
+	// 获取用户信息
+	GetUser() User
 }
 
 type RoleHandlerImpl struct {
 	hive.Infra
-	UserID           string   // 用户ID
-	PermissibleRoles []string // 允许访问的角色
+	rawUser          User
+	permissibleRoles []string // 允许访问的角色
 }
 
 // BeginRequest .
 func (role *RoleHandlerImpl) BeginRequest(worker hive.Worker) {
-	role.PermissibleRoles = make([]string, 0)
+	role.permissibleRoles = make([]string, 0)
 	role.Infra.BeginRequest(worker)
 }
 
 // SetUserID 设置受管控的用户ID
 func (role *RoleHandlerImpl) SetUserID(userID string) RoleHandler {
-	role.UserID = userID
+	role.rawUser.ID = userID
 	return role
 }
 
 // SetPermissibleRoles 设置允许放行的角色
 func (role *RoleHandlerImpl) SetPermissibleRoles(roles []string) RoleHandler {
-	role.PermissibleRoles = append(role.PermissibleRoles, roles...)
+	role.permissibleRoles = append(role.permissibleRoles, roles...)
 	return role
 }
 
 // TrafficOpen 角色管控 返回true允许访问 返回false禁止访问
 func (role *RoleHandlerImpl) TrafficOpen() (bool, error) {
-	user, err := role.userInfo(role.UserID)
+	user, err := role.getUser()
 	if err != nil {
 		return false, err
 	}
-	if !utils.HasIntersection(role.PermissibleRoles, user.Roles) {
+	if len(user.Roles) == 0 {
+		return false, err
+	}
+	if !utils.HasIntersection(role.permissibleRoles, user.Roles) {
 		return false, err
 	}
 	return true, nil
+}
+
+// GetUser 获取用户信息
+// 未做角色验证 无法获取用户信息
+func (role *RoleHandlerImpl) GetUser() User {
+	return role.rawUser
 }
 
 func getOwnersEndpoint(userId string) string {
@@ -113,9 +124,9 @@ func getOwnersEndpoint(userId string) string {
 	return url.String()
 }
 
-// userInfo 获取用户信息
-func (role *RoleHandlerImpl) userInfo(userID string) (user User, err error) {
-	ownerEndpoint := getOwnersEndpoint(userID)
+// GetUser 获取用户信息
+func (role *RoleHandlerImpl) getUser() (user User, err error) {
+	ownerEndpoint := getOwnersEndpoint(role.rawUser.ID)
 	users := make([]User, 1)
 	users[0] = User{}
 	resp := hivehttp.NewHTTPRequest(ownerEndpoint).Get().ToJSON(&users)
@@ -124,5 +135,6 @@ func (role *RoleHandlerImpl) userInfo(userID string) (user User, err error) {
 		return
 	}
 	user = users[0]
+	role.rawUser = user
 	return
 }

@@ -93,6 +93,9 @@ type (
 
 	// RateRuleConfiguration is a rate rule configuration type of the app.
 	RateRuleConfiguration = config.RateRuleConfiguration
+
+	// RedisCmd .
+	RedisCmd = redis.Cmdable
 )
 
 // NewPublicApplication returns Application interface type

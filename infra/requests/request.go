@@ -85,11 +85,8 @@ func (req *RequestImpl) ReadQueryDefault(key, defaultValue string) string {
 
 // ReadForm .
 func (req *RequestImpl) ReadForm(obj interface{}) (err error) {
-	if err = req.Worker().IrisContext().ReadForm(obj); err != nil {
-		if !iris.IsErrPath(err) {
-			err = errors.New(req.AcceptLanguage(), errors.BadRequestErr, err.Error(), nil)
-			return
-		}
+	if err = req.Worker().IrisContext().ReadForm(obj); err != nil && !iris.IsErrPath(err) {
+		err = errors.New(req.AcceptLanguage(), errors.BadRequestErr, err.Error(), nil)
 		return
 	}
 	if err = validate.Struct(obj); err != nil {

@@ -5,9 +5,9 @@ import (
 
 	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/base"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
-	sentinel "github.com/alibaba/sentinel-golang/api"
-	"github.com/alibaba/sentinel-golang/core/base"
+	sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/api"
 )
 
 // NewSentinel returns new iris.HandlerFunc

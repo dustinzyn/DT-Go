@@ -13,9 +13,9 @@ Created by Dustin.zhu on 2023/08/18.
 
 import (
 	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
-	sentinel "github.com/alibaba/sentinel-golang/api"
-	"github.com/alibaba/sentinel-golang/core/base"
-	"github.com/alibaba/sentinel-golang/core/flow"
+	sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/api"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/base"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/flow"
 )
 
 //go:generate mockgen -package mock_infra -source rate.go -destination ./mock/rate_mock.go

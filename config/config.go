@@ -7,9 +7,9 @@ import (
 	"runtime"
 	"sync"
 
+	sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/api"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/flow"
 	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
-	sentinel "github.com/alibaba/sentinel-golang/api"
-	"github.com/alibaba/sentinel-golang/core/flow"
 	"github.com/kataras/iris/v12"
 	"gopkg.in/yaml.v3"
 )

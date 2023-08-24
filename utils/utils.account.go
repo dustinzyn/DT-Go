@@ -42,7 +42,7 @@ func (obj *Account) TableName() string {
 func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 	var clientID string
 	var err error
-	cgdb := config.NewConfiguration().DB
+	cgdb := config.NewConfiguration().RWDB
 	ctx := context.Background()
 	if redisClient != nil {
 		lock := redisClient.SetNX(ctx, svcName, true, 5*time.Second)
@@ -61,15 +61,15 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 
 	// 查询是否已有账户
 	account := Account{}
-	sqlStr := "SELECT id, client_id FROM %v.account WHERE name = ?"
-	sqlStr = fmt.Sprintf(sqlStr, cgdb.DBName)
+	sqlStr := "SELECT id, client_id, perm FROM %v.account WHERE name = ?"
+	sqlStr = fmt.Sprintf(sqlStr, cgdb.Database)
 	rows, err := db.Query(sqlStr, svcName)
 	defer CloseRows(rows)
 	if err != nil {
 		return
 	}
 	for rows.Next() {
-		if err = rows.Scan(&account.ID, &account.ClientID); err != nil {
+		if err = rows.Scan(&account.ID, &account.ClientID, &account.Perm); err != nil {
 			return
 		}
 	}
@@ -87,7 +87,7 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 		account.Updated = ct
 		account.Created = ct
 		sqlStr = "INSERT INTO %v.account (client_id, client_secret, name, perm, updated, created) VALUES (?,?,?,?,?,?)"
-		sqlStr = fmt.Sprintf(sqlStr, cgdb.DBName)
+		sqlStr = fmt.Sprintf(sqlStr, cgdb.Database)
 		_, err = db.Exec(sqlStr, clientID, clientSecret, svcName, 0, ct, ct)
 	}
 	if account.Perm == 1 {
@@ -97,7 +97,7 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 	err = setAPPAccountPerm(clientID)
 	// 更新状态
 	sqlStr = "UPDATE %v.account SET perm = 1, updated = ? WHERE client_id = ?"
-	sqlStr = fmt.Sprintf(sqlStr, cgdb.DBName)
+	sqlStr = fmt.Sprintf(sqlStr, cgdb.Database)
 	_, err = db.Exec(sqlStr, NowTimestamp(), account.ClientID)
 }
 

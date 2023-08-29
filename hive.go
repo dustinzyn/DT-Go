@@ -67,6 +67,9 @@ type (
 	// LogRow is the log per line callback.
 	LogRow = golog.Log
 
+	// Golog is our golog.
+	Golog = *golog.Logger
+
 	// BeforeActivation is Is the start-up pre-processing of the action.
 	BeforeActivation = mvc.BeforeActivation
 

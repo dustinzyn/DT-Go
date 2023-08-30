@@ -57,6 +57,7 @@ func (req *RequestImpl) ReadJSON(obj interface{}) (err error) {
 	}
 	err = json.Unmarshal(rawData, obj)
 	if err != nil {
+		err = errors.New(req.AcceptLanguage(), errors.BadRequestErr, err.Error(), nil)
 		return
 	}
 	if err = validate.Struct(obj); err != nil {

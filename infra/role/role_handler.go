@@ -15,6 +15,7 @@ import (
 	"net/url"
 
 	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
 )
@@ -130,6 +131,10 @@ func (role *RoleHandlerImpl) getUser() (user User, err error) {
 	users := make([]User, 1)
 	users[0] = User{}
 	resp := hivehttp.NewHTTPRequest(ownerEndpoint).Get().ToJSON(&users)
+	if resp.StatusCode == http.StatusNotFound {
+		err = errors.New(role.Worker().Bus().Get("language"), errors.ResourceNotFoundErr, "User not found", nil)
+		return
+	}
 	if resp.StatusCode != http.StatusOK {
 		err = fmt.Errorf("get user error: status code = %v, response err = %v", resp.StatusCode, resp.Error)
 		return

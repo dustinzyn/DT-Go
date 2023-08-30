@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
+	"strings"
 	"time"
 
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
@@ -118,5 +119,8 @@ func (l *requestLoggerMiddleware) ServeHTTP(ctx *context.Context) {
 	if len(rawQuery) > 0 && l.config.Query {
 		fieldsMessage["query"] = rawQuery.Encode()
 	}
-	work.Logger().Info(fieldsMessage)
+	// 屏蔽健康检测接口日志
+	if !strings.Contains(path, "/health/") {
+		work.Logger().Info(fieldsMessage)
+	}
 }

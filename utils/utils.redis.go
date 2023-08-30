@@ -16,9 +16,18 @@ func ConnectRedis(conf config.RedisConfiguration) (client redis.Cmdable) {
 	ctx := context.Background()
 
 	switch conf.ConnectType {
-	case "master-slave", "standalone":
+	case "master-slave":
 		for {
 			client = masterSlave(conf)
+			if err := client.Ping(ctx).Err(); err != nil {
+				time.Sleep(time.Duration(3) * time.Second)
+			} else {
+				break
+			}
+		}
+	case "standalone":
+		for {
+			client = standalone(conf)
 			if err := client.Ping(ctx).Err(); err != nil {
 				time.Sleep(time.Duration(3) * time.Second)
 			} else {
@@ -47,8 +56,32 @@ func ConnectRedis(conf config.RedisConfiguration) (client redis.Cmdable) {
 	return
 }
 
-// masterSlave 主从模式/标准模式客户端
+// masterSlave 主从模式
 func masterSlave(conf config.RedisConfiguration) *redis.Client {
+	if conf.MasterHost == "" {
+		conf.MasterHost = "proton-redis-proton-redis.resource.svc.cluster.local"
+	}
+	if conf.MasterPort == "" {
+		conf.Port = "6379"
+	}
+	opt := &redis.Options{
+		Addr:               conf.MasterHost + ":" + conf.MasterPort,
+		Password:           conf.Password,
+		DB:                 conf.DB,
+		MaxRetries:         conf.MaxRetries,
+		PoolSize:           conf.PoolSize,
+		ReadTimeout:        time.Duration(conf.ReadTimeout) * time.Second,
+		WriteTimeout:       time.Duration(conf.WriteTimeout) * time.Second,
+		IdleTimeout:        time.Duration(conf.IdleTimeout) * time.Second,
+		IdleCheckFrequency: time.Duration(conf.IdleCheckFrequency) * time.Second,
+		MaxConnAge:         time.Duration(conf.MaxConnAge) * time.Second,
+		PoolTimeout:        time.Duration(conf.PoolTimeout) * time.Second,
+	}
+	return redis.NewClient(opt)
+}
+
+// standalone 标准模式客户端
+func standalone(conf config.RedisConfiguration) *redis.Client {
 	if conf.Host == "" {
 		conf.Host = "proton-redis-proton-redis.resource.svc.cluster.local"
 	}

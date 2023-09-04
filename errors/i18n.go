@@ -15,38 +15,38 @@ var (
 	errorI18n = map[int]I18n{
 		BadRequestErr: {
 			Description: map[string]string{
-				ZHCN: "错误的请求。",
-				ZHTW: "錯誤的請求。",
-				ENUS: "Invalid request.",
+				ZHCN: "请求错误",
+				ZHTW: "請求錯誤",
+				ENUS: "Bad request",
 			},
 			Solution: map[string]string{
-				ZHCN: "请检查请求参数是否正确",
-				ZHTW: "請檢查請求參數是否正確。",
-				ENUS: "Please check the request parameters to ensure they are correct.",
-			},
-		},
-		InternalErr: {
-			Description: map[string]string{
-				ZHCN: "服务器内部错误。",
-				ZHTW: "服務器內部錯誤。",
-				ENUS: "Server internal error.",
-			},
-			Solution: map[string]string{
-				ZHCN: "请联系管理员或刷新页面。",
-				ZHTW: "請聯繫管理員或刷新頁面。",
-				ENUS: "Please contact the administrator or refresh the page.",
+				ZHCN: "请稍后重试或联系管理员。",
+				ZHTW: "請稍後重試或聯絡管理員。",
+				ENUS: "You can try again later or contact Admin.",
 			},
 		},
 		UnauthorizedErr: {
 			Description: map[string]string{
-				ZHCN: "请求未经授权。",
-				ZHTW: "請求未經授權。",
-				ENUS: "Request unauthorized.",
+				ZHCN: "授权错误",
+				ZHTW: "授權錯誤",
+				ENUS: "Unauthorized",
 			},
 			Solution: map[string]string{
-				ZHCN: "请刷新页面更新token或重新登录。",
-				ZHTW: "請刷新頁面更新token或重新登錄。",
-				ENUS: "Please refresh the page to update the token or log in again.",
+				ZHCN: "请检查您的用户名或密码后重新登录。",
+				ZHTW: "請檢查您的使用者名稱或密碼后重新登入。",
+				ENUS: "Please check your username or password and try again.",
+			},
+		},
+		ForbiddenErr: {
+			Description: map[string]string{
+				ZHCN: "禁止访问",
+				ZHTW: "禁止存取",
+				ENUS: "Forbidden",
+			},
+			Solution: map[string]string{
+				ZHCN: "您没有访问此页面的权限。",
+				ZHTW: "您沒有存取此頁面的權限。",
+				ENUS: "Not allowed to access this page.",
 			},
 		},
 		ResourceNotFoundErr: {
@@ -56,21 +56,21 @@ var (
 				ENUS: "Requested resource does not exist..",
 			},
 			Solution: map[string]string{
-				ZHCN: "请检查请求的地址是否正确或联系管理员。",
-				ZHTW: "檢查請求的地址是否正確或聯繫管理員。",
-				ENUS: "Please check the requested address is correct or contact the administrator.",
+				ZHCN: "请稍后重试或联系管理员。",
+				ZHTW: "請稍後重試或聯絡管理員。",
+				ENUS: "You can try again later or contact Admin.",
 			},
 		},
-		ForbiddenErr: {
+		MethodNotAllowedErr: {
 			Description: map[string]string{
-				ZHCN: "请求被拒绝。",
-				ZHTW: "請求被拒絕。",
-				ENUS: "Request rejected.",
+				ZHCN: "请求方法错误",
+				ZHTW: "請求方法錯誤",
+				ENUS: "Method error",
 			},
 			Solution: map[string]string{
-				ZHCN: "请联系管理员或重新登录。",
-				ZHTW: "請聯繫管理員或重新登錄。",
-				ENUS: "Please contact the administrator or log in again.",
+				ZHCN: "请稍后重试。如果长时间仍无反应，您可以联系管理员。",
+				ZHTW: "請稍後重試。如果長時間仍無反應，您可以聯絡管理員。",
+				ENUS: "You can try again later or contact Admin.",
 			},
 		},
 		ConflictErr: {
@@ -87,14 +87,26 @@ var (
 		},
 		TooManyRequestsErr: {
 			Description: map[string]string{
-				ZHCN: "请求过于频繁。",
-				ZHTW: "請求過於頻繁。",
-				ENUS: "Too many requests.",
+				ZHCN: "当前服务器请求冲突",
+				ZHTW: "當前伺服器請求衝突",
+				ENUS: "Conflict detected in the server",
 			},
 			Solution: map[string]string{
-				ZHCN: "请刷新页面后再重试。",
-				ZHTW: "請刷新頁面後再重試。",
-				ENUS: "Please refresh the page and try again.",
+				ZHCN: "您可以稍后重试。如果长时间仍无反应，您可以联系管理员。",
+				ZHTW: "您可以稍後重試。如果長時間仍無反應，您可以聯絡管理員。",
+				ENUS: "You can try again later or contact Admin.",
+			},
+		},
+		InternalErr: {
+			Description: map[string]string{
+				ZHCN: "当前服务器存在内部错误或错误配置",
+				ZHTW: "當前伺服器存在內部錯誤或錯誤設定",
+				ENUS: "An internal error or wrong configuration has been detected",
+			},
+			Solution: map[string]string{
+				ZHCN: "您可以稍后重试或联系管理员。",
+				ZHTW: "您可以稍後重試或聯絡管理員。",
+				ENUS: "You can try again later or contact Admin.",
 			},
 		},
 	}

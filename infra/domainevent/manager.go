@@ -156,7 +156,7 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 	for _, domainEvent := range entity.GetPubEvent() {
 		uid, _ := m.uniqueID.NextID()
 		sqlStr := "INSERT INTO %v.domain_event_publish (id, topic, content, created, updated, status) VALUES (?, ?, ?, ?, ?, ?)"
-		sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+		sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 		_, err = txDB.Exec(sqlStr, uid, domainEvent.Topic(), string(domainEvent.Marshal()), ct, ct, 0)
 		if err != nil {
 			hive.Logger().Errorf("Insert PubEvent error: %v", err)
@@ -169,7 +169,7 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 	// Insert SubEvent
 	for _, subEvent := range entity.GetSubEvent() {
 		sqlStr := "INSERT INTO %v.domain_event_subscribe (id, topic, content, created, updated, status) VALUES (?, ?, ?, ?, ?, ?)"
-		sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+		sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 		_, err := m.db().Exec(sqlStr, subEvent.Identity().(int), subEvent.Topic(), string(subEvent.Marshal()), ct, ct, 0)
 		if err != nil {
 			hive.Logger().Errorf("InsertSubEvent error: %v", err)
@@ -182,7 +182,7 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 // DeleteSubEvent 删除领域订阅事件
 func (m *EventManagerImpl) DeleteSubEvent(eventID int) error {
 	sqlStr := "DELETE FROM %v.domain_event_subscribe WHERE id = ?"
-	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 	_, err := m.db().Exec(sqlStr, eventID)
 	if err != nil {
 		hive.Logger().Errorf("DeleteSubEvent error: %v", err)
@@ -199,7 +199,7 @@ func (m *EventManagerImpl) SetSubEventFail(eventID int) (err error) {
 	changes := sub.TakeChanges()
 	if changes != "" {
 		sqlStr := "UPDATE %v.domain_event_subscribe SET ? WHERE id = ?"
-		sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+		sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 		_, err = m.db().Exec(sqlStr, changes, eventID)
 		if err != nil {
 			hive.Logger().Errorf("SetSubEventFail error: %v", err)
@@ -288,7 +288,7 @@ func (m *EventManagerImpl) retryPub() (needTimer bool) {
 func (m *EventManagerImpl) getFailSubEvents(n int) (subs []map[string]interface{}, err error) {
 	subs = make([]map[string]interface{}, 0)
 	sqlStr := "SELECT id, topic, content FROM %v.domain_event_subscribe WHERE status = ? LIMIT ?"
-	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 	rows, err := m.db().Query(sqlStr, 1, n)
 	defer utils.CloseRows(rows)
 	if err != nil {
@@ -310,7 +310,7 @@ func (m *EventManagerImpl) getFailSubEvents(n int) (subs []map[string]interface{
 func (m *EventManagerImpl) getFailPubEvents(n int) (pubs []map[string]interface{}, err error) {
 	pubs = make([]map[string]interface{}, 0)
 	sqlStr := "SELECT id, topic, content FROM %v.domain_event_publish WHERE status = ? LIMIT ?"
-	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 	rows, err := m.db().Query(sqlStr, 1, n)
 	defer utils.CloseRows(rows)
 	if err != nil {
@@ -331,7 +331,7 @@ func (m *EventManagerImpl) getFailPubEvents(n int) (pubs []map[string]interface{
 // DeletePubEvent 删除领域发布事件
 func (m *EventManagerImpl) DeletePubEvent(eventID int) error {
 	sqlStr := "DELETE FROM %v.domain_event_publish WHERE id = ?"
-	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 	_, err := m.db().Exec(sqlStr, eventID)
 	if err != nil {
 		hive.Logger().Errorf("DeletePubEvent error: %v", err)
@@ -389,7 +389,7 @@ func (m *EventManagerImpl) push(event hive.DomainEvent) {
 				changes := publish.TakeChanges()
 				if changes != "" {
 					sqlStr := "UPDATE %v.domain_event_publish SET ? WHERE id = ?"
-					sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+					sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 					if _, e := m.db().Exec(sqlStr, changes, eventID); e != nil {
 						hive.Logger().Errorf("update event error:%v", e)
 					}
@@ -398,7 +398,7 @@ func (m *EventManagerImpl) push(event hive.DomainEvent) {
 			}
 			// push 成功后删除事件
 			sqlStr := "DELETE FROM %v.domain_event_publish WHERE id = ?"
-			sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().DBName)
+			sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 			if _, err := m.db().Exec(sqlStr, eventID); err != nil {
 				hive.Logger().Error(err)
 				return
@@ -422,8 +422,8 @@ func (m *EventManagerImpl) closeRows(rows *sql.Rows) {
 	}
 }
 
-func (m *EventManagerImpl) dbConfig() *hive.DBConfiguration {
-	return config.NewConfiguration().DB
+func (m *EventManagerImpl) dbConfig() *sqlx.DBConfig {
+	return config.NewConfiguration().RWDB
 }
 
 func (m *EventManagerImpl) db() *sqlx.DB {

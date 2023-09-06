@@ -58,10 +58,10 @@ type AccountInfo struct {
 // clientInfo return clientID ad client secret.
 func clientInfo(svcName string, conf config.Configurations) (clientID, secret string) {
 	var result AccountInfo
-	cgdb := config.NewConfiguration().DB
+	cgdb := config.NewConfiguration().RWDB
 	db := ConnProtonRWDB(conf.RWDB)
 	sqlStr := "SELECT client_id, client_secret FROM %v.account WHERE name = ?"
-	sqlStr = fmt.Sprintf(sqlStr, cgdb.DBName)
+	sqlStr = fmt.Sprintf(sqlStr, cgdb.Database)
 	rows, err := db.Query(sqlStr, svcName)
 	defer CloseRows(rows)
 	if err != nil {

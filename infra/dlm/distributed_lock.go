@@ -49,24 +49,21 @@ type DLM interface {
 	SetExpiration(time.Duration) DLM
 	// SetContext The timeout for obtaining locks can be controlled through context
 	SetContext(ctx context.Context) DLM
-	// SetKey set a lock name
-	SetKey(key string) DLM
 	// Lock blocked until get lock
-	Lock() error
+	Lock(key string) error
 	// TryLock try get lock only once, if get the lock return true, else return false
-	TryLock() (bool, error)
+	TryLock(key string) (bool, error)
 	// SpinLock is a synchronization mechanism that allows multiple threads to
 	// access shared resources without blocking, by continuously executing
 	// a tight loop of instructions ("spinning") while waiting for the lock to become available.
-	SpinLock(times int) error
+	SpinLock(key string, times int) error
 	// Unlock release the lock
-	Unlock() error
+	Unlock(key string) error
 }
 
 // DLMImpl .
 type DLMImpl struct {
 	hive.Infra // Infra
-	key        string
 	value      string
 	client     redis.Cmdable
 	expiration time.Duration
@@ -95,16 +92,10 @@ func (dlm *DLMImpl) SetContext(ctx context.Context) DLM {
 	return dlm
 }
 
-// SetKey .
-func (dlm *DLMImpl) SetKey(key string) DLM {
-	dlm.key = key
-	return dlm
-}
-
 // Lock blocked until get lock.
-func (dlm *DLMImpl) Lock() (err error) {
+func (dlm *DLMImpl) Lock(key string) (err error) {
 	// 尝试获取锁
-	ok, err := dlm.TryLock()
+	ok, err := dlm.TryLock(key)
 	if err != nil {
 		return
 	}
@@ -116,7 +107,7 @@ func (dlm *DLMImpl) Lock() (err error) {
 		select {
 		case <-ticker.C:
 			// 重新尝试获取锁
-			ok, err = dlm.TryLock()
+			ok, err = dlm.TryLock(key)
 			if err != nil {
 				return
 			}
@@ -130,37 +121,37 @@ func (dlm *DLMImpl) Lock() (err error) {
 }
 
 // TryLock try get lock only once, if get the lock return true, else return false.
-func (dlm *DLMImpl) TryLock() (ok bool, err error) {
+func (dlm *DLMImpl) TryLock(key string) (ok bool, err error) {
 	mutex.Lock()
 	defer mutex.Unlock()
-	ok, err = dlm.client.SetNX(dlm.ctx, dlm.key, dlm.value, dlm.expiration).Result()
+	ok, err = dlm.client.SetNX(dlm.ctx, key, dlm.value, dlm.expiration).Result()
 	if err != nil {
 		return
 	}
 	// 使用context控制watchdog协程的执行和取消
 	cancelCtx, cancelFunc := context.WithCancel(dlm.ctx)
 	dlm.cancelFunc = cancelFunc
-	go dlm.watchdog(cancelCtx)
+	go dlm.watchdog(cancelCtx, key)
 	return
 }
 
 // watchdog will renew the expiration of lock, and can be canceled when call Unlock
-func (dlm *DLMImpl) watchdog(ctx context.Context) {
+func (dlm *DLMImpl) watchdog(ctx context.Context, key string) {
 	ticker := time.NewTicker(dlm.expiration / 3)
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			dlm.client.Expire(ctx, dlm.key, dlm.expiration).Result()
+			dlm.client.Expire(ctx, key, dlm.expiration).Result()
 		}
 	}
 }
 
 // SpinLock .
-func (dlm *DLMImpl) SpinLock(times int) error {
+func (dlm *DLMImpl) SpinLock(key string, times int) error {
 	for i := 0; i < times; i++ {
-		ok, err := dlm.TryLock()
+		ok, err := dlm.TryLock(key)
 		if err != nil {
 			return err
 		}
@@ -173,11 +164,11 @@ func (dlm *DLMImpl) SpinLock(times int) error {
 }
 
 // Unlock .
-func (dlm *DLMImpl) Unlock() error {
+func (dlm *DLMImpl) Unlock(key string) error {
 	script := redis.NewScript(fmt.Sprintf(
 		`if redis.call("get", KEYS[1]) == "%s" then return redis.call("del", KEYS[1]) else return 0 end`,
 		dlm.value))
-	runCmd := script.Run(context.Background(), dlm.client, []string{dlm.key})
+	runCmd := script.Run(context.Background(), dlm.client, []string{key})
 	res, err := runCmd.Result()
 	if err != nil {
 		return err
@@ -188,6 +179,6 @@ func (dlm *DLMImpl) Unlock() error {
 			return nil
 		}
 	}
-	err = fmt.Errorf("unlock script fail: %v", dlm.key)
+	err = fmt.Errorf("unlock script fail: %v", key)
 	return err
 }

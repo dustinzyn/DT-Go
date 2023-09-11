@@ -20,23 +20,50 @@
 package thrift
 
 import (
-	"testing"
+	"bytes"
+	"sync"
 )
 
-func TestReadWriteHeaderProtocol(t *testing.T) {
-	t.Run(
-		"default",
-		func(t *testing.T) {
-			ReadWriteProtocolTest(t, NewTHeaderProtocolFactory())
-		},
-	)
-
-	t.Run(
-		"compact",
-		func(t *testing.T) {
-			ReadWriteProtocolTest(t, NewTHeaderProtocolFactoryConf(&TConfiguration{
-				THeaderProtocolID: THeaderProtocolIDPtrMust(THeaderProtocolCompact),
-			}))
-		},
-	)
+// pool is a generic sync.Pool wrapper with bells and whistles.
+type pool[T any] struct {
+	pool  sync.Pool
+	reset func(*T)
 }
+
+// newPool creates a new pool.
+//
+// Both generate and reset are optional.
+// Default generate is just new(T),
+// When reset is nil we don't do any additional resetting when calling get.
+func newPool[T any](generate func() *T, reset func(*T)) *pool[T] {
+	if generate == nil {
+		generate = func() *T {
+			return new(T)
+		}
+	}
+	return &pool[T]{
+		pool: sync.Pool{
+			New: func() interface{} {
+				return generate()
+			},
+		},
+		reset: reset,
+	}
+}
+
+func (p *pool[T]) get() *T {
+	r := p.pool.Get().(*T)
+	if p.reset != nil {
+		p.reset(r)
+	}
+	return r
+}
+
+func (p *pool[T]) put(r **T) {
+	p.pool.Put(*r)
+	*r = nil
+}
+
+var bufPool = newPool(nil, func(buf *bytes.Buffer) {
+	buf.Reset()
+})

@@ -21,22 +21,31 @@ package thrift
 
 import (
 	"testing"
+	"testing/quick"
 )
 
-func TestReadWriteHeaderProtocol(t *testing.T) {
-	t.Run(
-		"default",
-		func(t *testing.T) {
-			ReadWriteProtocolTest(t, NewTHeaderProtocolFactory())
-		},
-	)
+type poolTest int
 
-	t.Run(
-		"compact",
-		func(t *testing.T) {
-			ReadWriteProtocolTest(t, NewTHeaderProtocolFactoryConf(&TConfiguration{
-				THeaderProtocolID: THeaderProtocolIDPtrMust(THeaderProtocolCompact),
-			}))
-		},
-	)
+func TestPoolReset(t *testing.T) {
+	p := newPool(nil, func(elem *poolTest) {
+		*elem = 0
+	})
+	f := func(i int) (passed bool) {
+		pt := p.get()
+		defer func() {
+			p.put(&pt)
+			if pt != nil {
+				t.Errorf("Expected pt to be nil after put, got %#v", pt)
+				passed = false
+			}
+		}()
+		if *pt != 0 {
+			t.Errorf("Expected *pt to be reset to 0 after get, got %d", *pt)
+		}
+		*pt = poolTest(i)
+		return !t.Failed()
+	}
+	if err := quick.Check(f, nil); err != nil {
+		t.Error(err)
+	}
 }

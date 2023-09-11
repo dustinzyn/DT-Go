@@ -1,3 +1,6 @@
+//go:build windows || wasm
+// +build windows wasm
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -19,24 +22,14 @@
 
 package thrift
 
-import (
-	"testing"
-)
+func (sc *socketConn) read0() error {
+	// On non-unix platforms, we fallback to the default behavior of reading 0 bytes.
+	var p []byte
+	_, err := sc.Conn.Read(p)
+	return err
+}
 
-func TestReadWriteHeaderProtocol(t *testing.T) {
-	t.Run(
-		"default",
-		func(t *testing.T) {
-			ReadWriteProtocolTest(t, NewTHeaderProtocolFactory())
-		},
-	)
-
-	t.Run(
-		"compact",
-		func(t *testing.T) {
-			ReadWriteProtocolTest(t, NewTHeaderProtocolFactoryConf(&TConfiguration{
-				THeaderProtocolID: THeaderProtocolIDPtrMust(THeaderProtocolCompact),
-			}))
-		},
-	)
+func (sc *socketConn) checkConn() error {
+	// On non-unix platforms, we always return nil for this check.
+	return nil
 }

@@ -14,6 +14,7 @@ require (
 	github.com/kataras/iris/v12 v12.2.0
 	github.com/sony/sonyflake v1.1.0
 	github.com/stretchr/testify v1.8.2
+	github.com/yitter/idgenerator-go v1.3.3
 	go.uber.org/multierr v1.6.0
 	golang.org/x/net v0.8.0
 	golang.org/x/oauth2 v0.5.0

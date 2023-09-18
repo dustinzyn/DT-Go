@@ -134,6 +134,7 @@ type Initiator interface {
 ``` golang
 
 import (
+    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DocCenter/conf"
     _ "HiveCore/adapter/controller" //引入输入适配器 http路由
     _ "HiveCore/adapter/repository" //引入输出适配器 repository资源库
 
@@ -172,27 +173,16 @@ func installMiddleware(app hive.Application) {
 func installDatabase(app hive.Application) {
     app.InstallDB(func() interface{} {
         //安装db的回调函数
-        conf := conf.Get().DB
-        db, e := gorm.Open("mysql", conf.Addr)
-        if e != nil {
-            hive.Logger().Fatal(e.Error())
-        }
+        cfg := conf.Cfg.RWDB
+		db := hiveutils.ConnProtonRWDB(cfg)
         return db
     })
 }
 
 func installRedis(app hive.Application) {
     app.InstallRedis(func() (client redis.Cmdable) {
-        cfg := conf.Get().Redis
-        opt := &redis.Options{
-            Addr:               cfg.Addr,
-        }
-        redisClient := redis.NewClient(opt)
-        if e := redisClient.Ping().Err(); e != nil {
-            hive.Logger().Fatal(e.Error())
-        }
-        client = redisClient
-        return
+        cfg := conf.SvcConfig.Redis
+		return hiveutils.ConnectRedis(*cfg)
     })
 }
 ```
@@ -375,15 +365,6 @@ func (repo *Default) GetIP() string {
 func (repo *Default) GetUA() string {
 	repo.Worker().Logger().Info("I'm Repository GetUA")
 	return repo.Worker().IrisContext().Request().UserAgent()
-}
-
-// db .
-func (repo *Default) db() *gorm.DB {
-	var db *gorm.DB
-	if err := repo.FetchDB(&db); err != nil {
-		panic(err)
-	}
-	return db
 }
 
 ```

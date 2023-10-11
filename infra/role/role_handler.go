@@ -45,6 +45,7 @@ const (
 	OrgManager string = "org_manager"
 	OrgAudit   string = "org_audit"
 	NormalUser string = "normal_user"
+	App        string = "app"
 )
 
 type User struct {
@@ -57,6 +58,10 @@ type User struct {
 	Email    string   `json:"email"`     // 邮箱
 	AuthType string   `json:"auth_type"` // 认证类型
 }
+type AppAcount struct {
+	ID   string `json:"id"`   // 应用账户ID
+	Name string `json:"name"` // 应用账户名称
+}
 
 type RoleHandler interface {
 	// 设置受管控的用户ID
@@ -67,11 +72,14 @@ type RoleHandler interface {
 	TrafficOpen() (bool, error)
 	// 获取用户信息
 	GetUser() User
+	// 获取应用账户信息
+	GetAppAcount() AppAcount
 }
 
 type RoleHandlerImpl struct {
 	hive.Infra
 	rawUser          User
+	rawApp           AppAcount
 	permissibleRoles []string // 允许访问的角色
 }
 
@@ -95,16 +103,29 @@ func (role *RoleHandlerImpl) SetPermissibleRoles(roles []string) RoleHandler {
 
 // TrafficOpen 角色管控 返回true允许访问 返回false禁止访问
 func (role *RoleHandlerImpl) TrafficOpen() (bool, error) {
-	user, err := role.getUser()
-	if err != nil {
-		return false, err
+	accountType := role.Infra.Worker().Bus().Get("account_type")
+	app := []string{"app"}
+	if accountType == "user" {
+		user, err := role.getUser()
+		if err != nil {
+			return false, err
+		}
+		if len(user.Roles) == 0 {
+			return false, err
+		}
+		if !utils.HasIntersection(role.permissibleRoles, user.Roles) {
+			return false, err
+		}
+	} else {
+		if !utils.HasIntersection(role.permissibleRoles, app) {
+			return false, nil
+		}
+		_, err := role.getAppAcount()
+		if err != nil {
+			return false, err
+		}
 	}
-	if len(user.Roles) == 0 {
-		return false, err
-	}
-	if !utils.HasIntersection(role.permissibleRoles, user.Roles) {
-		return false, err
-	}
+
 	return true, nil
 }
 
@@ -112,6 +133,12 @@ func (role *RoleHandlerImpl) TrafficOpen() (bool, error) {
 // 未做角色验证 无法获取用户信息
 func (role *RoleHandlerImpl) GetUser() User {
 	return role.rawUser
+}
+
+// GetAppAcount 获取应用账户信息
+// 未做角色验证 无法获取应用账户信息
+func (role *RoleHandlerImpl) GetAppAcount() AppAcount {
+	return role.rawApp
 }
 
 func getOwnersEndpoint(userId string) string {
@@ -122,6 +149,17 @@ func getOwnersEndpoint(userId string) string {
 		Host:   fmt.Sprintf("%v:%v", cg.DS.UserMgntHost, cg.DS.UserMgntPort),
 	}
 	url.Path = fmt.Sprintf("/api/user-management/v1/users/%v/roles,csf_level,name,enabled,frozen,auth_type", userId)
+	return url.String()
+}
+
+func getAppUrl(appId string) string {
+	cg := hive.NewConfiguration()
+
+	url := url.URL{
+		Scheme: cg.DS.UserMgntProtocol,
+		Host:   fmt.Sprintf("%v:%v", cg.DS.UserMgntHost, cg.DS.UserMgntPort),
+	}
+	url.Path = fmt.Sprintf("/api/user-management/v1/apps/%s", appId)
 	return url.String()
 }
 
@@ -141,5 +179,21 @@ func (role *RoleHandlerImpl) getUser() (user User, err error) {
 	}
 	user = users[0]
 	role.rawUser = user
+	return
+}
+
+// getAppAcount 获取应用账户信息
+func (role *RoleHandlerImpl) getAppAcount() (appAcount AppAcount, err error) {
+	appUrl := getAppUrl(role.rawUser.ID)
+	resp := hivehttp.NewHTTPRequest(appUrl).Get().ToJSON(&appAcount)
+	if resp.StatusCode == http.StatusNotFound {
+		err = errors.New(role.Worker().Bus().Get("language"), errors.ResourceNotFoundErr, "App not found", nil)
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("get app error: status code = %v, response err = %v", resp.StatusCode, resp.Error)
+		return
+	}
+	role.rawApp = appAcount
 	return
 }

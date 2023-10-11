@@ -57,6 +57,7 @@ func NewAuthentication() context.Handler {
 		worker.Bus().Add("client_id", result.ClientID)
 		worker.Bus().Add("bearer_token", token)
 		worker.Bus().Add("language", language)
+		var accountType string
 		if result.Extra != nil {
 			if str, ok := result.Extra["login_ip"].(string); ok {
 				worker.Bus().Add("ip", str)
@@ -73,11 +74,13 @@ func NewAuthentication() context.Handler {
 					// realname anonymous
 					visitorType = v
 				}
+				accountType = "user"
 			}
 			worker.Bus().Add("client_type", cType)
 			worker.Bus().Add("udid", udid)
 			worker.Bus().Add("visitor_type", visitorType)
 		}
+		worker.Bus().Add("account_type", accountType)
 		ctx.Next()
 	}
 }

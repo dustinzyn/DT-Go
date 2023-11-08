@@ -88,7 +88,7 @@ func (sfi *SonyflakerImpl) NextID() (int, error) {
 	return int(nextID), err
 }
 
-// ShortID 16位
+// ShortID 15位
 func (sfi *SonyflakerImpl) ShortID() int {
 	return int(idgen.NextId())
 }

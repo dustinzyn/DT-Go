@@ -78,6 +78,9 @@ func InstallAPPAccount(svcName string, redisClient redis.Cmdable, db *sqlx.DB) {
 		clientSecret := RandString(12)
 		if clientID == "" {
 			clientID, err = registerAPPAccount(svcName, clientSecret)
+			if err != nil {
+				return
+			}
 		}
 		account.ClientID = clientID
 		account.ClientSecret = clientSecret

@@ -22,7 +22,7 @@ type Configurations struct {
 ## 如何使用
 ### 1.获取配置类
 ``` golang
-Cfg = hive.NewConfiguration()
+Cfg = dhive.NewConfiguration()
 ```
 ### 2.加载配置
 * 若指定了环境变量 CONFIG_PATH，则配置文件的读取路径为 CONFIG_PATH/file.yaml，适用于生产环境。

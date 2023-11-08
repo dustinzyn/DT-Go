@@ -21,13 +21,14 @@ import (
 	"fmt"
 	"time"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+
 	redis "github.com/go-redis/redis/v8"
 	"golang.org/x/sync/singleflight"
 )
 
 func init() {
-	hive.Prepare(func(initiator hive.Initiator) {
+	dhive.Prepare(func(initiator dhive.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *CacheImpl {
 			return &CacheImpl{}
 		})
@@ -58,7 +59,7 @@ var sfGroup singleflight.Group
 
 // CacheImpl .
 type CacheImpl struct {
-	hive.Infra                                         // Infra
+	dhive.Infra                                        // Infra
 	asyncWrite   bool                                  // 异步写缓存
 	prefix       string                                // 缓存前缀
 	expiration   time.Duration                         // 缓存有效期
@@ -68,7 +69,7 @@ type CacheImpl struct {
 }
 
 // BeginRequest .
-func (cache *CacheImpl) BeginRequest(worker hive.Worker) {
+func (cache *CacheImpl) BeginRequest(worker dhive.Worker) {
 	cache.expiration = 5 * time.Minute
 	cache.singleFlight = true
 	cache.asyncWrite = false
@@ -129,7 +130,7 @@ func (cache *CacheImpl) Get(key string, expiration ...time.Duration) (cacheBytes
 				err = fmt.Errorf(fmt.Sprint(perr))
 			}
 			if err != nil {
-				hive.Logger().Errorf("Failed to set cache, key:%s, err:%v", key, err)
+				dhive.Logger().Errorf("Failed to set cache, key:%s, err:%v", key, err)
 			}
 		}()
 		err = cache.client.Set(cache.Worker().Context(), key, cacheBytes, expire).Err()
@@ -157,7 +158,7 @@ func (cache *CacheImpl) Delete(key string, async ...bool) error {
 				err = fmt.Errorf(fmt.Sprint(perr))
 			}
 			if err != nil {
-				hive.Logger().Errorf("Failed to delete cache, key:%s, err:%v", key, err)
+				dhive.Logger().Errorf("Failed to delete cache, key:%s, err:%v", key, err)
 			}
 		}()
 		err = client.Del(cache.Worker().Context(), key).Err()

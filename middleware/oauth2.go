@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
@@ -34,7 +34,7 @@ type Introspection struct {
 }
 
 func NewAuthentication() context.Handler {
-	return func(ctx hive.Context) {
+	return func(ctx dhive.Context) {
 		language := utils.ParseXLanguage(ctx.GetHeader("x-language"))
 		token, err := parseBearerToken(ctx.Request())
 		if err != nil {
@@ -86,7 +86,7 @@ func NewAuthentication() context.Handler {
 }
 
 func getIntrospectEndpoint() string {
-	cg := hive.NewConfiguration()
+	cg := dhive.NewConfiguration()
 	url := url.URL{
 		Scheme: cg.DS.HydraAdminProtocol,
 		Host:   fmt.Sprintf("%v:%v", cg.DS.HydraAdminHost, cg.DS.HydraAdminPort),
@@ -129,7 +129,7 @@ func parseBearerToken(req *http.Request) (token string, err *errors.ErrorResp) {
 }
 
 // errorResponse .
-func errorResponse(err errors.APIError, ctx hive.Context) {
+func errorResponse(err errors.APIError, ctx dhive.Context) {
 	codeStr := strconv.Itoa(err.Code())
 	code, _ := strconv.Atoi(codeStr[:3])
 	ctx.Values().Set("code", code)

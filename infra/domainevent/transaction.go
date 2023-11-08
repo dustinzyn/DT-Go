@@ -3,12 +3,12 @@ package domainevent
 import (
 	"database/sql"
 
-	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/transaction"
 )
 
 func init() {
-	hive.Prepare(func(initiator hive.Initiator) {
+	dhive.Prepare(func(initiator dhive.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *EventTransaction {
 			return &EventTransaction{}
 		})
@@ -55,7 +55,7 @@ func (et *EventTransaction) pushEvent() {
 		return
 	}
 
-	pubEvents, ok := pubs.([]hive.DomainEvent)
+	pubEvents, ok := pubs.([]dhive.DomainEvent)
 	if !ok {
 		return
 	}

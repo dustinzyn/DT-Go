@@ -12,7 +12,7 @@ Created by Dustin.zhu on 2023/08/18.
 */
 
 import (
-	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/api"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/base"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/flow"
@@ -21,7 +21,7 @@ import (
 //go:generate mockgen -package mock_infra -source rate.go -destination ./mock/rate_mock.go
 
 func init() {
-	hive.Prepare(func(initiator hive.Initiator) {
+	dhive.Prepare(func(initiator dhive.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *RateLimitImpl {
 			return &RateLimitImpl{}
 		})
@@ -48,18 +48,18 @@ type RateLimit interface {
 	Entry(resource string, opts ...RateLimitOption) (*base.SentinelEntry, *base.BlockError)
 	SetResourceType(base.ResourceType) RateLimit
 	SetTrafficType(base.TrafficType) RateLimit
-	AddRule(*hive.RateRuleConfiguration) RateLimit
-	AddRules([]*hive.RateRuleConfiguration) RateLimit
-	GetRules() []*hive.RateRuleConfiguration
+	AddRule(*dhive.RateRuleConfiguration) RateLimit
+	AddRules([]*dhive.RateRuleConfiguration) RateLimit
+	GetRules() []*dhive.RateRuleConfiguration
 }
 
 type RateLimitImpl struct {
-	hive.Infra
+	dhive.Infra
 	resourceType base.ResourceType
 	trafficType  base.TrafficType
 }
 
-func (rate *RateLimitImpl) BeginRequest(worker hive.Worker) {
+func (rate *RateLimitImpl) BeginRequest(worker dhive.Worker) {
 	rate.Infra.BeginRequest(worker)
 	rate.resourceType = ResTypeCommon
 	rate.trafficType = Inbound
@@ -109,30 +109,30 @@ func (rate *RateLimitImpl) SetTrafficType(typ base.TrafficType) RateLimit {
 }
 
 // AddRule means add a given flow rule to the rule manager
-func (rate *RateLimitImpl) AddRule(rule *hive.RateRuleConfiguration) RateLimit {
+func (rate *RateLimitImpl) AddRule(rule *dhive.RateRuleConfiguration) RateLimit {
 	flowRule := rate.addRule(rule)
 	flowRules := rate.getRules()
 	flowRules = append(flowRules, flowRule)
 	if _, err := flow.LoadRules(flowRules); err != nil {
-		hive.Logger().Infof("Failed to load rules:", err)
+		dhive.Logger().Infof("Failed to load rules:", err)
 	}
 	return rate
 }
 
 // AddRule means add the given flow rules to the rule manager
-func (rate *RateLimitImpl) AddRules(rules []*hive.RateRuleConfiguration) RateLimit {
+func (rate *RateLimitImpl) AddRules(rules []*dhive.RateRuleConfiguration) RateLimit {
 	flowRules := rate.getRules()
 	for _, rule := range rules {
 		flowRule := rate.addRule(rule)
 		flowRules = append(flowRules, flowRule)
 	}
 	if _, err := flow.LoadRules(flowRules); err != nil {
-		hive.Logger().Infof("Failed to load rules:", err)
+		dhive.Logger().Infof("Failed to load rules:", err)
 	}
 	return rate
 }
 
-func (rate *RateLimitImpl) addRule(rule *hive.RateRuleConfiguration) *flow.Rule {
+func (rate *RateLimitImpl) addRule(rule *dhive.RateRuleConfiguration) *flow.Rule {
 	behavior := flow.Reject
 	switch rule.ControlBehavior {
 	case "Reject":
@@ -165,11 +165,11 @@ func (rate *RateLimitImpl) getRules() []*flow.Rule {
 	return rules
 }
 
-func (rate *RateLimitImpl) GetRules() []*hive.RateRuleConfiguration {
+func (rate *RateLimitImpl) GetRules() []*dhive.RateRuleConfiguration {
 	sentinelRules := flow.GetRules()
-	rules := make([]*hive.RateRuleConfiguration, 0)
+	rules := make([]*dhive.RateRuleConfiguration, 0)
 	for _, srule := range sentinelRules {
-		rule := hive.RateRuleConfiguration{}
+		rule := dhive.RateRuleConfiguration{}
 		rule.Resource = srule.Resource
 		rule.Threshold = srule.Threshold
 		rule.ControlBehavior = srule.ControlBehavior.String()

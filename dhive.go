@@ -1,4 +1,4 @@
-package hive
+package dhive
 
 import (
 	redis "github.com/go-redis/redis/v8"

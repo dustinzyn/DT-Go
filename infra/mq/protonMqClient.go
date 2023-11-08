@@ -4,14 +4,14 @@ package mqclient
 import (
 	"strconv"
 
-	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	msqclient "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-mq-go"
 )
 
 //go:generate mockgen -package mock_infra -source protonMqClient.go -destination ./mock/protonmq_mock.go
 
 func init() {
-	hive.Prepare(func(initiator hive.Initiator) {
+	dhive.Prepare(func(initiator dhive.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *ProtonMQClientImpl {
 			return &ProtonMQClientImpl{}
 		})
@@ -29,7 +29,7 @@ type ProtonMQClient interface {
 }
 
 type ProtonMQClientImpl struct {
-	hive.Infra
+	dhive.Infra
 	producerHost  string
 	producerPort  int
 	consumerHost  string
@@ -40,7 +40,7 @@ type ProtonMQClientImpl struct {
 
 func (mq *ProtonMQClientImpl) newClient() {
 	var err error
-	cg := hive.NewConfiguration()
+	cg := dhive.NewConfiguration()
 	mq.producerHost = cg.MQ.ProducerHost
 	producerPort := cg.MQ.ProducerPort
 	pport, _ := strconv.Atoi(producerPort)
@@ -62,7 +62,7 @@ func (mq *ProtonMQClientImpl) newClient() {
 	}
 }
 
-func (mq *ProtonMQClientImpl) BeginRequest(worker hive.Worker) {
+func (mq *ProtonMQClientImpl) BeginRequest(worker dhive.Worker) {
 	mq.newClient()
 	mq.Infra.BeginRequest(worker)
 }

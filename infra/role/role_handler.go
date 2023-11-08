@@ -14,14 +14,14 @@ import (
 	"net/http"
 	"net/url"
 
-	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
 )
 
 func init() {
-	hive.Prepare(func(initiator hive.Initiator) {
+	dhive.Prepare(func(initiator dhive.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *RoleHandlerImpl {
 			return &RoleHandlerImpl{}
 		})
@@ -29,7 +29,7 @@ func init() {
 			注入到控制器, 默认仅注入到service和repository
 			如果不调用 initiator.InjectController, 控制器无法使用。
 		*/
-		initiator.InjectController(func(ctx hive.Context) (com *RoleHandlerImpl) {
+		initiator.InjectController(func(ctx dhive.Context) (com *RoleHandlerImpl) {
 			initiator.GetInfra(ctx, &com)
 			return
 		})
@@ -77,14 +77,14 @@ type RoleHandler interface {
 }
 
 type RoleHandlerImpl struct {
-	hive.Infra
+	dhive.Infra
 	rawUser          User
 	rawApp           AppAcount
 	permissibleRoles []string // 允许访问的角色
 }
 
 // BeginRequest .
-func (role *RoleHandlerImpl) BeginRequest(worker hive.Worker) {
+func (role *RoleHandlerImpl) BeginRequest(worker dhive.Worker) {
 	role.permissibleRoles = make([]string, 0)
 	role.Infra.BeginRequest(worker)
 }
@@ -142,7 +142,7 @@ func (role *RoleHandlerImpl) GetAppAcount() AppAcount {
 }
 
 func getOwnersEndpoint(userId string) string {
-	cg := hive.NewConfiguration()
+	cg := dhive.NewConfiguration()
 
 	url := url.URL{
 		Scheme: cg.DS.UserMgntProtocol,
@@ -153,7 +153,7 @@ func getOwnersEndpoint(userId string) string {
 }
 
 func getAppUrl(appId string) string {
-	cg := hive.NewConfiguration()
+	cg := dhive.NewConfiguration()
 
 	url := url.URL{
 		Scheme: cg.DS.UserMgntProtocol,

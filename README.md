@@ -52,7 +52,7 @@ type Application interface {
     //安装其他, 如mongodb、es 等
     InstallCustom(f func() interface{})
     //启动回调: Prepare之后，Run之前.
-    BindBooting(f func(bootManager hive.BootManager))
+    BindBooting(f func(bootManager dhive.BootManager))
     //安装序列化，未安装默认使用官方json
     InstallSerializer(marshal func(v interface{}) ([]byte, error), unmarshal func(data []byte, v interface{}) error)
 }
@@ -62,7 +62,7 @@ type Application interface {
 */
 type Worker interface {
     //获取iris的上下文
-    IrisContext() hive.Context
+    IrisContext() dhive.Context
     //获取带上下文的日志实例。
     Logger() Logger
     //设置带上下文的日志实例。
@@ -121,7 +121,7 @@ type Initiator interface {
 | 安装Redis | Application.InstallRedis |
 | 单例组件方法(需要重写方法) | infra.Booting |
 | 回调已注册的匿名函数 | Initiator.BindBooting |
-| 局部初始化 | hive.Prepare |
+| 局部初始化 | dhive.Prepare |
 | 开启监听服务 | http.Run |
 | 回调已注册的匿名函数 | infra.RegisterShutdown |
 | 程序关闭 | Application.Close |
@@ -144,7 +144,7 @@ import (
 )
 
 func main() {
-    app := hive.NewApplication() //创建应用
+    app := dhive.NewApplication() //创建应用
     installDatabase(app)
     installRedis(app)
     installMiddleware(app)
@@ -156,7 +156,7 @@ func main() {
     app.Run(addrRunner, *conf.Get().App)
 }
 
-func installMiddleware(app hive.Application) {
+func installMiddleware(app dhive.Application) {
     //Recover中间件
     app.InstallMiddleware(middleware.NewRecover())
     //Trace链路中间件
@@ -170,7 +170,7 @@ func installMiddleware(app hive.Application) {
     app.InstallBusMiddleware(middleware.NewBusFilter())
 }
 
-func installDatabase(app hive.Application) {
+func installDatabase(app dhive.Application) {
     app.InstallDB(func() interface{} {
         //安装db的回调函数
         cfg := conf.Cfg.RWDB
@@ -179,7 +179,7 @@ func installDatabase(app hive.Application) {
     })
 }
 
-func installRedis(app hive.Application) {
+func installRedis(app dhive.Application) {
     app.InstallRedis(func() (client redis.Cmdable) {
         cfg := conf.SvcConfig.Redis
 		return hiveutils.ConnectRedis(*cfg)
@@ -198,7 +198,7 @@ import (
 )
 
 func init() {
-	hive.Prepare(func(initiator hive.Initiator) {
+	dhive.Prepare(func(initiator dhive.Initiator) {
 		/*
 		   普通方式绑定 Default控制器到路径 /
 		   initiator.BindController("/", &DefaultController{})
@@ -206,8 +206,8 @@ func init() {
 
 		//中间件方式绑定， 只对本控制器生效，全局中间件请在main加入。
 		if initiator.IsPrivate() {
-			initiator.BindController("/", &Default{}, func(ctx hive.Context) {
-				worker := hive.ToWorker(ctx)
+			initiator.BindController("/", &Default{}, func(ctx dhive.Context) {
+				worker := dhive.ToWorker(ctx)
 				worker.Logger().Info("Hello middleware begin")
 				ctx.Next()
 				worker.Logger().Info("Hello middleware end")
@@ -218,11 +218,11 @@ func init() {
 
 type Default struct {
 	Sev    *domain.Default //依赖注入领域服务 Default
-	Worker hive.Worker     //依赖注入请求运行时 Worker，无需侵入的传递。
+	Worker dhive.Worker     //依赖注入请求运行时 Worker，无需侵入的传递。
 }
 
 // Get handles the GET: / route.
-func (c *Default) Get() hive.Result {
+func (c *Default) Get() dhive.Result {
     c.Worker.Logger().Infof("我是控制器")
     remote := c.Sev.RemoteInfo() //调用服务方法
     //返回JSON对象
@@ -235,16 +235,16 @@ func (c *Default) GetHello() string {
 }
 
 // PutHello handles the PUT: /hello route.
-func (c *Default) PutHello() hive.Result {
+func (c *Default) PutHello() dhive.Result {
 	return &infra.JSONResponse{Object: "putHello"}
 }
 
 // PostHello handles the POST: /hello route.
-func (c *Default) PostHello() hive.Result {
+func (c *Default) PostHello() dhive.Result {
 	return &infra.JSONResponse{Object: "postHello"}
 }
 
-func (m *Default) BeforeActivation(b hive.BeforeActivation) {
+func (m *Default) BeforeActivation(b dhive.BeforeActivation) {
 	b.Handle("ANY", "/custom", "CustomHello")
 	//b.Handle("GET", "/custom", "CustomHello")
 	//b.Handle("PUT", "/custom", "CustomHello")
@@ -252,9 +252,9 @@ func (m *Default) BeforeActivation(b hive.BeforeActivation) {
 }
 
 // PostHello handles the POST: /hello route.
-func (c *Default) CustomHello() hive.Result {
+func (c *Default) CustomHello() dhive.Result {
 	method := c.Worker.IrisContext().Request().Method
-	c.Worker.Logger().Info("CustomHello", hive.LogFields{"method": method})
+	c.Worker.Logger().Info("CustomHello", dhive.LogFields{"method": method})
 	return &infra.JSONResponse{Object: method + "CustomHello"}
 }
 
@@ -264,7 +264,7 @@ func (c *Default) GetUserBy(username string) string {
 }
 
 // GetAgeByUserBy handles the GET: /age/{age:int}/user/{user:string} route.
-func (c *Default) GetAgeByUserBy(age int, user string) hive.Result {
+func (c *Default) GetAgeByUserBy(age int, user string) dhive.Result {
 	var result struct {
 		User string
 		Age  int
@@ -287,12 +287,12 @@ import (
 )
 
 func init() {
-	hive.Prepare(func(initiator hive.Initiator) {
+	dhive.Prepare(func(initiator dhive.Initiator) {
             //绑定 Default Service
             initiator.BindService(func() *Default {
                 return &Default{}
             })
-            initiator.InjectController(func(ctx hive.Context) (service *Default) {
+            initiator.InjectController(func(ctx dhive.Context) (service *Default) {
                 //Default 注入到控制器
                 initiator.GetService(ctx, &service)
                 return
@@ -302,7 +302,7 @@ func init() {
 
 // Default .
 type Default struct {
-	Worker    hive.Worker    //依赖注入请求运行时,无需侵入的传递。
+	Worker    dhive.Worker    //依赖注入请求运行时,无需侵入的传递。
 	DefRepo   *repository.Default   //依赖注入资源库对象  DI方式
 	DefRepoIF repository.DefaultRepoInterface  //也可以注入资源库接口 DIP方式
 }
@@ -342,7 +342,7 @@ import (
 )
 
 func init() {
-	hive.Prepare(func(initiator hive.Initiator) {
+	dhive.Prepare(func(initiator dhive.Initiator) {
 		initiator.BindRepository(func() *Default {
 			return &Default{}
 		})
@@ -351,7 +351,7 @@ func init() {
 
 // Default .
 type Default struct {
-	hive.Repository
+	dhive.Repository
 }
 
 // GetIP .

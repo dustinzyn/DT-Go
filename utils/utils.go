@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 )
 
 const (
@@ -101,7 +101,7 @@ func ParseXLanguage(xLanguage string, acceptLangs ...string) (language string) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			hive.Logger().Errorf("parse x-language: %v, error: %v", xLanguage, r)
+			dhive.Logger().Errorf("parse x-language: %v, error: %v", xLanguage, r)
 			language = GetDefaultLanguage()
 			return
 		}
@@ -156,11 +156,11 @@ func ParseXLanguage(xLanguage string, acceptLangs ...string) (language string) {
 func CloseRows(rows *sql.Rows) {
 	if rows != nil {
 		if rowsErr := rows.Err(); rowsErr != nil {
-			hive.Logger().Error(rowsErr)
+			dhive.Logger().Error(rowsErr)
 		}
 
 		if closeErr := rows.Close(); closeErr != nil {
-			hive.Logger().Error(closeErr)
+			dhive.Logger().Error(closeErr)
 		}
 	}
 }

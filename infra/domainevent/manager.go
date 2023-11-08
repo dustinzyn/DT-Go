@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"time"
 
-	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/uniqueid"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
@@ -40,11 +40,11 @@ func init() {
 	uniqueID := &uniqueid.SonyflakerImpl{}
 	uniqueID.SetPodIP(utils.GetEnv("POD_IP", "127.0.0.1"))
 	eventManager.uniqueID = uniqueID
-	hive.Prepare(func(initiator hive.Initiator) {
+	dhive.Prepare(func(initiator dhive.Initiator) {
 		// 单例
 		initiator.BindInfra(true, initiator.IsPrivate(), eventManager)
 		// InjectController
-		initiator.InjectController(func(ctx hive.Context) (com *EventManagerImpl) {
+		initiator.InjectController(func(ctx dhive.Context) (com *EventManagerImpl) {
 			initiator.GetInfra(ctx, &com)
 			return
 		})
@@ -66,11 +66,11 @@ type EventManager interface {
 	// RegisterSubHandler 注册领域发布事件函数
 	RegisterSubHandler(f func(topic string, content string) error)
 	// RetryPubEvent 定时器扫描表中失败的Pub事件
-	RetryPubEvent(app hive.Application)
+	RetryPubEvent(app dhive.Application)
 	// RetrySubEvent 定时器扫描表中失败的Pub事件
-	RetrySubEvent(app hive.Application)
+	RetrySubEvent(app dhive.Application)
 	// Save 保存领域事件
-	Save(repo *hive.Repository, entity hive.Entity) (err error)
+	Save(repo *dhive.Repository, entity dhive.Entity) (err error)
 	// DeleteSubEvent 删除领域订阅事件
 	DeleteSubEvent(eventID int) error
 	// SetSubEventFail 将订阅事件置为失败状态
@@ -78,14 +78,14 @@ type EventManager interface {
 }
 
 type EventManagerImpl struct {
-	hive.Infra
+	dhive.Infra
 	uniqueID   uniqueid.Sonyflaker                      // 唯一性ID组件
 	pubHandler func(topic string, content string) error // 发布事件函数 由使用方自定义
 	subHandler func(topic string, content string) error // 订阅事件函数 由使用方自定义
 }
 
 // Booting .
-func (m *EventManagerImpl) Booting(singleBoot hive.SingleBoot) {
+func (m *EventManagerImpl) Booting(singleBoot dhive.SingleBoot) {
 	return
 }
 
@@ -100,9 +100,9 @@ func (m *EventManagerImpl) RegisterSubHandler(f func(topic string, content strin
 }
 
 // RetryPubEvent 定时器扫描表中失败的Pub事件
-func (m *EventManagerImpl) RetryPubEvent(app hive.Application) {
+func (m *EventManagerImpl) RetryPubEvent(app dhive.Application) {
 	time.Sleep(time.Duration(DelayInterval) * time.Second) //延迟，等待程序Application.Run
-	hive.Logger().Info("***************** EventManager Retry Publish *****************")
+	dhive.Logger().Info("***************** EventManager Retry Publish *****************")
 	timeTicker := time.NewTicker(time.Duration(RetryInterval) * time.Second)
 	needTimer := true
 	for {
@@ -123,9 +123,9 @@ func (m *EventManagerImpl) RetryPubEvent(app hive.Application) {
 }
 
 // RetrySubEvent 定时器扫描表中失败的Sub事件
-func (m *EventManagerImpl) RetrySubEvent(app hive.Application) {
+func (m *EventManagerImpl) RetrySubEvent(app dhive.Application) {
 	time.Sleep(time.Duration(DelayInterval) * time.Second) // 延迟，等待程序Application.Run
-	hive.Logger().Info("***************** EventManager Retry Subscribe *****************")
+	dhive.Logger().Info("***************** EventManager Retry Subscribe *****************")
 	timeTicker := time.NewTicker(time.Duration(RetryInterval) * time.Second)
 	needTimer := true
 	for {
@@ -144,7 +144,7 @@ func (m *EventManagerImpl) RetrySubEvent(app hive.Application) {
 }
 
 // Save 保存领域事件
-func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err error) {
+func (m *EventManagerImpl) Save(repo *dhive.Repository, entity dhive.Entity) (err error) {
 	txDB := getTxDB(repo)
 
 	// 删除实体里的全部事件
@@ -159,7 +159,7 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 		sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 		_, err = txDB.Exec(sqlStr, uid, domainEvent.Topic(), string(domainEvent.Marshal()), ct, ct, 0)
 		if err != nil {
-			hive.Logger().Errorf("Insert PubEvent error: %v", err)
+			dhive.Logger().Errorf("Insert PubEvent error: %v", err)
 			return
 		}
 		domainEvent.SetIdentity(uid)
@@ -172,7 +172,7 @@ func (m *EventManagerImpl) Save(repo *hive.Repository, entity hive.Entity) (err 
 		sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 		_, err := m.db().Exec(sqlStr, subEvent.Identity().(int), subEvent.Topic(), string(subEvent.Marshal()), ct, ct, 0)
 		if err != nil {
-			hive.Logger().Errorf("InsertSubEvent error: %v", err)
+			dhive.Logger().Errorf("InsertSubEvent error: %v", err)
 			return err
 		}
 	}
@@ -185,7 +185,7 @@ func (m *EventManagerImpl) DeleteSubEvent(eventID int) error {
 	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 	_, err := m.db().Exec(sqlStr, eventID)
 	if err != nil {
-		hive.Logger().Errorf("DeleteSubEvent error: %v", err)
+		dhive.Logger().Errorf("DeleteSubEvent error: %v", err)
 		return err
 	}
 	return nil
@@ -202,7 +202,7 @@ func (m *EventManagerImpl) SetSubEventFail(eventID int) (err error) {
 		sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 		_, err = m.db().Exec(sqlStr, changes, eventID)
 		if err != nil {
-			hive.Logger().Errorf("SetSubEventFail error: %v", err)
+			dhive.Logger().Errorf("SetSubEventFail error: %v", err)
 			return err
 		}
 	}
@@ -213,7 +213,7 @@ func (m *EventManagerImpl) retrySub() (needTimer bool) {
 	var err error
 	defer func() {
 		if r := recover(); r != nil {
-			hive.Logger().Errorf("retrySub error: %v", r)
+			dhive.Logger().Errorf("retrySub error: %v", r)
 			err = errors.New("retrySub panic, recover")
 		}
 		if err != nil {
@@ -223,7 +223,7 @@ func (m *EventManagerImpl) retrySub() (needTimer bool) {
 	}()
 	subs, err := eventManager.getFailSubEvents(SingleRetryNum)
 	if err != nil {
-		hive.Logger().Infof("retrySub error: %v", err)
+		dhive.Logger().Infof("retrySub error: %v", err)
 		needTimer = true
 		return
 	}
@@ -235,12 +235,12 @@ func (m *EventManagerImpl) retrySub() (needTimer bool) {
 	for _, event := range subs {
 		err = m.subHandler(event["topic"].(string), event["content"].(string))
 		if err != nil {
-			hive.Logger().Errorf("execPush error: %v", err)
+			dhive.Logger().Errorf("execPush error: %v", err)
 			continue
 		}
 		// 推送成功删除事件
 		if err = eventManager.DeleteSubEvent(event["id"].(int)); err != nil {
-			hive.Logger().Errorf("execPush: delete sub event error: %v", err)
+			dhive.Logger().Errorf("execPush: delete sub event error: %v", err)
 		}
 	}
 	return
@@ -250,7 +250,7 @@ func (m *EventManagerImpl) retryPub() (needTimer bool) {
 	var err error
 	defer func() {
 		if r := recover(); r != nil {
-			hive.Logger().Errorf("retryPub error: %v", r)
+			dhive.Logger().Errorf("retryPub error: %v", r)
 			err = errors.New("retryPub panic, recover")
 		}
 		if err != nil {
@@ -261,7 +261,7 @@ func (m *EventManagerImpl) retryPub() (needTimer bool) {
 
 	pubs, err := m.getFailPubEvents(SingleRetryNum)
 	if err != nil {
-		hive.Logger().Infof("retryPub error: %v", err)
+		dhive.Logger().Infof("retryPub error: %v", err)
 		needTimer = true
 		return
 	}
@@ -273,12 +273,12 @@ func (m *EventManagerImpl) retryPub() (needTimer bool) {
 	for _, event := range pubs {
 		err = m.pubHandler(event["topic"].(string), event["content"].(string))
 		if err != nil {
-			hive.Logger().Errorf("execPush error: %v", err)
+			dhive.Logger().Errorf("execPush error: %v", err)
 			continue
 		}
 		// 推送成功删除事件
 		if err = eventManager.DeletePubEvent(event["id"].(int)); err != nil {
-			hive.Logger().Errorf("execPush: delete pub event error: %v", err)
+			dhive.Logger().Errorf("execPush: delete pub event error: %v", err)
 		}
 	}
 	return
@@ -334,14 +334,14 @@ func (m *EventManagerImpl) DeletePubEvent(eventID int) error {
 	sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 	_, err := m.db().Exec(sqlStr, eventID)
 	if err != nil {
-		hive.Logger().Errorf("DeletePubEvent error: %v", err)
+		dhive.Logger().Errorf("DeletePubEvent error: %v", err)
 		return err
 	}
 	return nil
 }
 
 // addPubToWorker 增加发布事件到worker的store
-func (m *EventManagerImpl) addPubToWOrker(worker hive.Worker, pubs []hive.DomainEvent) {
+func (m *EventManagerImpl) addPubToWOrker(worker dhive.Worker, pubs []dhive.DomainEvent) {
 	if len(pubs) == 0 {
 		return
 	}
@@ -358,10 +358,10 @@ func (m *EventManagerImpl) addPubToWOrker(worker hive.Worker, pubs []hive.Domain
 	}
 
 	// 把发布事件添加到store, EventTransaction在事务结束后会触发push
-	var storePubEvents []hive.DomainEvent
+	var storePubEvents []dhive.DomainEvent
 	store := worker.Store().Get(workerStorePubEventKey)
 	if store != nil {
-		if list, ok := store.([]hive.DomainEvent); ok {
+		if list, ok := store.([]dhive.DomainEvent); ok {
 			storePubEvents = list
 		}
 	}
@@ -370,8 +370,8 @@ func (m *EventManagerImpl) addPubToWOrker(worker hive.Worker, pubs []hive.Domain
 }
 
 // push EventTransaction事务成功后触发
-func (m *EventManagerImpl) push(event hive.DomainEvent) {
-	hive.Logger().Infof("PubEventID: %v, Domain PubEvent Topic: %v, Content: %v", event.Identity(), event.Topic(), event)
+func (m *EventManagerImpl) push(event dhive.DomainEvent) {
+	dhive.Logger().Infof("PubEventID: %v, Domain PubEvent Topic: %v, Content: %v", event.Identity(), event.Topic(), event)
 	eventID := event.Identity().(int)
 	go func() {
 		var err error
@@ -379,11 +379,11 @@ func (m *EventManagerImpl) push(event hive.DomainEvent) {
 		defer func() {
 			if r := recover(); r != nil {
 				err = errors.New("push panic, recover")
-				hive.Logger().Errorf("event push error: %v", r)
+				dhive.Logger().Errorf("event push error: %v", r)
 			}
 			if err != nil {
 				// 推送失败 标记事件为失败
-				hive.Logger().Errorf("push event error:%v", err)
+				dhive.Logger().Errorf("push event error:%v", err)
 				publish.SetStatus(1)
 				publish.SetUpdated(utils.NowTimestamp())
 				changes := publish.TakeChanges()
@@ -391,7 +391,7 @@ func (m *EventManagerImpl) push(event hive.DomainEvent) {
 					sqlStr := "UPDATE %v.domain_event_publish SET ? WHERE id = ?"
 					sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 					if _, e := m.db().Exec(sqlStr, changes, eventID); e != nil {
-						hive.Logger().Errorf("update event error:%v", e)
+						dhive.Logger().Errorf("update event error:%v", e)
 					}
 				}
 				return
@@ -400,7 +400,7 @@ func (m *EventManagerImpl) push(event hive.DomainEvent) {
 			sqlStr := "DELETE FROM %v.domain_event_publish WHERE id = ?"
 			sqlStr = fmt.Sprintf(sqlStr, m.dbConfig().Database)
 			if _, err := m.db().Exec(sqlStr, eventID); err != nil {
-				hive.Logger().Error(err)
+				dhive.Logger().Error(err)
 				return
 			}
 		}()
@@ -413,11 +413,11 @@ func (m *EventManagerImpl) push(event hive.DomainEvent) {
 func (m *EventManagerImpl) closeRows(rows *sql.Rows) {
 	if rows != nil {
 		if rowsErr := rows.Err(); rowsErr != nil {
-			hive.Logger().Error(rowsErr)
+			dhive.Logger().Error(rowsErr)
 		}
 
 		if closeErr := rows.Close(); closeErr != nil {
-			hive.Logger().Error(closeErr)
+			dhive.Logger().Error(closeErr)
 		}
 	}
 }
@@ -430,7 +430,7 @@ func (m *EventManagerImpl) db() *sqlx.DB {
 	return m.SourceDB().(*sqlx.DB)
 }
 
-func getTxDB(repo *hive.Repository) (db *sql.Tx) {
+func getTxDB(repo *dhive.Repository) (db *sql.Tx) {
 	if err := repo.FetchDB(&db); err != nil {
 		panic(err)
 	}

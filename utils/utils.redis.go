@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
 	redis "github.com/go-redis/redis/v8"
 )
@@ -54,7 +54,7 @@ func ConnectRedis(conf config.RedisConfiguration) (client redis.Cmdable) {
 			}
 		}
 	}
-	hive.Logger().Infof("connect redis success, connect type is %v...", conf.ConnectType)
+	dhive.Logger().Infof("connect redis success, connect type is %v...", conf.ConnectType)
 	return
 }
 

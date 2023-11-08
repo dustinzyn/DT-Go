@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
-
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12/context"
 )
@@ -48,7 +46,7 @@ func (l *requestLoggerMiddleware) ServeHTTP(ctx *context.Context) {
 		ctx.Request().Body = ioutil.NopCloser(bytes.NewBuffer(reqBodyBys))
 	}
 
-	work := hive.ToWorker(ctx)
+	work := dhive.ToWorker(ctx)
 	baselog := newBaseLogger(l.config.traceName, work.Bus().Get(l.config.traceName))
 	work.Store().Set("logger_impl", baselog)
 
@@ -84,7 +82,7 @@ func (l *requestLoggerMiddleware) ServeHTTP(ctx *context.Context) {
 			fieldsMessage[key] = msg
 		}
 	}
-	bus := hive.ToWorker(ctx).Bus()
+	bus := dhive.ToWorker(ctx).Bus()
 	traceInfo := bus.Get(l.config.traceName)
 	if traceInfo != "" {
 		if l.config.traceName == "x-request-id" {

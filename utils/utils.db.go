@@ -15,7 +15,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
 	dm "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton_dm_dialect_go"
 
@@ -71,7 +71,7 @@ func ConnectDB(conf *config.DBConfiguration) *gorm.DB {
 				panic(err)
 			}
 		}
-		hive.Logger().Infof("connect database success...")
+		dhive.Logger().Infof("connect database success...")
 	})
 	return db
 }
@@ -129,7 +129,7 @@ func ConnProtonRDS(conf *config.DBConfiguration) *gorm.DB {
 		default:
 			panic(fmt.Errorf("Invalid database driver."))
 		}
-		hive.Logger().Infof("connect database success...")
+		dhive.Logger().Infof("connect database success...")
 	})
 	return db
 }
@@ -142,7 +142,7 @@ func ConnProtonRWDB(conf *sqlx.DBConfig) *sqlx.DB {
 		if err != nil {
 			panic(err)
 		}
-		hive.Logger().Infof("connect database success...")
+		dhive.Logger().Infof("connect database success...")
 	})
 	return dbrw
 }

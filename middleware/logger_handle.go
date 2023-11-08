@@ -3,12 +3,10 @@ package middleware
 import (
 	"fmt"
 	// "sort"
-
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 )
 
 // DefaultLogRowHandle .
-func DefaultLogRowHandle(value *hive.LogRow) bool {
+func DefaultLogRowHandle(value *dhive.LogRow) bool {
 	//logRow中间件，每一行日志都会触发回调。如果返回true，将停止中间件遍历回调。
 	fieldMap := map[string]interface{}{
 		"status":  nil,

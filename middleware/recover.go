@@ -6,8 +6,6 @@ import (
 	"runtime"
 
 	"github.com/kataras/iris/v12/context"
-
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 )
 
 // NewRecover .
@@ -19,7 +17,7 @@ func NewRecover() context.Handler {
 					return
 				}
 
-				rt := hive.ToWorker(ctx)
+				rt := dhive.ToWorker(ctx)
 				// when stack finishes
 				logMessage := fmt.Sprintf("Recovered from path('%s')\n", ctx.Path())
 				logMessage += fmt.Sprintf("Panic: %s\n", err)

@@ -3,20 +3,20 @@ package middleware
 import (
 	"net/http"
 
-	hive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
+	sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/api"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/base"
 	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
-	sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/api"
 )
 
 // NewSentinel returns new iris.HandlerFunc
 // Default resource name is {method}:{path}, such as "GET:/api/users/{param1:int}"
 // Default block fallback is returning 429 code
 // Define your own behavior by setting options
-func NewSentinel(opts ...Option) func(hive.Context) {
+func NewSentinel(opts ...Option) func(dhive.Context) {
 	options := evaluateOptions(opts)
-	return func(ctx hive.Context) {
+	return func(ctx dhive.Context) {
 		resourceName := ctx.Method() + ":" + ctx.GetCurrentRoute().Path()
 
 		if options.resourceExtract != nil {

@@ -4,8 +4,8 @@ devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Go.git/span v0.0.
 devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Go.git/span v0.0.0-20220630050945-066aff45c950/go.mod h1:jBsI2MD+VDHAwEP3FW/xWu7QHLdH60dq1Mkn3ewEFJU=
 devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-mq-go v1.7.4 h1:NKFEmImtHDoI/Cs2TRGlylYKe/PJG1WKRaCsTK3LhQs=
 devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-mq-go v1.7.4/go.mod h1:qmyZuWAURpd2JzcdfHozQ+NwewRhPySXgAaB8bXs6TY=
-devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go v1.1.0 h1:nLsOM7YmZEn5MZDoKRimR9qmvStMMoNSsAEiR3R9dLA=
-devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go v1.1.0/go.mod h1:Sno+3IQxjIBIamXgXl/M6SHN8VU/wvq73eJjxxliwBM=
+devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go v1.2.1 h1:Eh/6TFwRRZOLBdvk4NlL/TqVjHl1QaaX6s1/OldRxAs=
+devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go v1.2.1/go.mod h1:Sno+3IQxjIBIamXgXl/M6SHN8VU/wvq73eJjxxliwBM=
 devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton_dm_dialect_go v0.0.0-20230615061324-afded188ccb9 h1:W3T56ZAoQQmtUpZjo3NRgT2xqtkguVCWiA0kS/tMRSA=
 devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton_dm_dialect_go v0.0.0-20230615061324-afded188ccb9/go.mod h1:M70qaIoikU0IqzfM1hOsYt5VnTnYibElM7dnsLrhB0k=
 gitee.com/chunanyong/dm v1.8.12 h1:WupbFZL0MRNIIiCPaLDHgFi5jkdkjzjPReuWPaInGwk=

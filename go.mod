@@ -1,11 +1,11 @@
 module devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go
 
-go 1.18
+go 1.20
 
 require (
 	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Go.git/span v0.0.0-20220630050945-066aff45c950
 	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-mq-go v1.7.4
-	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go v1.1.0
+	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go v1.2.1
 	devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton_dm_dialect_go v0.0.0-20230615061324-afded188ccb9
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/agiledragon/gomonkey/v2 v2.10.1

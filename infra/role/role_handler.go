@@ -14,14 +14,14 @@ import (
 	"net/http"
 	"net/url"
 
-	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/errors"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/dhttp"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
 )
 
 func init() {
-	dhive.Prepare(func(initiator dhive.Initiator) {
+	dt.Prepare(func(initiator dt.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *RoleHandlerImpl {
 			return &RoleHandlerImpl{}
 		})
@@ -29,7 +29,7 @@ func init() {
 			注入到控制器, 默认仅注入到service和repository
 			如果不调用 initiator.InjectController, 控制器无法使用。
 		*/
-		initiator.InjectController(func(ctx dhive.Context) (com *RoleHandlerImpl) {
+		initiator.InjectController(func(ctx dt.Context) (com *RoleHandlerImpl) {
 			initiator.GetInfra(ctx, &com)
 			return
 		})
@@ -77,14 +77,14 @@ type RoleHandler interface {
 }
 
 type RoleHandlerImpl struct {
-	dhive.Infra
+	dt.Infra
 	rawUser          User
 	rawApp           AppAcount
 	permissibleRoles []string // 允许访问的角色
 }
 
 // BeginRequest .
-func (role *RoleHandlerImpl) BeginRequest(worker dhive.Worker) {
+func (role *RoleHandlerImpl) BeginRequest(worker dt.Worker) {
 	role.permissibleRoles = make([]string, 0)
 	role.Infra.BeginRequest(worker)
 }
@@ -142,7 +142,7 @@ func (role *RoleHandlerImpl) GetAppAcount() AppAcount {
 }
 
 func getOwnersEndpoint(userId string) string {
-	cg := dhive.NewConfiguration()
+	cg := dt.NewConfiguration()
 
 	url := url.URL{
 		Scheme: cg.DS.UserMgntProtocol,
@@ -153,7 +153,7 @@ func getOwnersEndpoint(userId string) string {
 }
 
 func getAppUrl(appId string) string {
-	cg := dhive.NewConfiguration()
+	cg := dt.NewConfiguration()
 
 	url := url.URL{
 		Scheme: cg.DS.UserMgntProtocol,
@@ -168,7 +168,7 @@ func (role *RoleHandlerImpl) getUser() (user User, err error) {
 	ownerEndpoint := getOwnersEndpoint(role.rawUser.ID)
 	users := make([]User, 1)
 	users[0] = User{}
-	resp := hivehttp.NewHTTPRequest(ownerEndpoint).Get().ToJSON(&users)
+	resp := dhttp.NewHTTPRequest(ownerEndpoint).Get().ToJSON(&users)
 	if resp.StatusCode == http.StatusNotFound {
 		err = errors.New(role.Worker().Bus().Get("language"), errors.ResourceNotFoundErr, "User not found", nil)
 		return
@@ -185,7 +185,7 @@ func (role *RoleHandlerImpl) getUser() (user User, err error) {
 // getAppAcount 获取应用账户信息
 func (role *RoleHandlerImpl) getAppAcount() (appAcount AppAcount, err error) {
 	appUrl := getAppUrl(role.rawUser.ID)
-	resp := hivehttp.NewHTTPRequest(appUrl).Get().ToJSON(&appAcount)
+	resp := dhttp.NewHTTPRequest(appUrl).Get().ToJSON(&appAcount)
 	if resp.StatusCode == http.StatusNotFound {
 		err = errors.New(role.Worker().Bus().Get("language"), errors.ResourceNotFoundErr, "App not found", nil)
 		return

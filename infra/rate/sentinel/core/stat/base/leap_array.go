@@ -20,9 +20,9 @@ import (
 	"sync/atomic"
 	"unsafe"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/logging"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/util"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/logging"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
 	"github.com/pkg/errors"
 )
 
@@ -139,11 +139,12 @@ func (aa *AtomicBucketWrapArray) compareAndSet(idx int, except, update *BucketWr
 // For example, bucketLengthInMs is 200ms, intervalInMs is 1000ms, so sampleCount is 5.
 // Give a diagram to illustrate
 // Suppose current time is 888, bucketLengthInMs is 200ms, intervalInMs is 1000ms, LeapArray will build the below windows
-//   B0       B1      B2     B3      B4
-//   |_______|_______|_______|_______|_______|
-//  1000    1200    1400    1600    800    (1000)
-//                                        ^
-//                                      time=888
+//
+//	 B0       B1      B2     B3      B4
+//	 |_______|_______|_______|_______|_______|
+//	1000    1200    1400    1600    800    (1000)
+//	                                      ^
+//	                                    time=888
 type LeapArray struct {
 	bucketLengthInMs uint32
 	sampleCount      uint32
@@ -224,7 +225,7 @@ func (la *LeapArray) calculateTimeIdx(now uint64) int {
 	return int(timeId) % la.array.length
 }
 
-//  Get all BucketWrap between [current time - leap array interval, current time]
+// Get all BucketWrap between [current time - leap array interval, current time]
 func (la *LeapArray) Values() []*BucketWrap {
 	return la.valuesWithTime(util.CurrentTimeMillis())
 }

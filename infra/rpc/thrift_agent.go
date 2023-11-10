@@ -5,7 +5,7 @@ import (
 	"net"
 	"reflect"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rpc/thrift"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rpc/thrift"
 )
 
 type ThriftPoolAgent struct {

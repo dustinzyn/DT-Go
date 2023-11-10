@@ -17,7 +17,7 @@ package isolation
 import (
 	"testing"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/logging"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/logging"
 	"github.com/stretchr/testify/assert"
 )
 

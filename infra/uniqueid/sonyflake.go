@@ -12,7 +12,7 @@ import (
 	"net"
 	"os"
 
-	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 	"github.com/sony/sonyflake"
 
 	"github.com/yitter/idgenerator-go/idgen"
@@ -27,7 +27,7 @@ func init() {
 	options.BaseTime = 1690777000000                                // Mon Jul 31 2023 12:16:40 GMT+0800 (中国标准时间), 以此为基准时间,约30年后达到js最大数值
 	idgen.SetIdGenerator(options)
 
-	dhive.Prepare(func(initiator dhive.Initiator) {
+	dt.Prepare(func(initiator dt.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *SonyflakerImpl {
 			return &SonyflakerImpl{}
 		})
@@ -45,11 +45,11 @@ type Sonyflaker interface {
 }
 
 type SonyflakerImpl struct {
-	dhive.Infra
+	dt.Infra
 	podIP string
 }
 
-func (sfi *SonyflakerImpl) BeginRequest(worker dhive.Worker) {
+func (sfi *SonyflakerImpl) BeginRequest(worker dt.Worker) {
 	sfi.Infra.BeginRequest(worker)
 	podIP := os.Getenv("POD_IP")
 	if podIP == "" {

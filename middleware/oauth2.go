@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"strings"
 
-	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/errors"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/dhttp"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/internal"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 )
@@ -34,7 +34,7 @@ type Introspection struct {
 }
 
 func NewAuthentication() context.Handler {
-	return func(ctx dhive.Context) {
+	return func(ctx dt.Context) {
 		language := utils.ParseXLanguage(ctx.GetHeader("x-language"))
 		token, err := parseBearerToken(ctx.Request())
 		if err != nil {
@@ -86,7 +86,7 @@ func NewAuthentication() context.Handler {
 }
 
 func getIntrospectEndpoint() string {
-	cg := dhive.NewConfiguration()
+	cg := dt.NewConfiguration()
 	url := url.URL{
 		Scheme: cg.DS.HydraAdminProtocol,
 		Host:   fmt.Sprintf("%v:%v", cg.DS.HydraAdminHost, cg.DS.HydraAdminPort),
@@ -102,7 +102,7 @@ func introspection(token string, scopes []string) (result Introspection, err err
 		data += fmt.Sprintf("&scope=%s", strings.Join(scopes, " "))
 	}
 	introspectEndpoint := getIntrospectEndpoint()
-	req := hivehttp.NewHTTPRequest(introspectEndpoint)
+	req := dhttp.NewHTTPRequest(introspectEndpoint)
 	resp := req.Post().SetBody([]byte(data)).ToJSON(&result)
 	if resp.StatusCode != 200 {
 		err = fmt.Errorf("Introspection failed, status code is %d", resp.StatusCode)
@@ -129,7 +129,7 @@ func parseBearerToken(req *http.Request) (token string, err *errors.ErrorResp) {
 }
 
 // errorResponse .
-func errorResponse(err errors.APIError, ctx dhive.Context) {
+func errorResponse(err errors.APIError, ctx dt.Context) {
 	codeStr := strconv.Itoa(err.Code())
 	code, _ := strconv.Atoi(codeStr[:3])
 	ctx.Values().Set("code", code)

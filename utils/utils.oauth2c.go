@@ -13,8 +13,8 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/config"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/dhttp"
 )
 
 // InitOauthHTTPClient .
@@ -36,7 +36,7 @@ func InitOauthHTTPClient(svcName string, conf config.Configurations) {
 		Scopes:       []string{},
 		TokenURL:     tokenEndpoint(),
 	}
-	hivehttp.Oauth2HTTPClient = credConf.Client(ctx)
+	dhttp.Oauth2HTTPClient = credConf.Client(ctx)
 	return
 }
 
@@ -68,7 +68,7 @@ func clientInfo(svcName string, conf config.Configurations) (clientID, secret st
 		panic(err)
 	}
 	for rows.Next() {
-		if err := rows.Scan(&result.ClientID, &result.ClientSecret);err != nil {
+		if err := rows.Scan(&result.ClientID, &result.ClientSecret); err != nil {
 			panic(err)
 		}
 	}

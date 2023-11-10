@@ -9,7 +9,7 @@ Created by Dustin.zhu on 2023/08/11.
 import (
 	"os"
 
-	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 
 	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Go.git/span/encoder"
 	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Go.git/span/field"
@@ -21,7 +21,7 @@ import (
 //go:generate mockgen -package mock_infra -source log.go -destination ./mock/telemetry_log_mock.go
 
 func init() {
-	dhive.Prepare(func(initiator dhive.Initiator) {
+	dt.Prepare(func(initiator dt.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *TLogImpl {
 			var rt *runtime.Runtime
 			// init baseLog
@@ -50,12 +50,12 @@ type TLog interface {
 }
 
 type TLogImpl struct {
-	dhive.Infra
+	dt.Infra
 	logger *log.SamplerLogger
 }
 
 // BeginRequest .
-func (l *TLogImpl) BeginRequest(worker dhive.Worker) {
+func (l *TLogImpl) BeginRequest(worker dt.Worker) {
 	l.Infra.BeginRequest(worker)
 }
 

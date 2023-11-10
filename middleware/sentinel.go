@@ -3,20 +3,20 @@ package middleware
 import (
 	"net/http"
 
-	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
-	sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/api"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/errors"
+	sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/api"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
 )
 
 // NewSentinel returns new iris.HandlerFunc
 // Default resource name is {method}:{path}, such as "GET:/api/users/{param1:int}"
 // Default block fallback is returning 429 code
 // Define your own behavior by setting options
-func NewSentinel(opts ...Option) func(dhive.Context) {
+func NewSentinel(opts ...Option) func(dt.Context) {
 	options := evaluateOptions(opts)
-	return func(ctx dhive.Context) {
+	return func(ctx dt.Context) {
 		resourceName := ctx.Method() + ":" + ctx.GetCurrentRoute().Path()
 
 		if options.resourceExtract != nil {

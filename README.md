@@ -1,16 +1,6 @@
 # 简介
-Hive 是一个基于六边形架构，结合领域模型范式（DDD）的框架。
+DT-Go(DDD Tool) 是一个基于六边形架构，结合领域模型范式（DDD）的`Golang`框架。
 > 参考 https://confluence.aishu.cn/pages/viewpage.action?pageId=166869672
-
-## Hive名字由来
-如上简介说明，Hive是一个框架，是基于六边形架构的框架。为什么取名Hive呢？
-
-Hive的意思为“蜂巢”。
-在大自然里，有各种各样的形状。蜂巢就是其中一个非常神奇的存在。衡量蜜蜂的经济活动是靠蜂蜜完成的。蜂蜜既是蜜蜂的食物也是筑造蜂巢的原料，所以对于蜜蜂来说蜂蜜更显得弥足珍贵了一丁点都不能浪费。所以蜜蜂在筑造蜂巢的时候必须考虑以下两个问题：1.空间尽可能大; 2.节约成本。
-
-根据科学家后来的计算，在蜂蜡一定的情况下将蜂巢筑造成**六边形**可以使横截面的面积达到最大，并且结构非常的稳定。所以六边形结构也被称为“蜂窝状结构”。
-
-而适配器的架构图正好也是六边形的，最开始想用HiveCore来做名字，寓意是以六边形架构（蜂巢）为核心的框架，后来考虑到名字的简洁性，最终取名为 *Hive*（像蜂窝状结构一样稳定）。
 
 # 功能特性
 * 集成 Iris
@@ -52,7 +42,7 @@ type Application interface {
     //安装其他, 如mongodb、es 等
     InstallCustom(f func() interface{})
     //启动回调: Prepare之后，Run之前.
-    BindBooting(f func(bootManager dhive.BootManager))
+    BindBooting(f func(bootManager dt.BootManager))
     //安装序列化，未安装默认使用官方json
     InstallSerializer(marshal func(v interface{}) ([]byte, error), unmarshal func(data []byte, v interface{}) error)
 }
@@ -62,7 +52,7 @@ type Application interface {
 */
 type Worker interface {
     //获取iris的上下文
-    IrisContext() dhive.Context
+    IrisContext() dt.Context
     //获取带上下文的日志实例。
     Logger() Logger
     //设置带上下文的日志实例。
@@ -121,7 +111,7 @@ type Initiator interface {
 | 安装Redis | Application.InstallRedis |
 | 单例组件方法(需要重写方法) | infra.Booting |
 | 回调已注册的匿名函数 | Initiator.BindBooting |
-| 局部初始化 | dhive.Prepare |
+| 局部初始化 | dt.Prepare |
 | 开启监听服务 | http.Run |
 | 回调已注册的匿名函数 | infra.RegisterShutdown |
 | 程序关闭 | Application.Close |
@@ -134,29 +124,30 @@ type Initiator interface {
 ``` golang
 
 import (
-    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DocCenter/conf"
+    "HiveCore/conf"
     _ "HiveCore/adapter/controller" //引入输入适配器 http路由
     _ "HiveCore/adapter/repository" //引入输出适配器 repository资源库
 
-    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
-    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/requests"
-    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/middleware"
+    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/requests"
+    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/middleware"
+    dutlis "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
 )
 
 func main() {
-    app := dhive.NewApplication() //创建应用
+    app := dt.NewApplication() //创建应用
     installDatabase(app)
     installRedis(app)
     installMiddleware(app)
 
     //创建http 监听
-    addrRunner := app.NewRunner(conf.Get().App.Other["listen_addr"].(string))
+    addrRunner := app.NewRunner(conf.Cfg.App.Other["public_addr"].(string))
     //创建http2.0 h2c 监听
-    addrRunner = app.NewH2CRunner(conf.Get().App.Other["listen_addr"].(string))
+    addrRunner = app.NewH2CRunner(conf.Cfg.App.Other["public_addr"].(string))
     app.Run(addrRunner, *conf.Get().App)
 }
 
-func installMiddleware(app dhive.Application) {
+func installMiddleware(app dt.Application) {
     //Recover中间件
     app.InstallMiddleware(middleware.NewRecover())
     //Trace链路中间件
@@ -170,19 +161,19 @@ func installMiddleware(app dhive.Application) {
     app.InstallBusMiddleware(middleware.NewBusFilter())
 }
 
-func installDatabase(app dhive.Application) {
+func installDatabase(app dt.Application) {
     app.InstallDB(func() interface{} {
         //安装db的回调函数
         cfg := conf.Cfg.RWDB
-		db := hiveutils.ConnProtonRWDB(cfg)
+		db := dutils.ConnProtonRWDB(cfg)
         return db
     })
 }
 
-func installRedis(app dhive.Application) {
+func installRedis(app dt.Application) {
     app.InstallRedis(func() (client redis.Cmdable) {
         cfg := conf.SvcConfig.Redis
-		return hiveutils.ConnectRedis(*cfg)
+		return dutils.ConnectRedis(*cfg)
     })
 }
 ```
@@ -194,11 +185,11 @@ import (
 	"HiveCore/domain"
 	"HiveCore/infra"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 )
 
 func init() {
-	dhive.Prepare(func(initiator dhive.Initiator) {
+	dt.Prepare(func(initiator dt.Initiator) {
 		/*
 		   普通方式绑定 Default控制器到路径 /
 		   initiator.BindController("/", &DefaultController{})
@@ -206,8 +197,8 @@ func init() {
 
 		//中间件方式绑定， 只对本控制器生效，全局中间件请在main加入。
 		if initiator.IsPrivate() {
-			initiator.BindController("/", &Default{}, func(ctx dhive.Context) {
-				worker := dhive.ToWorker(ctx)
+			initiator.BindController("/", &Default{}, func(ctx dt.Context) {
+				worker := dt.ToWorker(ctx)
 				worker.Logger().Info("Hello middleware begin")
 				ctx.Next()
 				worker.Logger().Info("Hello middleware end")
@@ -218,11 +209,11 @@ func init() {
 
 type Default struct {
 	Sev    *domain.Default //依赖注入领域服务 Default
-	Worker dhive.Worker     //依赖注入请求运行时 Worker，无需侵入的传递。
+	Worker dt.Worker     //依赖注入请求运行时 Worker，无需侵入的传递。
 }
 
 // Get handles the GET: / route.
-func (c *Default) Get() dhive.Result {
+func (c *Default) Get() dt.Result {
     c.Worker.Logger().Infof("我是控制器")
     remote := c.Sev.RemoteInfo() //调用服务方法
     //返回JSON对象
@@ -235,16 +226,16 @@ func (c *Default) GetHello() string {
 }
 
 // PutHello handles the PUT: /hello route.
-func (c *Default) PutHello() dhive.Result {
+func (c *Default) PutHello() dt.Result {
 	return &infra.JSONResponse{Object: "putHello"}
 }
 
 // PostHello handles the POST: /hello route.
-func (c *Default) PostHello() dhive.Result {
+func (c *Default) PostHello() dt.Result {
 	return &infra.JSONResponse{Object: "postHello"}
 }
 
-func (m *Default) BeforeActivation(b dhive.BeforeActivation) {
+func (m *Default) BeforeActivation(b dt.BeforeActivation) {
 	b.Handle("ANY", "/custom", "CustomHello")
 	//b.Handle("GET", "/custom", "CustomHello")
 	//b.Handle("PUT", "/custom", "CustomHello")
@@ -252,9 +243,9 @@ func (m *Default) BeforeActivation(b dhive.BeforeActivation) {
 }
 
 // PostHello handles the POST: /hello route.
-func (c *Default) CustomHello() dhive.Result {
+func (c *Default) CustomHello() dt.Result {
 	method := c.Worker.IrisContext().Request().Method
-	c.Worker.Logger().Info("CustomHello", dhive.LogFields{"method": method})
+	c.Worker.Logger().Info("CustomHello", dt.LogFields{"method": method})
 	return &infra.JSONResponse{Object: method + "CustomHello"}
 }
 
@@ -264,7 +255,7 @@ func (c *Default) GetUserBy(username string) string {
 }
 
 // GetAgeByUserBy handles the GET: /age/{age:int}/user/{user:string} route.
-func (c *Default) GetAgeByUserBy(age int, user string) dhive.Result {
+func (c *Default) GetAgeByUserBy(age int, user string) dt.Result {
 	var result struct {
 		User string
 		Age  int
@@ -283,16 +274,16 @@ package domain
 import (
 	"HiveCore/adapter/repository"
 
-    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 )
 
 func init() {
-	dhive.Prepare(func(initiator dhive.Initiator) {
+	dt.Prepare(func(initiator dt.Initiator) {
             //绑定 Default Service
             initiator.BindService(func() *Default {
                 return &Default{}
             })
-            initiator.InjectController(func(ctx dhive.Context) (service *Default) {
+            initiator.InjectController(func(ctx dt.Context) (service *Default) {
                 //Default 注入到控制器
                 initiator.GetService(ctx, &service)
                 return
@@ -302,7 +293,7 @@ func init() {
 
 // Default .
 type Default struct {
-	Worker    dhive.Worker    //依赖注入请求运行时,无需侵入的传递。
+	Worker    dt.Worker    //依赖注入请求运行时,无需侵入的传递。
 	DefRepo   *repository.Default   //依赖注入资源库对象  DI方式
 	DefRepoIF repository.DefaultRepoInterface  //也可以注入资源库接口 DIP方式
 }
@@ -336,13 +327,13 @@ type DefaultRepoInterface interface {
 package repository
 
 import (
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 
     "gorm.io/gorm"
 )
 
 func init() {
-	dhive.Prepare(func(initiator dhive.Initiator) {
+	dt.Prepare(func(initiator dt.Initiator) {
 		initiator.BindRepository(func() *Default {
 			return &Default{}
 		})
@@ -351,7 +342,7 @@ func init() {
 
 // Default .
 type Default struct {
-	dhive.Repository
+	dt.Repository
 }
 
 // GetIP .

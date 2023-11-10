@@ -19,18 +19,19 @@ import (
 	"net"
 	"net/http"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/config"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/log/metric"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/system_metric"
-	metric_exporter "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/exporter/metric"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/util"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/config"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/log/metric"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/system_metric"
+	metric_exporter "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/exporter/metric"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
 	"github.com/pkg/errors"
 )
 
 // Initialization func initialize the Sentinel's runtime environment, including:
-// 		1. override global config, from manually config or yaml file or env variable
-//		2. override global logger
-// 		3. initiate core component async task, including: metric log, system statistic...
+//  1. override global config, from manually config or yaml file or env variable
+//  2. override global logger
+//  3. initiate core component async task, including: metric log, system statistic...
+//
 // InitDefault initializes Sentinel using the configuration from system
 // environment and the default value.
 func InitDefault() error {

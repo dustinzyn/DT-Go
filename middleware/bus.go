@@ -2,11 +2,13 @@ package middleware
 
 import (
 	"strings"
+
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 )
 
 // NewBusFilter .
-func NewBusFilter() func(dhive.Worker) {
-	return func(run dhive.Worker) {
+func NewBusFilter() func(dt.Worker) {
+	return func(run dt.Worker) {
 		bus := run.Bus()
 		for key := range bus.Header {
 			if strings.Index(key, "x-") == 0 || strings.Index(key, "X-") == 0 {

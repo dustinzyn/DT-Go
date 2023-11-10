@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 	redis "github.com/go-redis/redis/v8"
 )
 
@@ -27,7 +27,7 @@ Created by Dustin.zhu on 2023/05/10.
 //go:generate mockgen -package mock_infra -source distributed_lock.go -destination ./mock/dlm_mock.go
 
 func init() {
-	dhive.Prepare(func(initiator dhive.Initiator) {
+	dt.Prepare(func(initiator dt.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *DLMImpl {
 			return &DLMImpl{}
 		})
@@ -63,16 +63,16 @@ type DLM interface {
 
 // DLMImpl .
 type DLMImpl struct {
-	dhive.Infra // Infra
-	value       string
-	client      redis.Cmdable
-	expiration  time.Duration
-	cancelFunc  context.CancelFunc
-	ctx         context.Context
+	dt.Infra   // Infra
+	value      string
+	client     redis.Cmdable
+	expiration time.Duration
+	cancelFunc context.CancelFunc
+	ctx        context.Context
 }
 
 // BeginRequest .
-func (dlm *DLMImpl) BeginRequest(worker dhive.Worker) {
+func (dlm *DLMImpl) BeginRequest(worker dt.Worker) {
 	dlm.expiration = DefaultExpiration * time.Second
 	dlm.client = dlm.Redis()
 	dlm.ctx = context.Background()

@@ -16,12 +16,12 @@ import (
 	"fmt"
 	"strings"
 
-	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 	"gorm.io/gorm"
 )
 
 func init() {
-	dhive.Prepare(func(initiator dhive.Initiator) {
+	dt.Prepare(func(initiator dt.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *PagerImpl {
 			return &PagerImpl{}
 		})
@@ -44,7 +44,7 @@ type Pager interface {
 }
 
 type PagerImpl struct {
-	dhive.Infra
+	dt.Infra
 	pageSize  int
 	page      int
 	totalPage int
@@ -52,7 +52,7 @@ type PagerImpl struct {
 	items     []string
 }
 
-func (p *PagerImpl) BeginRequest(worker dhive.Worker) {
+func (p *PagerImpl) BeginRequest(worker dt.Worker) {
 	p.Infra.BeginRequest(worker)
 }
 

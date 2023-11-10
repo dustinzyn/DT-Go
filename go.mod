@@ -1,4 +1,4 @@
-module devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive
+module devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go
 
 go 1.18
 

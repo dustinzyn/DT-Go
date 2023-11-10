@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rpc/thrift"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rpc/thrift"
 )
 
 const (
@@ -55,9 +55,9 @@ type ThriftPool struct {
 // ThriftPoolConfig .
 type ThriftPoolConfig struct {
 	// Server addr
-	Addr string
+	Addr               string
 	ClientProtocolFunc interface{}
-	ClientPtrPtr interface{}
+	ClientPtrPtr       interface{}
 	// 最大连接数
 	MaxConn int32
 	// 客户端尝试连接到Thrift服务器的超时时间

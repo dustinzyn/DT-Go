@@ -15,8 +15,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/config"
 	dm "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton_dm_dialect_go"
 
 	_ "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/driver" // 注册数据库驱动
@@ -71,7 +71,7 @@ func ConnectDB(conf *config.DBConfiguration) *gorm.DB {
 				panic(err)
 			}
 		}
-		dhive.Logger().Infof("connect database success...")
+		dt.Logger().Infof("connect database success...")
 	})
 	return db
 }
@@ -129,7 +129,7 @@ func ConnProtonRDS(conf *config.DBConfiguration) *gorm.DB {
 		default:
 			panic(fmt.Errorf("Invalid database driver."))
 		}
-		dhive.Logger().Infof("connect database success...")
+		dt.Logger().Infof("connect database success...")
 	})
 	return db
 }
@@ -142,7 +142,7 @@ func ConnProtonRWDB(conf *sqlx.DBConfig) *sqlx.DB {
 		if err != nil {
 			panic(err)
 		}
-		dhive.Logger().Infof("connect database success...")
+		dt.Logger().Infof("connect database success...")
 	})
 	return dbrw
 }

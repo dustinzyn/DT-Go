@@ -9,7 +9,7 @@ import (
 	redis "github.com/go-redis/redis/v8"
 	iris "github.com/kataras/iris/v12"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/dhttp"
 )
 
 type Repository struct {
@@ -58,8 +58,8 @@ func (repo *Repository) Redis() redis.Cmdable {
 }
 
 // NewHTTPRequest transferBus : Whether to pass the context, turned on by default. Typically used for tracking internal services.
-func (repo *Repository) NewHTTPRequest(url string, transferBus ...bool) hivehttp.Request {
-	req := hivehttp.NewHTTPRequest(url)
+func (repo *Repository) NewHTTPRequest(url string, transferBus ...bool) dhttp.Request {
+	req := dhttp.NewHTTPRequest(url)
 	if len(transferBus) > 0 && !transferBus[0] {
 		return req
 	}
@@ -72,8 +72,8 @@ func (repo *Repository) NewHTTPRequest(url string, transferBus ...bool) hivehttp
 }
 
 // NewH2CRequest transferBus : Whether to pass the context, turned on by default. Typically used for tracking internal services.
-func (repo *Repository) NewH2CRequest(url string, transferBus ...bool) hivehttp.Request {
-	req := hivehttp.NewH2CRequest(url)
+func (repo *Repository) NewH2CRequest(url string, transferBus ...bool) dhttp.Request {
+	req := dhttp.NewH2CRequest(url)
 	if len(transferBus) > 0 && !transferBus[0] {
 		return req
 	}
@@ -86,8 +86,8 @@ func (repo *Repository) NewH2CRequest(url string, transferBus ...bool) hivehttp.
 }
 
 // NewOAuth2Request transferBus : Whether to pass the context, turned on by default. Typically used for tracking internal services.
-func (repo *Repository) NewOAuth2Request(url string, transferBus ...bool) hivehttp.Request {
-	req := hivehttp.NewOauth2Request(url)
+func (repo *Repository) NewOAuth2Request(url string, transferBus ...bool) dhttp.Request {
+	req := dhttp.NewOauth2Request(url)
 	if len(transferBus) > 0 && !transferBus[0] {
 		return req
 	}
@@ -100,8 +100,8 @@ func (repo *Repository) NewOAuth2Request(url string, transferBus ...bool) hiveht
 }
 
 // // NewThriftClient .
-// func (repo *Repository) NewThriftClient(config *hivethrift.ThriftPoolConfig) *hivethrift.ThriftPoolAgent {
-// 	return hivethrift.NewThriftPoolAgent(config)
+// func (repo *Repository) NewThriftClient(config *dthrift.ThriftPoolConfig) *dthrift.ThriftPoolAgent {
+// 	return dthrift.NewThriftPoolAgent(config)
 // }
 
 // // SingleFlight .
@@ -160,8 +160,8 @@ func repositoryAPIRun(irisConf iris.Configuration) {
 	if v, ok := irisConf.Other["repository_request_timeout"]; ok {
 		sec = v.(int64)
 	}
-	hivehttp.InitHTTPClient(time.Duration(sec) * time.Second)
-	hivehttp.InitH2cClient(time.Duration(sec) * time.Second)
+	dhttp.InitHTTPClient(time.Duration(sec) * time.Second)
+	dhttp.InitH2cClient(time.Duration(sec) * time.Second)
 }
 
 // Worker .

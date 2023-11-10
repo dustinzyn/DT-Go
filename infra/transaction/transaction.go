@@ -12,14 +12,14 @@ import (
 	"errors"
 	"fmt"
 
-	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 )
 
 //go:generate mockgen -package mock_infra -source transaction.go -destination ./mock/transaction_mock.go
 
 func init() {
-	dhive.Prepare(func(initiator dhive.Initiator) {
+	dt.Prepare(func(initiator dt.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *SqlDBImpl {
 			return &SqlDBImpl{}
 		})
@@ -36,12 +36,12 @@ type Transaction interface {
 
 // SqlDBImpl .
 type SqlDBImpl struct {
-	dhive.Infra
+	dt.Infra
 	db *sql.Tx
 }
 
 // BeginRequest .
-func (t *SqlDBImpl) BeginRequest(worker dhive.Worker) {
+func (t *SqlDBImpl) BeginRequest(worker dt.Worker) {
 	t.db = nil
 	t.Infra.BeginRequest(worker)
 }

@@ -1,4 +1,4 @@
-package hivehttp
+package dhttp
 
 import (
 	"crypto/tls"

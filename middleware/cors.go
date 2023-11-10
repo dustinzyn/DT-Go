@@ -1,11 +1,12 @@
 package middleware
 
 import (
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 	"github.com/kataras/iris/v12/context"
 )
 
 func NewCors() context.Handler {
-	return func(ctx dhive.Context) {
+	return func(ctx dt.Context) {
 		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.Header("Access-Control-Allow-Credentials", "true")
 

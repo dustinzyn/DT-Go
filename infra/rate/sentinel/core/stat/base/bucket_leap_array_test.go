@@ -21,12 +21,12 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/util"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
 	"github.com/stretchr/testify/assert"
 )
 
-//Test sliding windows create buckets
+// Test sliding windows create buckets
 func Test_NewBucketLeapArray(t *testing.T) {
 	slidingWindow := NewBucketLeapArray(SampleCount, IntervalInMs)
 	now := util.CurrentTimeMillis()

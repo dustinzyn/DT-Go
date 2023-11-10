@@ -1,4 +1,4 @@
-package dhive
+package dt
 
 import (
 	redis "github.com/go-redis/redis/v8"
@@ -8,8 +8,8 @@ import (
 	"github.com/kataras/iris/v12/hero"
 	"github.com/kataras/iris/v12/mvc"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/internal"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/config"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/internal"
 )
 
 var (

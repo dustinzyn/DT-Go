@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/hivehttp"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/dhttp"
 
 	redis "github.com/go-redis/redis/v8"
 )
@@ -41,8 +41,8 @@ func (infra *Infra) Other(obj interface{}) {
 }
 
 // NewHTTPRequest transferBus : Whether to pass the context, turned on by default. Typically used for tracking internal services.
-func (infra *Infra) NewHTTPRequest(url string, transferBus ...bool) hivehttp.Request {
-	req := hivehttp.NewHTTPRequest(url)
+func (infra *Infra) NewHTTPRequest(url string, transferBus ...bool) dhttp.Request {
+	req := dhttp.NewHTTPRequest(url)
 	if len(transferBus) > 0 && !transferBus[0] {
 		return req
 	}
@@ -55,8 +55,8 @@ func (infra *Infra) NewHTTPRequest(url string, transferBus ...bool) hivehttp.Req
 }
 
 // NewOAuth2Request transferBus : Whether to pass the context, turned on by default. Typically used for tracking internal services.
-func (infra *Infra) NewOAuth2Request(url string, transferBus ...bool) hivehttp.Request {
-	req := hivehttp.NewOauth2Request(url)
+func (infra *Infra) NewOAuth2Request(url string, transferBus ...bool) dhttp.Request {
+	req := dhttp.NewOauth2Request(url)
 	if len(transferBus) > 0 && !transferBus[0] {
 		return req
 	}
@@ -69,8 +69,8 @@ func (infra *Infra) NewOAuth2Request(url string, transferBus ...bool) hivehttp.R
 }
 
 // NewH2CRequest transferBus : Whether to pass the context, turned on by default. Typically used for tracking internal services.
-func (infra *Infra) NewH2CRequest(url string, transferBus ...bool) hivehttp.Request {
-	req := hivehttp.NewH2CRequest(url)
+func (infra *Infra) NewH2CRequest(url string, transferBus ...bool) dhttp.Request {
+	req := dhttp.NewH2CRequest(url)
 	if len(transferBus) > 0 && !transferBus[0] {
 		return req
 	}

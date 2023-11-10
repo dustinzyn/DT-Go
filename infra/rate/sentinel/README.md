@@ -4,14 +4,14 @@
 
 # Sentinel: The Sentinel of Your Microservices
 
-![CI](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/workflows/CI/badge.svg?branch=master)
+![CI](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/workflows/CI/badge.svg?branch=master)
 [![Build Status](https://travis-ci.org/alibaba/sentinel-golang.svg?branch=master)](https://travis-ci.org/alibaba/sentinel-golang)
 [![codecov](https://codecov.io/gh/alibaba/sentinel-golang/branch/master/graph/badge.svg)](https://codecov.io/gh/alibaba/sentinel-golang)
-[![Go Report Card](https://goreportcard.com/badge/devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel)](https://goreportcard.com/report/devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel)
+[![Go Report Card](https://goreportcard.com/badge/devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel)](https://goreportcard.com/report/devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Gitter](https://badges.gitter.im/alibaba/Sentinel.svg)](https://gitter.im/alibaba/Sentinel)
-[![GitHub last commit](https://img.shields.io/github/last-commit/alibaba/sentinel-golang.svg?style=flat-square)](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/commits/dev)
-[![GitHub repo size](https://img.shields.io/github/repo-size/alibaba/sentinel-golang)](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel)
+[![GitHub last commit](https://img.shields.io/github/last-commit/alibaba/sentinel-golang.svg?style=flat-square)](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/commits/dev)
+[![GitHub repo size](https://img.shields.io/github/repo-size/alibaba/sentinel-golang)](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel)
 [![GitHub closed issues](https://img.shields.io/github/issues-closed/alibaba/sentinel-golang.svg?style=flat-square)](alibaba/sentinel-golang/issues?q=is%3Aissue+is%3Aclosed)
 
 ## Introduction
@@ -32,7 +32,7 @@ Sentinel provides the following features:
 
 See the [中文文档](https://sentinelguard.io/zh-cn/docs/golang/basic-api-usage.html) for document in Chinese.
 
-See the [Wiki](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/wiki) for full documentation, examples, blog posts, and other information.
+See the [Wiki](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/wiki) for full documentation, examples, blog posts, and other information.
 
 If you are using Sentinel, please [**leave a comment here**](https://github.com/alibaba/Sentinel/issues/18) to tell us your scenario to make Sentinel better.
 It's also encouraged to add the link of your blog post, tutorial, demo or customized components to [**Awesome Sentinel**](https://github.com/alibaba/sentinel-awesome).
@@ -47,13 +47,13 @@ All integration modules and sub-projects are located in [sentinel-group](https:/
 
 ## Bugs and Feedback
 
-For bug report, questions and discussions please submit [GitHub Issues](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/issues).
+For bug report, questions and discussions please submit [GitHub Issues](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/issues).
 
 ## Contributing
 
 Contributions are always welcomed! Please see [CONTRIBUTING](./CONTRIBUTING.md) for detailed guidelines.
 
-You can start with the issues labeled with [`good first issue`](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+You can start with the issues labeled with [`good first issue`](https://devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
 
 ## Communication
 

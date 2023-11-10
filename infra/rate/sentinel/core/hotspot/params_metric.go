@@ -14,7 +14,7 @@
 
 package hotspot
 
-import "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/rate/sentinel/core/hotspot/cache"
+import "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/hotspot/cache"
 
 const (
 	ConcurrencyMaxCount = 4000

@@ -2,11 +2,13 @@ package middleware
 
 import (
 	"fmt"
+
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 	// "sort"
 )
 
 // DefaultLogRowHandle .
-func DefaultLogRowHandle(value *dhive.LogRow) bool {
+func DefaultLogRowHandle(value *dt.LogRow) bool {
 	//logRow中间件，每一行日志都会触发回调。如果返回true，将停止中间件遍历回调。
 	fieldMap := map[string]interface{}{
 		"status":  nil,

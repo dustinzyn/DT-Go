@@ -3,7 +3,8 @@ package middleware
 import (
 	"strings"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
 
 	uuid "github.com/iris-contrib/go.uuid"
 	"github.com/kataras/iris/v12/context"
@@ -12,7 +13,7 @@ import (
 // NewTrace .
 func NewTrace(traceIDName string) func(*context.Context) {
 	return func(ctx *context.Context) {
-		bus := dhive.ToWorker(ctx).Bus()
+		bus := dt.ToWorker(ctx).Bus()
 		language := utils.ParseXLanguage(ctx.GetHeader("x-language"))
 		bus.Add("language", language)
 		traceID := bus.Get(traceIDName)

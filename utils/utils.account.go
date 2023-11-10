@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"time"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/config"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/infra/mq"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/config"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/mq"
 	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 	redis "github.com/go-redis/redis/v8"
 )

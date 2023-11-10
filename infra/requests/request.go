@@ -5,9 +5,9 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 
-	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/utils"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/errors"
+	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
 	"github.com/kataras/iris/v12"
 	"gopkg.in/go-playground/validator.v9"
 )
@@ -16,11 +16,11 @@ var validate *validator.Validate
 
 func init() {
 	validate = validator.New()
-	dhive.Prepare(func(initiator dhive.Initiator) {
+	dt.Prepare(func(initiator dt.Initiator) {
 		initiator.BindInfra(false, initiator.IsPrivate(), func() *RequestImpl {
 			return &RequestImpl{}
 		})
-		initiator.InjectController(func(ctx dhive.Context) (com *RequestImpl) {
+		initiator.InjectController(func(ctx dt.Context) (com *RequestImpl) {
 			initiator.GetInfra(ctx, &com)
 			return
 		})
@@ -36,16 +36,16 @@ type Request interface {
 	ReadFormDefault(key, defaultValue string) string
 	AcceptLanguage() (language string)
 	FormFile(key string) (multipart.File, *multipart.FileHeader, error)
-	FormFiles(key string, before ...func(dhive.Context, *multipart.FileHeader) bool) (files []multipart.File, headers []*multipart.FileHeader, err error)
+	FormFiles(key string, before ...func(dt.Context, *multipart.FileHeader) bool) (files []multipart.File, headers []*multipart.FileHeader, err error)
 }
 
 // RequestImpl .
 type RequestImpl struct {
-	dhive.Infra
+	dt.Infra
 }
 
 // BeginRequest .
-func (req *RequestImpl) BeginRequest(worker dhive.Worker) {
+func (req *RequestImpl) BeginRequest(worker dt.Worker) {
 	req.Infra.BeginRequest(worker)
 }
 
@@ -116,6 +116,6 @@ func (req *RequestImpl) FormFile(key string) (multipart.File, *multipart.FileHea
 }
 
 // FormFile .
-func (req *RequestImpl) FormFiles(key string, before ...func(dhive.Context, *multipart.FileHeader) bool) (files []multipart.File, headers []*multipart.FileHeader, err error) {
+func (req *RequestImpl) FormFiles(key string, before ...func(dt.Context, *multipart.FileHeader) bool) (files []multipart.File, headers []*multipart.FileHeader, err error) {
 	return req.Worker().IrisContext().FormFiles(key, before...)
 }

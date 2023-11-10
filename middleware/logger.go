@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"sync"
 
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 	"github.com/kataras/golog"
 )
 
@@ -35,14 +36,14 @@ type baseLogger struct {
 func (l *baseLogger) Print(v ...interface{}) {
 	trace := l.traceField()
 	v = append(v, trace)
-	dhive.Logger().Print(v...)
+	dt.Logger().Print(v...)
 }
 
 // Printf formats according to a format specifier and writes to `Printer#Output` without levels and colors.
 func (l *baseLogger) Printf(format string, args ...interface{}) {
 	trace := l.traceField()
 	args = append(args, trace)
-	dhive.Logger().Printf(format, args...)
+	dt.Logger().Printf(format, args...)
 }
 
 // Println prints a log message without levels and colors.
@@ -50,7 +51,7 @@ func (l *baseLogger) Printf(format string, args ...interface{}) {
 func (l *baseLogger) Println(v ...interface{}) {
 	trace := l.traceField()
 	v = append(v, trace)
-	dhive.Logger().Println(v...)
+	dt.Logger().Println(v...)
 }
 
 // Log prints a leveled log message to the output.
@@ -59,7 +60,7 @@ func (l *baseLogger) Println(v ...interface{}) {
 func (l *baseLogger) Log(level golog.Level, v ...interface{}) {
 	trace := l.traceField()
 	v = append(v, trace)
-	dhive.Logger().Log(level, v...)
+	dt.Logger().Log(level, v...)
 }
 
 // Logf prints a leveled log message to the output.
@@ -68,7 +69,7 @@ func (l *baseLogger) Log(level golog.Level, v ...interface{}) {
 func (l *baseLogger) Logf(level golog.Level, format string, args ...interface{}) {
 	trace := l.traceField()
 	args = append(args, trace)
-	dhive.Logger().Logf(level, format, args...)
+	dt.Logger().Logf(level, format, args...)
 }
 
 // Fatal `os.Exit(1)` exit no matter the level of the baseLogger.
@@ -78,7 +79,7 @@ func (l *baseLogger) Fatal(v ...interface{}) {
 	caller := l.callerField()
 	trace := l.traceField()
 	v = append(v, caller, trace)
-	dhive.Logger().Fatal(v...)
+	dt.Logger().Fatal(v...)
 }
 
 // Fatalf will `os.Exit(1)` no matter the level of the baseLogger.
@@ -88,7 +89,7 @@ func (l *baseLogger) Fatalf(format string, args ...interface{}) {
 	caller := l.callerField()
 	trace := l.traceField()
 	args = append(args, caller, trace)
-	dhive.Logger().Fatalf(format, args...)
+	dt.Logger().Fatalf(format, args...)
 }
 
 // Error will print only when baseLogger's Level is error, warn, info or debug.
@@ -96,7 +97,7 @@ func (l *baseLogger) Error(v ...interface{}) {
 	caller := l.callerField()
 	trace := l.traceField()
 	v = append(v, caller, trace)
-	dhive.Logger().Error(v...)
+	dt.Logger().Error(v...)
 }
 
 // Errorf will print only when baseLogger's Level is error, warn, info or debug.
@@ -104,7 +105,7 @@ func (l *baseLogger) Errorf(format string, args ...interface{}) {
 	caller := l.callerField()
 	trace := l.traceField()
 	args = append(args, caller, trace)
-	dhive.Logger().Errorf(format, args...)
+	dt.Logger().Errorf(format, args...)
 }
 
 // Warn will print when baseLogger's Level is warn, info or debug.
@@ -112,7 +113,7 @@ func (l *baseLogger) Warn(v ...interface{}) {
 	caller := l.callerField()
 	trace := l.traceField()
 	v = append(v, caller, trace)
-	dhive.Logger().Warn(v...)
+	dt.Logger().Warn(v...)
 }
 
 // Warnf will print when baseLogger's Level is warn, info or debug.
@@ -120,21 +121,21 @@ func (l *baseLogger) Warnf(format string, args ...interface{}) {
 	caller := l.callerField()
 	trace := l.traceField()
 	args = append(args, caller, trace)
-	dhive.Logger().Warnf(format, args...)
+	dt.Logger().Warnf(format, args...)
 }
 
 // Info will print when baseLogger's Level is info or debug.
 func (l *baseLogger) Info(v ...interface{}) {
 	trace := l.traceField()
 	v = append(v, trace)
-	dhive.Logger().Info(v...)
+	dt.Logger().Info(v...)
 }
 
 // Infof will print when baseLogger's Level is info or debug.
 func (l *baseLogger) Infof(format string, args ...interface{}) {
 	trace := l.traceField()
 	args = append(args, trace)
-	dhive.Logger().Infof(format, args...)
+	dt.Logger().Infof(format, args...)
 }
 
 // Debug will print when baseLogger's Level is debug.
@@ -142,7 +143,7 @@ func (l *baseLogger) Debug(v ...interface{}) {
 	caller := l.callerField()
 	trace := l.traceField()
 	v = append(v, caller, trace)
-	dhive.Logger().Debug(v...)
+	dt.Logger().Debug(v...)
 }
 
 // Debugf will print when baseLogger's Level is debug.
@@ -150,7 +151,7 @@ func (l *baseLogger) Debugf(format string, args ...interface{}) {
 	caller := l.callerField()
 	trace := l.traceField()
 	args = append(args, caller, trace)
-	dhive.Logger().Debugf(format, args...)
+	dt.Logger().Debugf(format, args...)
 }
 
 // traceField

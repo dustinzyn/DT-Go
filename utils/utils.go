@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	dhive "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive"
+	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
 )
 
 const (
@@ -101,7 +101,7 @@ func ParseXLanguage(xLanguage string, acceptLangs ...string) (language string) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			dhive.Logger().Errorf("parse x-language: %v, error: %v", xLanguage, r)
+			dt.Logger().Errorf("parse x-language: %v, error: %v", xLanguage, r)
 			language = GetDefaultLanguage()
 			return
 		}
@@ -156,11 +156,11 @@ func ParseXLanguage(xLanguage string, acceptLangs ...string) (language string) {
 func CloseRows(rows *sql.Rows) {
 	if rows != nil {
 		if rowsErr := rows.Err(); rowsErr != nil {
-			dhive.Logger().Error(rowsErr)
+			dt.Logger().Error(rowsErr)
 		}
 
 		if closeErr := rows.Close(); closeErr != nil {
-			dhive.Logger().Error(closeErr)
+			dt.Logger().Error(closeErr)
 		}
 	}
 }

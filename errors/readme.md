@@ -111,13 +111,13 @@ errorI18n = map[int]I18n{
 ```
 3. 注册定义好的国际化资源
 ```golang
-import "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
+import "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/errors"
 
 errors.Localization(errorI18n)
 ```
 4. 使用错误码
 ```golang
-import "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/Hive/errors"
+import "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/errors"
 
 // 生成错误码对象
 err = errors.New("", BadRequestErr, "", nil)

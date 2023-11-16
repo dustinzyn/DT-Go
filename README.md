@@ -128,10 +128,10 @@ import (
     _ "HiveCore/adapter/controller" //引入输入适配器 http路由
     _ "HiveCore/adapter/repository" //引入输出适配器 repository资源库
 
-    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
-    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/requests"
-    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/middleware"
-    dutlis "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
+    "DT-Go"
+    "DT-Go/infra/requests"
+    "DT-Go/middleware"
+    dutlis "DT-Go/utils"
 )
 
 func main() {
@@ -185,7 +185,7 @@ import (
 	"HiveCore/domain"
 	"HiveCore/infra"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	"DT-Go"
 )
 
 func init() {
@@ -274,7 +274,7 @@ package domain
 import (
 	"HiveCore/adapter/repository"
 
-    "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+    "DT-Go"
 )
 
 func init() {
@@ -327,7 +327,7 @@ type DefaultRepoInterface interface {
 package repository
 
 import (
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	"DT-Go"
 
     "gorm.io/gorm"
 )

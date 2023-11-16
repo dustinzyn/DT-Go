@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/hotspot"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/logging"
+	"DT-Go/infra/rate/sentinel/core/hotspot"
+	"DT-Go/infra/rate/sentinel/logging"
 	"github.com/pkg/errors"
 )
 

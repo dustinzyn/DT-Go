@@ -13,8 +13,8 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/config"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/dhttp"
+	"DT-Go/config"
+	"DT-Go/infra/dhttp"
 )
 
 // InitOauthHTTPClient .
@@ -58,11 +58,10 @@ type AccountInfo struct {
 // clientInfo return clientID ad client secret.
 func clientInfo(svcName string, conf config.Configurations) (clientID, secret string) {
 	var result AccountInfo
-	cgdb := config.NewConfiguration().RWDB
-	db := ConnProtonRWDB(conf.RWDB)
-	sqlStr := "SELECT client_id, client_secret FROM %v.account WHERE name = ?"
-	sqlStr = fmt.Sprintf(sqlStr, cgdb.Database)
-	rows, err := db.Query(sqlStr, svcName)
+	cgdb := config.NewConfiguration().DB
+	db := ConnectDB(conf.DB)
+	table := fmt.Sprintf("%s.account", cgdb.DBName)
+	rows, err := db.Table(table).Select("client_id, client_secret").Where("name = ?", svcName).Rows()
 	defer CloseRows(rows)
 	if err != nil {
 		panic(err)

@@ -18,8 +18,8 @@ import (
 	"math/rand"
 	"testing"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
+	"DT-Go/infra/rate/sentinel/core/base"
+	"DT-Go/infra/rate/sentinel/util"
 )
 
 func BenchmarkBucketLeapArray_AddCount_Concurrency1(b *testing.B) {

@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"strings"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
+	"DT-Go/infra/rate/sentinel/util"
 )
 
 const metricPartSeparator = "|"

@@ -14,10 +14,10 @@ import (
 	"net/http"
 	"net/url"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/errors"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/dhttp"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
+	dt "DT-Go"
+	"DT-Go/errors"
+	"DT-Go/infra/dhttp"
+	"DT-Go/utils"
 )
 
 func init() {

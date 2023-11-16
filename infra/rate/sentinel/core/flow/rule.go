@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
+	"DT-Go/infra/rate/sentinel/util"
 )
 
 // RelationStrategy indicates the flow control strategy based on the relation of invocations.

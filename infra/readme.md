@@ -1,7 +1,7 @@
 ## 如何自定义基础设施组件
 * 单例组件入口是 Booting, 生命周期为常驻
 * 多例组件入口是 BeginRequest，生命周期为一个请求会话
-* 框架已提供的组件目录 devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra
+* 框架已提供的组件目录 DT-Go/infra
 * 用户自定义的组件目录 [project]/infra/[custom]
 * 组件可以独立使用组件的配置文件, 配置文件放在 [project]/conf/infra/[*.yaml]
 

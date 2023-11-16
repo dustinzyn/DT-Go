@@ -15,8 +15,8 @@
 package stat
 
 import (
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/config"
+	"DT-Go/infra/rate/sentinel/core/base"
+	"DT-Go/infra/rate/sentinel/core/config"
 )
 
 type ResourceNode struct {

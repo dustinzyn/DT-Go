@@ -19,11 +19,11 @@ import (
 	"net"
 	"net/http"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/config"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/log/metric"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/system_metric"
-	metric_exporter "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/exporter/metric"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
+	"DT-Go/infra/rate/sentinel/core/config"
+	"DT-Go/infra/rate/sentinel/core/log/metric"
+	"DT-Go/infra/rate/sentinel/core/system_metric"
+	metric_exporter "DT-Go/infra/rate/sentinel/exporter/metric"
+	"DT-Go/infra/rate/sentinel/util"
 	"github.com/pkg/errors"
 )
 

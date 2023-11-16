@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	dt "DT-Go"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12/context"
 )

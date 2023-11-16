@@ -3,11 +3,11 @@ package middleware
 import (
 	"net/http"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/errors"
-	sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/api"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
+	dt "DT-Go"
+	"DT-Go/errors"
+	sentinel "DT-Go/infra/rate/sentinel/api"
+	"DT-Go/infra/rate/sentinel/core/base"
+	"DT-Go/utils"
 )
 
 // NewSentinel returns new iris.HandlerFunc

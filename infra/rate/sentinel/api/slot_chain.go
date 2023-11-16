@@ -15,14 +15,14 @@
 package api
 
 import (
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/circuitbreaker"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/flow"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/hotspot"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/isolation"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/log"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/stat"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/system"
+	"DT-Go/infra/rate/sentinel/core/base"
+	"DT-Go/infra/rate/sentinel/core/circuitbreaker"
+	"DT-Go/infra/rate/sentinel/core/flow"
+	"DT-Go/infra/rate/sentinel/core/hotspot"
+	"DT-Go/infra/rate/sentinel/core/isolation"
+	"DT-Go/infra/rate/sentinel/core/log"
+	"DT-Go/infra/rate/sentinel/core/stat"
+	"DT-Go/infra/rate/sentinel/core/system"
 )
 
 var globalSlotChain = BuildDefaultSlotChain()

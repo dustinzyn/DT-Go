@@ -7,13 +7,13 @@ Created by Dustin.zhu on 2022/11/1.
 */
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
-	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
+	dt "DT-Go"
+
+	"gorm.io/gorm"
 )
 
 //go:generate mockgen -package mock_infra -source transaction.go -destination ./mock/transaction_mock.go
@@ -37,7 +37,7 @@ type Transaction interface {
 // SqlDBImpl .
 type SqlDBImpl struct {
 	dt.Infra
-	db *sql.Tx
+	db *gorm.DB
 }
 
 // BeginRequest .
@@ -62,18 +62,8 @@ func (t *SqlDBImpl) execute(fun func() error, opts *sql.TxOptions) (err error) {
 		panic("unknown error")
 	}
 
-	db := t.SourceDB().(*sqlx.DB)
-	if opts != nil {
-		t.db, err = db.BeginTx(context.Background(), opts)
-		if err != nil {
-			return
-		}
-	} else {
-		t.db, err = db.Begin()
-		if err != nil {
-			return
-		}
-	}
+	db := t.SourceDB().(*gorm.DB)
+	t.db = db.Begin(opts)
 
 	t.Worker().Store().Set("local_transaction_db", t.db)
 
@@ -91,11 +81,11 @@ func (t *SqlDBImpl) execute(fun func() error, opts *sql.TxOptions) (err error) {
 		if err != nil {
 			e2 := deferDb.Rollback()
 			if e2 != nil {
-				err = errors.New(err.Error() + "," + e2.Error())
+				err = errors.New(err.Error() + "," + e2.Error.Error())
 			}
 			return
 		}
-		err = deferDb.Commit()
+		deferDb.Commit()
 	}()
 	err = fun()
 	return

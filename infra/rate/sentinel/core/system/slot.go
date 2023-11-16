@@ -15,9 +15,9 @@
 package system
 
 import (
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/stat"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/system_metric"
+	"DT-Go/infra/rate/sentinel/core/base"
+	"DT-Go/infra/rate/sentinel/core/stat"
+	"DT-Go/infra/rate/sentinel/core/system_metric"
 )
 
 const (

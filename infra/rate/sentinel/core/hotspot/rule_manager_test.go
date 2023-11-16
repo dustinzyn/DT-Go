@@ -19,7 +19,7 @@ import (
 	"math"
 	"testing"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/hotspot/cache"
+	"DT-Go/infra/rate/sentinel/core/hotspot/cache"
 	"github.com/stretchr/testify/assert"
 )
 

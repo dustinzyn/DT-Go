@@ -14,7 +14,7 @@
 
 package base
 
-import "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
+import "DT-Go/infra/rate/sentinel/util"
 
 type EntryContext struct {
 	entry *SentinelEntry

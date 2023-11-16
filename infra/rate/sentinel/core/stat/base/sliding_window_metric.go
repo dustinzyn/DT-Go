@@ -18,9 +18,9 @@ import (
 	"reflect"
 	"sync/atomic"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/logging"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
+	"DT-Go/infra/rate/sentinel/core/base"
+	"DT-Go/infra/rate/sentinel/logging"
+	"DT-Go/infra/rate/sentinel/util"
 	"github.com/pkg/errors"
 )
 

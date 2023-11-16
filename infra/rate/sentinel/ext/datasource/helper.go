@@ -18,11 +18,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	cb "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/circuitbreaker"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/flow"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/hotspot"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/isolation"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/system"
+	cb "DT-Go/infra/rate/sentinel/core/circuitbreaker"
+	"DT-Go/infra/rate/sentinel/core/flow"
+	"DT-Go/infra/rate/sentinel/core/hotspot"
+	"DT-Go/infra/rate/sentinel/core/isolation"
+	"DT-Go/infra/rate/sentinel/core/system"
 )
 
 func checkSrcComplianceJson(src []byte) (bool, error) {

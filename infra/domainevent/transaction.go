@@ -3,8 +3,8 @@ package domainevent
 import (
 	"database/sql"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/transaction"
+	dt "DT-Go"
+	"DT-Go/infra/transaction"
 )
 
 func init() {

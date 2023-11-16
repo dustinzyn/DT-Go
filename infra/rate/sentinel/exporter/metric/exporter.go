@@ -19,8 +19,8 @@ import (
 	"os"
 	"strconv"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/config"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/exporter/metric/prometheus"
+	"DT-Go/infra/rate/sentinel/core/config"
+	"DT-Go/infra/rate/sentinel/exporter/metric/prometheus"
 )
 
 var (

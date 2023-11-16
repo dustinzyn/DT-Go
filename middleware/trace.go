@@ -3,8 +3,8 @@ package middleware
 import (
 	"strings"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
+	dt "DT-Go"
+	"DT-Go/utils"
 
 	uuid "github.com/iris-contrib/go.uuid"
 	"github.com/kataras/iris/v12/context"

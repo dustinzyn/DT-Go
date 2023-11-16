@@ -3,13 +3,14 @@ package utils
 
 import (
 	"database/sql"
+	"fmt"
 	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	dt "DT-Go"
 )
 
 const (
@@ -169,4 +170,12 @@ func CloseRows(rows *sql.Rows) {
 func NowTimestamp() int64 {
 	now := time.Now()
 	return now.UnixNano() / 1000
+}
+
+// ParseHost 解析host
+func ParseHost(host string) string {
+	if strings.Contains(host, ":") {
+		return fmt.Sprintf("[%s]", host)
+	}
+	return host
 }

@@ -18,8 +18,8 @@ import (
 	"reflect"
 	"testing"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/stat"
-	sbase "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/stat/base"
+	"DT-Go/infra/rate/sentinel/core/stat"
+	sbase "DT-Go/infra/rate/sentinel/core/stat/base"
 	"github.com/stretchr/testify/assert"
 )
 

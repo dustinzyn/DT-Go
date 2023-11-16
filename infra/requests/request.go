@@ -5,9 +5,9 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/errors"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
+	dt "DT-Go"
+	"DT-Go/errors"
+	"DT-Go/utils"
 	"github.com/kataras/iris/v12"
 	"gopkg.in/go-playground/validator.v9"
 )

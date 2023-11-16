@@ -12,10 +12,10 @@ Created by Dustin.zhu on 2023/08/18.
 */
 
 import (
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
-	sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/api"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/flow"
+	dt "DT-Go"
+	sentinel "DT-Go/infra/rate/sentinel/api"
+	"DT-Go/infra/rate/sentinel/core/base"
+	"DT-Go/infra/rate/sentinel/core/flow"
 )
 
 //go:generate mockgen -package mock_infra -source rate.go -destination ./mock/rate_mock.go

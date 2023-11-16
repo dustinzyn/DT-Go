@@ -7,9 +7,8 @@ import (
 	"runtime"
 	"sync"
 
-	sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/api"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/flow"
-	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
+	sentinel "DT-Go/infra/rate/sentinel/api"
+	"DT-Go/infra/rate/sentinel/core/flow"
 	"github.com/kataras/iris/v12"
 	"gopkg.in/yaml.v3"
 )
@@ -71,7 +70,6 @@ func Configure(obj interface{}, file string, metadata ...interface{}) (err error
 type Configurations struct {
 	App      *iris.Configuration      // Application配置
 	DB       *DBConfiguration         // Database配置
-	RWDB     *sqlx.DBConfig           // Database读写分离配置
 	Redis    *RedisConfiguration      // Redis配置
 	MQ       *MQConfiguration         // MQ配置
 	DS       *DepSvcConfiguration     // 依赖的第三方服务配置
@@ -99,20 +97,6 @@ func NewConfiguration() *Configurations {
 			ParseTime:    true,
 			PrintSqlLog:  true,
 			SlowSqlTime:  1000,
-		}
-		rwdbCg := &sqlx.DBConfig{
-			Host:             "mariadb-mariadb-cluster.resource.svc.cluster.local",
-			Port:             3330,
-			HostRead:         "mariadb-mariadb-cluster.resource.svc.cluster.local",
-			PortRead:         3330,
-			User:             "anyshare",
-			Password:         "eisoo.com123",
-			Charset:          "utf8mb4",
-			MaxOpenConns:     20,
-			Timeout:          10000,
-			ReadTimeout:      10000,
-			WriteTimeout:     10000,
-			MaxOpenReadConns: 20,
 		}
 		redisCg := &RedisConfiguration{
 			UserName:           "root",
@@ -147,7 +131,6 @@ func NewConfiguration() *Configurations {
 		}
 		configuration = &Configurations{
 			DB:       dbCg,
-			RWDB:     rwdbCg,
 			Redis:    redisCg,
 			App:      &irisCg,
 			DS:       dsCg,
@@ -285,10 +268,6 @@ func (cg *Configurations) ConfigureApp(file string) {
 
 func (cg *Configurations) ConfigureDB(file string) {
 	Configure(cg.DB, file)
-}
-
-func (cg *Configurations) ConfigureRWDB(file string) {
-	Configure(cg.RWDB, file)
 }
 
 func (cg *Configurations) ConfigureRedis(file string) {

@@ -19,13 +19,13 @@ import (
 	"reflect"
 	"sync"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/config"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/stat"
-	sbase "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/stat/base"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/system_metric"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/logging"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
+	"DT-Go/infra/rate/sentinel/core/base"
+	"DT-Go/infra/rate/sentinel/core/config"
+	"DT-Go/infra/rate/sentinel/core/stat"
+	sbase "DT-Go/infra/rate/sentinel/core/stat/base"
+	"DT-Go/infra/rate/sentinel/core/system_metric"
+	"DT-Go/infra/rate/sentinel/logging"
+	"DT-Go/infra/rate/sentinel/util"
 	"github.com/pkg/errors"
 )
 

@@ -12,7 +12,7 @@ import (
 	"net"
 	"os"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	dt "DT-Go"
 	"github.com/sony/sonyflake"
 
 	"github.com/yitter/idgenerator-go/idgen"

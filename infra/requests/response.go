@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/errors"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
+	"DT-Go/errors"
+	"DT-Go/utils"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 )

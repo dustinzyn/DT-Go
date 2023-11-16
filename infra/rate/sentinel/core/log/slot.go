@@ -15,7 +15,7 @@
 package log
 
 import (
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
+	"DT-Go/infra/rate/sentinel/core/base"
 )
 
 const (

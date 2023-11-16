@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"strings"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	dt "DT-Go"
 	"gorm.io/gorm"
 )
 

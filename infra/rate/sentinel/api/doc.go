@@ -21,7 +21,7 @@
 //
 // Here is the example code to use Sentinel:
 //
-//	import sentinel "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/api"
+//	import sentinel "DT-Go/infra/rate/sentinel/api"
 //
 //	err := sentinel.InitDefault()
 //	if err != nil {

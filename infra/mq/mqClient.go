@@ -4,21 +4,30 @@ package mqclient
 import (
 	"strconv"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
-	msqclient "devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-mq-go"
+	dt "DT-Go"
 )
 
 //go:generate mockgen -package mock_infra -source protonMqClient.go -destination ./mock/protonmq_mock.go
 
+type NewClienFunc func(pubServer string, pubPort int, subServer string, subPort int) MQClient
+
+// mq client factory
+var mqcFactory map[string]NewClienFunc
+
+type MsgHandler func([]byte) error
+
 func init() {
+	mqcFactory = make(map[string]NewClienFunc, 5)
+	mqcFactory["nsq"] = NewNSQClient
+	mqcFactory["kafka"] = NewKafkaClient
 	dt.Prepare(func(initiator dt.Initiator) {
-		initiator.BindInfra(false, initiator.IsPrivate(), func() *ProtonMQClientImpl {
-			return &ProtonMQClientImpl{}
+		initiator.BindInfra(false, initiator.IsPrivate(), func() *MQClientImpl {
+			return &MQClientImpl{}
 		})
 	})
 }
 
-type ProtonMQClient interface {
+type MQClient interface {
 	// Pub send a message to the specified topic of msq
 	Pub(topic string, msg []byte) error
 	// Sub start consumers to subscribe and process message from specified topic/channel from the msg, the call would run
@@ -28,18 +37,17 @@ type ProtonMQClient interface {
 	Close()
 }
 
-type ProtonMQClientImpl struct {
+type MQClientImpl struct {
 	dt.Infra
 	producerHost  string
 	producerPort  int
 	consumerHost  string
 	consumerPort  int
 	connectorType string
-	mqClient      msqclient.ProtonMQClient
+	mqClient      MQClient
 }
 
-func (mq *ProtonMQClientImpl) newClient() {
-	var err error
+func (mq *MQClientImpl) newClient() {
 	cg := dt.NewConfiguration()
 	mq.producerHost = cg.MQ.ProducerHost
 	producerPort := cg.MQ.ProducerPort
@@ -52,33 +60,33 @@ func (mq *ProtonMQClientImpl) newClient() {
 	mq.consumerPort = cport
 
 	mq.connectorType = cg.MQ.ConnectType
-	mq.mqClient, err = msqclient.NewProtonMQClient(
-		mq.producerHost, mq.producerPort,
-		mq.consumerHost, mq.consumerPort,
-		mq.connectorType,
-	)
-	if err != nil {
-		panic(err)
+
+	// create mq client for specified mq type
+	if fn, ok := mqcFactory[mq.connectorType]; ok {
+		mq.mqClient = fn(mq.producerHost, mq.producerPort, mq.consumerHost, mq.consumerPort)
+		return
+	} else {
+		panic("not supported mq type: " + mq.connectorType)
 	}
 }
 
-func (mq *ProtonMQClientImpl) BeginRequest(worker dt.Worker) {
+func (mq *MQClientImpl) BeginRequest(worker dt.Worker) {
 	mq.newClient()
 	mq.Infra.BeginRequest(worker)
 }
 
-func (mq *ProtonMQClientImpl) Begin() {
+func (mq *MQClientImpl) Begin() {
 	mq.newClient()
 }
 
-func (mq *ProtonMQClientImpl) Pub(topic string, msg []byte) error {
+func (mq *MQClientImpl) Pub(topic string, msg []byte) error {
 	return mq.mqClient.Pub(topic, msg)
 }
 
-func (mq *ProtonMQClientImpl) Sub(topic string, channel string, handler func([]byte) error, pollIntervalMilliseconds int64, maxInFlight int) error {
+func (mq *MQClientImpl) Sub(topic string, channel string, handler func([]byte) error, pollIntervalMilliseconds int64, maxInFlight int) error {
 	return mq.mqClient.Sub(topic, channel, handler, pollIntervalMilliseconds, maxInFlight)
 }
 
-func (mq *ProtonMQClientImpl) Close() {
+func (mq *MQClientImpl) Close() {
 	mq.mqClient.Close()
 }

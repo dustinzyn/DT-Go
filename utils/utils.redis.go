@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/config"
+	dt "DT-Go"
+	"DT-Go/config"
 	redis "github.com/go-redis/redis/v8"
 )
 

@@ -15,8 +15,8 @@
 package flow
 
 import (
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/base"
-	metric_exporter "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/exporter/metric"
+	"DT-Go/infra/rate/sentinel/core/base"
+	metric_exporter "DT-Go/infra/rate/sentinel/exporter/metric"
 )
 
 var (

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/dhttp"
+	"DT-Go/infra/dhttp"
 
 	redis "github.com/go-redis/redis/v8"
 )

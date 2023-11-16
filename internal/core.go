@@ -1,10 +1,10 @@
 package internal
 
 import (
-	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 	redis "github.com/go-redis/redis/v8"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
+	"gorm.io/gorm"
 )
 
 type Initiator interface {
@@ -33,7 +33,7 @@ type Starter interface {
 	// Sync cache warm-up
 	CachePreheat(f func(repo *Repository))
 	GetSingleInfra(com interface{}) bool
-	Db() *sqlx.DB
+	Db() *gorm.DB
 	Redis() redis.Cmdable
 }
 

@@ -3,7 +3,7 @@ package middleware
 import (
 	"strings"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	dt "DT-Go"
 )
 
 // NewBusFilter .

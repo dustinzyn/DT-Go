@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"strings"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/errors"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/dhttp"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/internal"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
+	dt "DT-Go"
+	"DT-Go/errors"
+	"DT-Go/infra/dhttp"
+	"DT-Go/internal"
+	"DT-Go/utils"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 )

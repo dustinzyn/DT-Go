@@ -17,7 +17,7 @@ package circuitbreaker
 import (
 	"fmt"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
+	"DT-Go/infra/rate/sentinel/util"
 )
 
 // Strategy represents the strategy of circuit breaker.

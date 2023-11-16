@@ -9,7 +9,7 @@ import (
 	redis "github.com/go-redis/redis/v8"
 	iris "github.com/kataras/iris/v12"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/dhttp"
+	"DT-Go/infra/dhttp"
 )
 
 type Repository struct {

@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"sync"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	dt "DT-Go"
 	"github.com/kataras/golog"
 )
 

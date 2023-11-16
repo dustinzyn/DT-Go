@@ -19,9 +19,9 @@ import (
 	"os"
 	"time"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/ext/datasource"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/logging"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/util"
+	"DT-Go/infra/rate/sentinel/ext/datasource"
+	"DT-Go/infra/rate/sentinel/logging"
+	"DT-Go/infra/rate/sentinel/util"
 	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
 )

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/utils"
+	"DT-Go/utils"
 )
 
 var (

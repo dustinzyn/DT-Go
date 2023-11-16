@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"time"
 
-	dt "devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go"
+	dt "DT-Go"
 
 	redis "github.com/go-redis/redis/v8"
 	"golang.org/x/sync/singleflight"

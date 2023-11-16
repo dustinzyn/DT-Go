@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/proton-rds-sdk-go/sqlx"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/agiledragon/gomonkey/v2"
 	redis "github.com/go-redis/redis/v8"
@@ -20,7 +19,6 @@ import (
 var (
 	dbOnce     sync.Once
 	gormDBMock *gorm.DB
-	sqlDBMock  *sqlx.DB
 	sqlMock    sqlmock.Sqlmock
 )
 
@@ -41,7 +39,6 @@ type UnitTest interface {
 	SetRequest(request *http.Request)
 	InjectBaseEntity(entity interface{})
 	NewGormDBMock(repo *Repository) (*gorm.DB, sqlmock.Sqlmock)
-	NewSqlDBMock(repo *Repository) (*sqlx.DB, sqlmock.Sqlmock)
 }
 
 // UnitTestImpl .
@@ -133,7 +130,7 @@ func (u *UnitTestImpl) Run() {
 	logLevel := "debug"
 	u.App().IrisApp.Logger().SetLevel(logLevel)
 	u.App().InstallDB(func() interface{} {
-		db, _ := u.dbMock()
+		db, _, _ := sqlmock.New()
 		return db
 	})
 	u.App().InstallRedis(func() (client redis.Cmdable) {
@@ -145,6 +142,7 @@ func (u *UnitTestImpl) Run() {
 	u.App().installDB()
 	// u.App().installDBTable()
 	u.App().comPool.singleBooting(u.App())
+
 	// 等待redisMock启动
 	time.Sleep(time.Duration(500) * time.Millisecond)
 }
@@ -211,43 +209,4 @@ func (u *UnitTestImpl) NewGormDBMock(repo *Repository) (*gorm.DB, sqlmock.Sqlmoc
 		})
 	})
 	return gormDBMock, sqlMock
-}
-
-// NewSqlDBMock return sqlx.DB mock and sqlmock.
-func (u *UnitTestImpl) NewSqlDBMock(repo *Repository) (*sqlx.DB, sqlmock.Sqlmock) {
-	dbOnce.Do(func() {
-		sqlDBMock, sqlMock = u.dbMock()
-
-		// mock Repository FetchDB
-		gomonkey.ApplyMethodFunc(repo, "FetchDB", func(db interface{}) error {
-			value := reflect.ValueOf(db)
-			if value.Kind() != reflect.Ptr {
-				panic("db error")
-			}
-			value = value.Elem()
-			srvValue := reflect.ValueOf(sqlDBMock)
-			if value.Type() == srvValue.Type() {
-				value.Set(srvValue)
-			} else {
-				txMock, _ := sqlDBMock.Begin()
-				txValue := reflect.ValueOf(txMock)
-				if value.Type() == txValue.Type() {
-					value.Set(txValue)
-				}
-			}
-			u.App().Logger().Infof("patch repo.Repository FetchDB...")
-			return nil
-		})
-	})
-	return sqlDBMock, sqlMock
-}
-
-func (u *UnitTestImpl) dbMock() (*sqlx.DB, sqlmock.Sqlmock) {
-	var err error
-	// 创建 sqlmock 实例
-	sqlDBMock, sqlMock, err = sqlx.New()
-	if err != nil {
-		panic(err)
-	}
-	return sqlDBMock, sqlMock
 }

@@ -8,8 +8,8 @@ import (
 	"github.com/kataras/iris/v12/hero"
 	"github.com/kataras/iris/v12/mvc"
 
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/config"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/internal"
+	"DT-Go/config"
+	"DT-Go/internal"
 )
 
 var (

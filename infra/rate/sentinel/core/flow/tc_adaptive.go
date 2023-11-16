@@ -1,8 +1,8 @@
 package flow
 
 import (
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/core/system_metric"
-	"devops.aishu.cn/AISHUDevOps/AnyShareFamily/_git/DT-Go/infra/rate/sentinel/logging"
+	"DT-Go/infra/rate/sentinel/core/system_metric"
+	"DT-Go/infra/rate/sentinel/logging"
 )
 
 // MemoryAdaptiveTrafficShapingCalculator is a memory adaptive traffic shaping calculator
